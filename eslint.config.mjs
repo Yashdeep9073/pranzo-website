@@ -1,6 +1,12 @@
-// @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs'
+import js from '@eslint/js'
+import nuxt from '@nuxt/eslint-config'
 
-export default withNuxt(
-  // Your custom configs here
-)
+export default [
+  js.configs.recommended,
+  ...nuxt(),
+  {
+    rules: {
+      'vue/multi-word-component-names': 'off'
+    }
+  }
+]

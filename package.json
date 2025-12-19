@@ -10,17 +10,36 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@apollo/client": "^3.9.9",
+    "@headlessui/vue": "^1.7.23",
     "@nuxt/eslint": "^1.11.0",
     "@nuxt/hints": "^1.0.0-alpha.2",
     "@nuxt/image": "^2.0.0",
     "@nuxt/scripts": "^0.13.0",
     "@nuxt/test-utils": "^3.20.1",
     "@nuxt/ui": "^4.2.1",
+    "@phosphor-icons/vue": "^2.2.1",
+    "@pinia/nuxt": "^0.11.3",
+    "@popperjs/core": "^2.11.8",
     "@unhead/vue": "^2.0.19",
+    "@urql/vue": "^2.0.0",
+    "@vueuse/core": "^14.1.0",
+    "@vueuse/nuxt": "^14.1.0",
+    "aos": "^2.3.4",
+    "bootstrap": "^5.3.8",
     "eslint": "^9.39.1",
+    "graphql": "^16.12.0",
+    "graphql-tag": "^2.12.6",
     "nuxt": "^4.2.1",
-    "typescript": "^5.9.3",
-    "vue": "^3.5.25",
-    "vue-router": "^4.6.3"
+    "pinia": "^3.0.4",
+    "swiper": "^12.0.3",
+    "vue-router": "^4.6.3",
+    "vue3-google-login": "^2.0.34",
+    "vue3-select": "^0.1.2",
+    "vuex": "^4.0.2"
+  },
+  "devDependencies": {
+    "@nuxt/typescript-build": "^3.0.2",
+    "typescript": "^5.9.3"
   }
 }
