@@ -17,7 +17,7 @@ import ProductNews from '~/components/productNews.vue'
 
 
 useHead({
-  title: "Shoppinga"  
+  title: "Home"  
 })
 
 // const { data: homeData } = await useFetch(

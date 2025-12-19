@@ -243,7 +243,9 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import CartShop from '~/components/cartShop.vue'
-
+useHead({
+  title: "Profile"  
+})
 // API Endpoints
 const API_BASE_URL = 'https://kartmania-api.vibrantick.org'
 const REGISTER_API = `${API_BASE_URL}/customer/auth/register`

@@ -145,7 +145,7 @@
               </span>
             </button>
 
-            <NuxtLink to="/person/profile" class="flex-align gap-4 item-hover">
+            <NuxtLink to="/profile" class="flex-align gap-4 item-hover">
               <span class="text-xl text-gray-700 d-flex position-relative item-hover__text">
                 <i class="ph-bold ph-user" style="font-size: 20px;"></i>
               </span>

@@ -190,7 +190,9 @@
 import { ref, computed, onMounted } from 'vue'
 import CartBreakcrumb from '~/components/cartBreakcrumb.vue'
 import CartShop from '~/components/cartShop.vue'
-
+useHead({
+  title: "Wishlist"  
+})
 // Cart items data
 const cartItems = ref([
   {

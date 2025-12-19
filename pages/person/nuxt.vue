@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <h1 @click="count++">hey</h1>
 
@@ -33,4 +33,7 @@ function fetchProducts() {
     `API Called => count=${count.value} bounty=${bounty.value} pay=${pay.value}`
   )
 }
-</script>
+</script> -->
+<template>
+  
+</template>

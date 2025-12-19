@@ -28,6 +28,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
+           {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/assets/images/bg/favicon.png'
+        },
         { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' },
         { rel: 'stylesheet', href: '/assets/css/bootstrap.min.css' },
         { rel: 'stylesheet', href: '/assets/css/select2.min.css' },

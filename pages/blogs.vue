@@ -173,6 +173,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 const config = useRuntimeConfig();
+useHead({
+  title: "Blogs"  
+})
 
 // API URL
 const API_URL = config.public.api.blogs;

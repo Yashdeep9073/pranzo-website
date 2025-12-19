@@ -172,7 +172,7 @@
               </li>
               <li class="nav-menu__item">
                 <NuxtLink 
-                  to="/person/seller" 
+                  to="/become-a-seller" 
                   class="nav-menu__link text-heading-two"
                   :class="{ 'active': activeLink === 'seller' }"
                   @click="setActiveLink('seller')"
@@ -182,7 +182,7 @@
               </li>
               <li class="nav-menu__item">
                 <NuxtLink 
-                  to="/person/blog" 
+                  to="/blogs" 
                   class="nav-menu__link text-heading-two"
                   :class="{ 'active': activeLink === 'blog' }"
                   @click="setActiveLink('blog')"

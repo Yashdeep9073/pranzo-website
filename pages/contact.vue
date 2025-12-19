@@ -175,6 +175,9 @@
 import { ref, reactive } from 'vue'
 import CartShop from '~/components/cartShop.vue'
 const config = useRuntimeConfig();
+useHead({
+  title: "Contact-us"  
+})
 // API endpoint
 // const API_URL = 'https://kartmania-api.vibrantick.org/common/contact-us/create'
 const API_URL = config.public.api.contact;

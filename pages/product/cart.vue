@@ -308,7 +308,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from '#app'
 import CartBreakcrumb from '~/components/cartBreakcrumb.vue'
 import CartShop from '~/components/cartShop.vue'
-
+useHead({
+  title: "Cart"  
+})
 const route = useRoute()
 definePageMeta({
   middleware: 'cart'

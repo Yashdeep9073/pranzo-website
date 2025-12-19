@@ -721,7 +721,9 @@ import { toKebabCase } from "../../utlis/toKebabCase"
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useProductStore } from '../../store/useProductStore'
 import { encodeId } from "../../utlis/encode"
-
+useHead({
+  title: "Shop for you"  
+})
 const productStore = useProductStore()
 
 // Local state

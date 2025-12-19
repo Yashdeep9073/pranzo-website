@@ -6,7 +6,9 @@ import SellerCounter from '~/components/sellerCounter.vue';
 import SellerStep from '~/components/sellerStep.vue';
 import SellerTestimonials from '~/components/sellerTestimonials.vue';
 import WhySeller from '~/components/whySeller.vue';
-
+useHead({
+  title: "seller"
+})
 </script>
 
 <template>
