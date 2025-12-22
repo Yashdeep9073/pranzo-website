@@ -20,7 +20,7 @@
         </div>
         <h4 class="text-2xl fw-bold text-gray-800 mb-16">Your cart is empty</h4>
         <p class="text-gray-600 mb-32">Add some products to your cart to see them here</p>
-        <NuxtLink to="/products" class="btn btn-main py-16 px-32 rounded-8">
+        <NuxtLink to="/product/shop-all" class="btn btn-main py-16 px-32 rounded-8">
           <i class="ph ph-shopping-bag me-2"></i> Continue Shopping
         </NuxtLink>
       </div>
@@ -64,7 +64,7 @@
                     <td>
                       <div class="table-product d-flex align-items-center gap-24">
                         <NuxtLink 
-                          :to="`/product/prode`" 
+                          :to="`/product/${item.name}--${item.groupIid}`" 
                           class="table-product__thumb border border-gray-100 rounded-8 flex-center"
                           style="width: 100px; height: 100px;"
                         >
@@ -85,14 +85,16 @@
                           </h6>
 
                           <!-- Variant Info -->
-                          <div v-if="item.color || item.size" class="flex-align gap-12 mb-12">
-                            <span v-if="item.color" class="badge bg-blue-100 text-blue-800 border border-blue-200">
-                              Color: {{ item.color }}
-                            </span>
-                            <span v-if="item.size" class="badge bg-green-100 text-green-800 border border-green-200">
-                              Size: {{ item.size }}
-                            </span>
-                          </div>
+                         <div v-if="item.color || item.size" class="variant-info flex-align gap-10 mb-10">
+  <span v-if="item.color" class="variant-chip">
+    Color: {{ item.color }}
+  </span>
+
+  <span v-if="item.size" class="variant-chip">
+    Size: {{ Array.isArray(item.size) ? item.size.join(', ') : item.size }}
+  </span>
+</div>
+
 
                           <div class="flex-align gap-16 mb-16">
                             <div class="flex-align gap-6">
@@ -315,6 +317,7 @@ const route = useRoute()
 definePageMeta({
   middleware: 'cart'
 })
+
 // State
 const cartItems = ref([])
 const loading = ref(true)
@@ -531,6 +534,28 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+  .variant-info {
+  font-size: 13px;
+}
+
+.variant-chip {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f7f7f7;
+  color: #111;                 /* BLACK TEXT  */
+  font-weight: 500;
+  border: 1px solid #e5e5e5;
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.variant-chip:hover {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
 /* Custom styles */
 .cart-table {
   background-color: #fff;

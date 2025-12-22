@@ -6,7 +6,6 @@
         <div class="spinner-border text-main-600" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="mt-20 text-gray-600">Blogs load ho rahe hain...</p>
       </div>
 
       <!-- Error State -->
@@ -28,7 +27,7 @@
           <div class="blog-item-wrapper">
             <div v-for="(post, index) in paginatedBlogPosts" :key="post.slug" class="blog-item"
               :class="{ 'mb-40': index < paginatedBlogPosts.length - 1 }">
-              <NuxtLink :to="`/blog/${post.slug}`" class="w-100 h-100 rounded-16 overflow-hidden block">
+              <NuxtLink :to="`/person/${post.slug}`" class="w-100 h-100 rounded-16 overflow-hidden block">
                 <img :src="post.image" :alt="post.title" class="cover-img w-100" loading="lazy"
                   @error="handleImageError" />
               </NuxtLink>
@@ -37,7 +36,7 @@
                   {{ post.category }}
                 </span>
                 <h6 class="text-2xl mb-24">
-                  <NuxtLink :to="`/blog/${post.slug}`" class="text-neutral-900 hover-text-main-600">
+                  <NuxtLink :to="`/person${post.slug}`" class="text-neutral-900 hover-text-main-600">
                     {{ post.title }}
                   </NuxtLink>
                 </h6>
@@ -158,7 +157,7 @@
               </li>
             </ul>
           </div>
-
+                         
           <!-- No Categories Message -->
           <div v-else class="blog-sidebar border border-gray-100 rounded-8 p-32 mb-40">
             <h6 class="text-xl mb-32 pb-32 border-bottom border-gray-100">Categories</h6>

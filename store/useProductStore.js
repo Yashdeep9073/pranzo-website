@@ -134,7 +134,9 @@ export const useProductStore = defineStore('productStore', () => {
     }
     return null
   }
-
+const getDescription = (product)=>{
+  return product.mainProduct
+}
   const getProductBrand = (product) => {
     return product.brand?.name || null
   }
@@ -198,7 +200,7 @@ export const useProductStore = defineStore('productStore', () => {
       }
       const firstImage = mainImages[0]?.imageUrl
       if (firstImage) {
-        return firstImage
+        return firstImage  
       }
     }
 
@@ -207,7 +209,7 @@ export const useProductStore = defineStore('productStore', () => {
       const primaryVariantImage = variantImages.find(img => img.isPrimary === true)
       if (primaryVariantImage?.imageUrl) {
         return primaryVariantImage.imageUrl
-      }
+      } 
       const firstVariantImage = variantImages[0]?.imageUrl
       if (firstVariantImage) {
         return firstVariantImage
@@ -224,6 +226,29 @@ export const useProductStore = defineStore('productStore', () => {
   const getProductName = (product) => {
     return product.name || product.mainProduct?.name || 'Unnamed Product'
   }
+const ProductSize = (product) => {
+  if (!product?.variants) return []
+
+  return [
+    ...new Set(
+      product.variants
+        .map(v => v?.attributes?.[0]?.size)
+        .filter(Boolean)
+    )
+  ]
+}
+const ProductColor = (product) => {
+  if (!product?.variants) return []
+
+  return [
+    ...new Set(
+      product.variants
+        .map(v => v?.attributes?.[0]?.color)
+        .filter(Boolean)
+    )
+  ]
+}
+
 
   const getProductCategory = (product) => {
     return product.category?.name || null
@@ -545,6 +570,7 @@ export const useProductStore = defineStore('productStore', () => {
               name
               price
               discountValue
+              description
               stock
               popularity
               createdAt
@@ -914,6 +940,8 @@ export const useProductStore = defineStore('productStore', () => {
     getProductImage,
     getProductStock,
     getProductName,
+    ProductSize,
+    ProductColor,
     getProductCategory,
     getProductId
   }

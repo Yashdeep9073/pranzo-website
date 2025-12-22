@@ -528,7 +528,7 @@
                           New
                         </span>
                       </div>
-                      
+                      </NuxtLink>
                       <!-- Quick Actions -->   
                       <div class="product-actions">
                         <button @click="addToWishlist(product)" title="Add to Wishlist" :disabled="isLoading">
@@ -538,11 +538,12 @@
                           <i class="ph ph-eye"></i>
                         </button>
                       </div>
-                    </NuxtLink>
+                    
                   </div>
                   
                   <!-- Product Info -->
                   <div class="product-info">
+                   
                     <div class="product-meta">
                       <span class="product-category">{{ getProductCategory(product) || 'General' }}</span>
                       <span v-if="getProductBrand(product)" class="product-brand">
@@ -550,23 +551,42 @@
                       </span>
                     </div>
                       
-                    <div class="product-title-section">
-                      <NuxtLink :to="getProductLink(product)">
-                        <h3>{{ truncateText(getProductName(product), 50) }}</h3>
-                    
-                        <!-- Color and Size Info -->
-                        <div v-if="getProductColor(product) || getProductSize(product)" class="variant-info">
-                          <div>
-                            <span v-if="getProductColor(product)" 
-                                  class="color-indicator-sm"
-                                  :style="{ backgroundColor: getColorHex(getProductColor(product)) }"
-                            ></span>
-                            <span v-if="getProductColor(product)">{{ getProductColor(product) }}</span>
-                            <span v-if="getProductSize(product)">Size: {{ getProductSize(product) }}</span>
-                          </div>
-                        </div>
-                      </NuxtLink>
-                    </div>
+                   <div class="product-title-section">
+  <NuxtLink :to="getProductLink(product)" class="product-link">
+    
+    <!-- Product Name -->
+    <h3 class="product-title">
+      {{ truncateText(getProductName(product), 50) }}
+    </h3>
+
+    <!-- Product Description -->
+    <p class="product-description">
+      {{ product.mainProduct.description }}
+    </p>
+
+    <!-- Variant Info -->
+    <div 
+      v-if="getProductColor(product) || getProductSize(product)" 
+      class="variant-info"
+    >
+      <!-- Color -->
+      <span v-if="getProductColor(product)" class="variant-chip">
+        <span 
+          class="color-dot"
+          :style="{ backgroundColor: getColorHex(getProductColor(product)) }"
+        ></span>
+        {{ getProductColor(product) }}
+      </span>
+
+      <!-- Size -->
+      <span v-if="getProductSize(product)" class="variant-chip size-chip">
+        Size {{ getProductSize(product) }}
+      </span>
+    </div>
+
+  </NuxtLink>
+</div>
+
                     
                     <!-- Rating -->
                     <div class="product-rating">
@@ -721,16 +741,22 @@ import { toKebabCase } from "../../utlis/toKebabCase"
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
 import { useProductStore } from '../../store/useProductStore'
 import { encodeId } from "../../utlis/encode"
+import { useWishlistStore } from '../../store/useWishlistStore'
+import { toast } from 'vue3-toastify'
+
+// Import wishlist store
+const wishlistStore = useWishlistStore()
+
 useHead({
   title: "Shop for you"  
 })
 const productStore = useProductStore()
 
+
 // Local state
 const viewMode = ref('grid')
 const showMobileSidebar = ref(false)
 const isSortDropdownOpen = ref(false)
-const wishlist = ref([])
 const showInitialLoading = ref(true)
 const priceRange = ref({ min: 0, max: 50000 })
 
@@ -754,7 +780,7 @@ const pagination = computed(() => productStore.pagination)
 const filters = computed(() => productStore.filters)
 const hasActiveFilters = computed(() => productStore.hasActiveFilters)
 const defaultMaxPrice = computed(() => productStore.defaultMaxPrice || 50000)
-
+const description = computed(()=>productStore.getDescription)
 const isPriceFilterApplied = computed(() => {
   const f = filters.value
   return f.minPrice > 0 || f.maxPrice < defaultMaxPrice.value
@@ -896,7 +922,7 @@ const applyPriceFilter = async () => {
     minPrice: Math.min(priceRange.value.min, priceRange.value.max),
     maxPrice: Math.max(priceRange.value.min, priceRange.value.max)
   }
-  
+     
   if (newFilters.minPrice > newFilters.maxPrice) {
     const temp = newFilters.minPrice
     newFilters.minPrice = newFilters.maxPrice
@@ -1029,26 +1055,50 @@ const closeMobileSidebar = () => {
   document.body.classList.remove('no-scroll')
 }
 
-// Wishlist & Cart
+// Wishlist & Cart - CORRECTED FUNCTIONS
 const addToWishlist = (product) => {
-  const index = wishlist.value.findIndex(item => 
-    item.groupId === product.groupId || 
-    item.mainProduct?.id === product.mainProduct?.id
-  )
-  if (index > -1) {
-    wishlist.value.splice(index, 1)
-    showToast('Removed from wishlist')
-  } else {
-    wishlist.value.push(product)
-    showToast('Added to wishlist')
+  try {
+    console.log(product)
+    const wasInWishlist = wishlistStore.hasProduct(product)
+    wishlistStore.toggleItem(product)
+        if (wasInWishlist) {
+      toast.info('Removed from wishlist',{
+         position: 'top-center',
+   autoClose: 1500,       
+  hideProgressBar: true, 
+  closeButton: false,   
+  pauseOnHover: false,  
+    theme: "dark",
+
+  draggable: false 
+      })
+    } else {
+toast.success('Added to wishlist', {
+  position: 'top-center',
+   autoClose: 1500,       
+  hideProgressBar: true, 
+  closeButton: false,   
+  pauseOnHover: false, 
+    theme: "dark",
+ 
+  draggable: false 
+
+})    }
+
+  } catch (error) {
+    console.error('Error toggling wishlist:', error)
+    toast.error('Error updating wishlist')
   }
 }
-
 const isInWishlist = (product) => {
-  return wishlist.value.some(item => 
-    item.groupId === product.groupId || 
-    item.mainProduct?.id === product.mainProduct?.id
-  )
+  try {
+    // Use the correct function name from your wishlistStore
+    // If your store has hasProduct function, use that
+    return wishlistStore.hasProduct(product)
+  } catch (error) { 
+    console.error('Error checking wishlist:', error)
+    return false
+  }
 }
 
 const addToCart = (product) => {
@@ -1103,6 +1153,75 @@ onBeforeUnmount(() => {
 <style scoped>
 /* All styles remain the same as your original file */
 /* Skeleton Styles */
+.product-title-section {
+  padding: 8px 0;
+}
+
+.product-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* Title */
+.product-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  color: #111;
+}
+
+/* Description (2 line clamp) */
+.product-description {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 6px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Variant Info */
+.variant-info {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Chips */
+.variant-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #444;
+}
+
+/* Color Dot */
+.color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
+/* Size chip subtle */
+.size-chip {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.Toastify__toast {
+  padding: 4px 10px !important;
+  font-size: 12px;
+}
 .skeleton-container {
   min-height: 100vh;
   background: white;

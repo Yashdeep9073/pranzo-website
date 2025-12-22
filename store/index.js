@@ -1,6 +1,4 @@
-// Nuxt में यह file automatic load हो जाती है
 export const state = () => ({
-  // Global state यहाँ define करें (optional)
 })
 
 export const mutations = {

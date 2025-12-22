@@ -53,7 +53,7 @@
           </li>
 
           <!-- Language Selector -->
-          <li class="on-hover-item has-submenu arrow-white">
+          <!-- <li class="on-hover-item has-submenu arrow-white">
             <a href="javascript:void(0)" class="selected-text text-white text-sm py-8">Eng</a>
             <ul class="selectable-text-list on-hover-dropdown common-dropdown common-dropdown--sm max-h-200 scroll-sm px-0 py-8">
               <li>
@@ -93,10 +93,10 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li> -->
 
           <!-- Currency Selector -->
-          <li class="on-hover-item has-submenu arrow-white">
+          <!-- <li class="on-hover-item has-submenu arrow-white">
             <a href="javascript:void(0)" class="selected-text text-white text-sm py-8">USD</a>
             <ul class="selectable-text-list on-hover-dropdown common-dropdown common-dropdown--sm max-h-200 scroll-sm px-0 py-8">
               <li>
@@ -136,7 +136,7 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li> -->
         </ul>
       </div>
     </div>

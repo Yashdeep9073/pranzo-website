@@ -108,24 +108,37 @@
                 <span class="mt-32 pt-32 text-gray-700 border-top border-gray-100 d-block"></span>
                 <p class="text-gray-700">{{ mainProduct.description }}</p>
                 
-                <!-- Color Selection -->
-                <div v-if="availableColors.length > 0" class="mt-32">
+                <!-- Color Selection images instead of color circles -->
+                <div v-if="availableColorsWithImages.length > 0" class="mt-32">
                   <span class="text-gray-900 d-block mb-8 fw-semibold">Color:</span>
-                  <div class="flex-align flex-wrap gap-12">
+                  <div class="flex-align flex-wrap gap-16"> 
                     <div 
-                      v-for="color in availableColors" 
-                      :key="color"
-                      @click="selectColor(color)"
-                      :class="[
-                        'color-option w-40 h-40 rounded-full border-2 cursor-pointer transition-all duration-300 flex-center',
-                        selectedColor === color 
-                          ? 'border-main-600 scale-110 shadow-lg' 
-                          : 'border-gray-300 hover:border-gray-400'
-                      ]"
-                      :style="{ backgroundColor: getColorCode(color) }"
-                      :title="color"
+                      v-for="color in availableColorsWithImages" 
+                      :key="color.name"
+                      @click="selectColor(color.name)"
+                      class="flex flex-col items-center cursor-pointer"
                     >
-                      <i v-if="selectedColor === color" class="ph-fill ph-check text-white text-sm"></i>
+                      <div
+                        :class="[
+                          'color-option w-48 h-48 rounded-lg border-2 transition-all duration-300 overflow-hidden relative',
+                          selectedColor === color.name 
+                            ? 'border-main-600 scale-110 shadow-lg ring-2 ring-main-600 ring-offset-2' 
+                            : 'border-gray-300 hover:border-gray-400 hover:scale-105'
+                        ]"
+                        :title="color.name"
+                      >
+                        <!--  image of this color variant -->
+                        <img 
+                          :src="color.imageUrl" 
+                          :alt="color.name"
+                          class="w-full h-full object-cover"
+                        />
+                        <div v-if="selectedColor === color.name" 
+                             class="absolute top-2 right-2 bg-main-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
+                          <i class="ph-fill ph-check text-xs"></i>
+                        </div>
+                      </div>
+                      <span class="text-xs text-gray-700 mt-2 font-medium">{{ color.name }}</span>
                     </div>
                   </div>
                 </div>
@@ -146,7 +159,7 @@
                       v-for="size in availableSizes" 
                       :key="size"
                       @click="selectSize(size)"
-                      :class="[
+                      :class="[ 
                         'size-option px-20 py-12 rounded-lg border cursor-pointer transition-all duration-300 text-center min-w-60',
                         selectedSize === size 
                           ? 'bg-main-600 text-white border-main-600' 
@@ -291,6 +304,7 @@
                       <i class="ph ph-shopping-cart text-lg"></i>
                       {{ (selectedVariant?.stock || mainProduct.stock) <= 0 ? 'Out of Stock' : 'Add To Cart' }}
                     </button> 
+                    
 
                   </div>
 
@@ -763,8 +777,13 @@
                     <!-- Basic Attributes -->
                     <div class="space-y-3">
                       <div class="flex items-center gap-3">
-                        <span class="w-20 h-20 rounded-full border border-gray-300" 
-                              :style="{ backgroundColor: getColorCode(selectedVariant.color) }"></span>
+                        <div class="w-20 h-20 rounded-lg overflow-hidden border border-gray-300">
+                          <img 
+                            :src="getColorFirstImage(selectedVariant.color)" 
+                            :alt="selectedVariant.color"
+                            class="w-full h-full object-cover"
+                          />
+                        </div>
                         <div>
                           <span class="text-gray-500 text-sm">Color:</span>
                           <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.color }}</span>
@@ -1067,6 +1086,7 @@ const styleGroupId = computed(() => {
   return slug.split('--')[1] || null
 })
 // State 
+const groupID = ref(0)
 const thumbsSwiper = ref(null)
 const mainSwiper = ref(null)
 const quantity = ref(1)
@@ -1102,13 +1122,35 @@ const mainImages = ref([])
 const thumbnailImages = ref([])
 
 // Computed Properties
-const availableColors = computed(() => {
-  const colors = new Set()
+// NEW: Get colors with their first images
+const availableColorsWithImages = computed(() => {
+  const colorsMap = new Map();
+  
   variants.value.forEach(variant => {
-    if (variant.color) colors.add(variant.color)
-  })
-  return Array.from(colors)
-})
+    if (variant.color && variant.images && variant.images.length > 0) {
+      if (!colorsMap.has(variant.color)) {
+        colorsMap.set(variant.color, {
+          name: variant.color,
+          imageUrl: variant.images[0].imageUrl,
+          hexCode: getColorCode(variant.color)
+        });
+      }
+    }
+  });
+  
+  // Fallback for colors without images
+  variants.value.forEach(variant => {
+    if (variant.color && !colorsMap.has(variant.color)) {
+      colorsMap.set(variant.color, {
+        name: variant.color,
+        imageUrl: getColorPlaceholder(variant.color),
+        hexCode: getColorCode(variant.color)
+      });
+    }
+  });
+  
+  return Array.from(colorsMap.values());
+});
 
 const availableSizes = computed(() => {
   const sizes = new Set()
@@ -1117,6 +1159,48 @@ const availableSizes = computed(() => {
   })
   return Array.from(sizes)
 })
+
+// Helper function to get first image for a color
+const getColorFirstImage = (colorName) => {
+  const colorVariant = variants.value.find(variant => 
+    variant.color === colorName && 
+    variant.images && 
+    variant.images.length > 0
+  );
+  
+  if (colorVariant?.images[0]?.imageUrl) {
+    return colorVariant.images[0].imageUrl;
+  }
+  
+  // Fallback to color placeholder
+  return getColorPlaceholder(colorName);
+};
+
+// Color placeholder function
+const getColorPlaceholder = (colorName) => {
+  const colorMap = {
+    'blue': 'https://via.placeholder.com/150/3b82f6/FFFFFF?text=Blue',
+    'red': 'https://via.placeholder.com/150/ef4444/FFFFFF?text=Red',
+    'green': 'https://via.placeholder.com/150/10b981/FFFFFF?text=Green',
+    'yellow': 'https://via.placeholder.com/150/f59e0b/000000?text=Yellow',
+    'purple': 'https://via.placeholder.com/150/8b5cf6/FFFFFF?text=Purple',
+    'pink': 'https://via.placeholder.com/150/ec4899/FFFFFF?text=Pink',
+    'black': 'https://via.placeholder.com/150/000000/FFFFFF?text=Black',
+    'white': 'https://via.placeholder.com/150/FFFFFF/000000?text=White',
+    'gray': 'https://via.placeholder.com/150/6b7280/FFFFFF?text=Gray',
+    'orange': 'https://via.placeholder.com/150/f97316/FFFFFF?text=Orange',
+    'navy': 'https://via.placeholder.com/150/1e3a8a/FFFFFF?text=Navy',
+    'maroon': 'https://via.placeholder.com/150/991b1b/FFFFFF?text=Maroon',
+    'teal': 'https://via.placeholder.com/150/0d9488/FFFFFF?text=Teal',
+    'cyan': 'https://via.placeholder.com/150/06b6d4/FFFFFF?text=Cyan',
+    'brown': 'https://via.placeholder.com/150/92400e/FFFFFF?text=Brown'
+  };
+  
+  if (!colorName) return 'https://via.placeholder.com/150/6b7280/FFFFFF?text=Color';
+  
+  const normalizedColor = colorName.toLowerCase().trim();
+  return colorMap[normalizedColor] || 'https://via.placeholder.com/150/6b7280/FFFFFF?text=Color';
+};
 
 // Cart Functions - UPDATED FOR LIVE UPDATES
 const loadCartFromStorage = () => {
@@ -1150,7 +1234,7 @@ const saveCartToStorage = (cart) => {
     loadCartFromStorage() // Update cart summary
   } catch (error) {
     console.error('Error saving cart to storage:', error)
-  }
+  } 
 }
 
 const addToCart = () => {
@@ -1184,6 +1268,7 @@ const addToCart = () => {
         productId: product.id,
         variantId: selectedVariant.value?.id || null,
         name: mainProduct.value.name,
+        groupIid:groupID.value,
         color: selectedVariant.value?.color || null,
         size: selectedVariant.value?.size || null,
         sku: product.sku,
@@ -1372,7 +1457,10 @@ const fetchProductStyleGroup = async (id) => {
     console.log('API Response:', result)
     
     if (result.message === 'Product style group fetched successfully' && result.data) {
+      groupID.value = result.data.groupId
+     
       mainProduct.value = result.data.mainProduct
+      
       variants.value = result.data.variants || []
       
       // Set default selection to first variant
@@ -1900,7 +1988,8 @@ if (typeof window !== 'undefined') {
 }
 
 .color-option:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* Size Option */
@@ -1926,8 +2015,8 @@ if (typeof window !== 'undefined') {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .color-option {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
   }
   
   .size-option {
@@ -2137,6 +2226,29 @@ if (typeof window !== 'undefined') {
 }
 
 .main-image-slide {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, #24a301 0%, #b64809 100%);
+}
+
+/* Color option styles */
+.color-option {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.color-option img {
+  transition: transform 0.3s ease;
+}
+
+.color-option:hover img {
+  transform: scale(1.1);
+}
+
+.ring-2 {
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.ring-offset-2 {
+  margin: 2px;
 }
 </style>

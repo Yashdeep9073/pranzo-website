@@ -53,7 +53,7 @@
                 <i class="ph-bold ph-magnifying-glass" style="font-size: 20px;"></i>
               </button>
 
-              <!-- Search Results Dropdown - FIXED Z-INDEX -->
+              <!-- Search Results Dropdown -->
               <div v-if="showDropdown && searchResults.length > 0" 
                    class="search-dropdown position-absolute top-100 start-0 end-0 bg-white border border-gray-200 rounded-8 shadow-lg mt-4"
                    style="z-index: 99999 !important;">
@@ -120,7 +120,7 @@
                 </div>
               </div>
 
-              <!-- No Results Message - FIXED Z-INDEX -->
+              <!-- No Results Message -->
               <div v-if="showDropdown && searchQuery && !loading && searchResults.length === 0" 
                    class="search-dropdown position-absolute top-100 start-0 end-0 bg-white border border-gray-200 rounded-8 shadow-lg mt-4"
                    style="z-index: 99999 !important;">
@@ -155,17 +155,27 @@
             <NuxtLink to="/product/wishlist" class="flex-align gap-4 item-hover">
               <span class="text-xl text-gray-700 d-flex position-relative me-6 mt-6 item-hover__text">
                 <i class="ph-bold ph-heart" style="font-size: 20px;"></i>
-                <span class="w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4">{{ wishlistCount }}</span>
+                <span v-if="wishlistCount > 0" class="w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4">{{ wishlistCount }}</span>
               </span>
               <span class="text-md text-heading-three item-hover__text d-none d-lg-flex">Wishlist</span>
             </NuxtLink>
                  
-            <NuxtLink to="/product/cart" class="flex-align gap-4 item-hover">
+            <!-- Cart Link with Dynamic Real-time Count -->
+            <NuxtLink to="/product/cart" class="flex-align gap-4 item-hover relative cart-link">
               <span class="text-xl text-gray-700 d-flex position-relative me-6 mt-6 item-hover__text">
                 <i class="ph-bold ph-shopping-cart" style="font-size: 20px;"></i>
-                <span class="w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4">{{ cartCount }}</span>
+                <!-- Cart Count Badge - REAL-TIME -->
+                <span 
+                  v-if="cartCount > 0"
+                  class="w-16 h-16 flex-center rounded-circle bg-main-600 text-white text-xs position-absolute top-n6 end-n4 cart-badge"
+                  :class="{ 'cart-badge-pulse': badgePulse }"
+                >
+                  {{ cartCount }}
+                </span>
               </span>
-              <span class="text-md text-heading-three item-hover__text d-none d-lg-flex">Cart</span>
+              <span class="text-md text-heading-three item-hover__text d-none d-lg-flex">
+                Cart
+              </span>
             </NuxtLink>
           </div>
         </div>
@@ -285,7 +295,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from '#imports'
 import { toKebabCase } from "../utlis/toKebabCase"
 
@@ -297,15 +307,324 @@ const showDropdown = ref(false)
 const showMobileSearch = ref(false)
 const searchResults = ref([])
 const mobileSearchResults = ref([])
-const wishlistCount = ref(2)
-const cartCount = ref(2)
+const wishlistCount = ref(0)
+const cartCount = ref(0)
 const logoImage = ref('')
 const recentSearches = ref([])
 const mobileSearchInput = ref(null)
+const badgePulse = ref(false)
 
 const router = useRouter()
 
-// Fetch logo from API (ID 13)
+// ==================== REAL-TIME CART SYSTEM ====================
+// (Header mein hi complete system)
+
+// 1. Cart data management functions
+const getCartFromStorage = () => {
+  try {
+    const cartData = localStorage.getItem('shopping_cart')
+    return cartData ? JSON.parse(cartData) : []
+  } catch (error) {
+    console.error('Error reading cart from localStorage:', error)
+    return []
+  }
+}
+
+const calculateCartCount = () => {
+  const cartItems = getCartFromStorage()
+  return cartItems.reduce((total, item) => total + (item.quantity || 1), 0)
+}
+
+const updateCartCount = () => {
+  const newCount = calculateCartCount()
+  if (newCount !== cartCount.value) {
+    cartCount.value = newCount
+    triggerBadgePulse()
+    console.log('Cart count updated:', cartCount.value)
+  }
+}
+
+const updateWishlistCount = () => {
+  try {
+    const wishlistData = localStorage.getItem('wishlist')
+    const wishlistItems = wishlistData ? JSON.parse(wishlistData) : []
+    wishlistCount.value = wishlistItems.length
+  } catch (error) {
+    console.error('Error reading wishlist:', error)
+    wishlistCount.value = 0
+  }
+}
+
+// 2. Event system for real-time updates
+const setupCartEventSystem = () => {
+  console.log('Setting up real-time cart event system...')
+  
+  // A. Listen for localStorage changes (cross-tab)
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'shopping_cart') {
+      console.log('Cart updated in another tab')
+      updateCartCount()
+    }
+    if (event.key === 'wishlist') {
+      console.log('Wishlist updated in another tab')
+      updateWishlistCount()
+    }
+  })
+  
+  // B. Create and listen for custom events (same tab)
+  window.addEventListener('cart-updated', () => {
+    console.log('Cart updated via custom event')
+    updateCartCount()
+  })
+  
+  window.addEventListener('wishlist-updated', () => {
+    console.log('Wishlist updated via custom event')
+    updateWishlistCount()
+  })
+  
+  // C. Polling for changes (fallback mechanism)
+  startPollingForChanges()
+  
+  // D. Global function to update cart from anywhere
+  window.updateCartInHeader = () => {
+    updateCartCount()
+  }
+}
+
+// 3. Polling system (for browsers that don't fire storage events properly)
+let pollingInterval
+const startPollingForChanges = () => {
+  let lastCartData = JSON.stringify(getCartFromStorage())
+  let lastWishlistData = localStorage.getItem('wishlist') || '[]'
+  
+  pollingInterval = setInterval(() => {
+    // Check cart changes
+    const currentCartData = JSON.stringify(getCartFromStorage())
+    if (currentCartData !== lastCartData) {
+      console.log('Cart change detected via polling')
+      lastCartData = currentCartData
+      updateCartCount()
+    }
+    
+    // Check wishlist changes
+    const currentWishlistData = localStorage.getItem('wishlist') || '[]'
+    if (currentWishlistData !== lastWishlistData) {
+      console.log('Wishlist change detected via polling')
+      lastWishlistData = currentWishlistData
+      updateWishlistCount()
+    }
+  }, 500) // Check every 500ms
+}
+
+// 4. Badge animation
+const triggerBadgePulse = () => {
+  badgePulse.value = true
+  setTimeout(() => {
+    badgePulse.value = false
+  }, 500)
+}
+
+// 5. Global cart helper functions (accessible from anywhere)
+const setupGlobalCartHelpers = () => {
+  // Function to add item to cart (can be called from anywhere)
+  window.addItemToCart = (product, quantity = 1) => {
+    const cartItems = getCartFromStorage()
+    const existingIndex = cartItems.findIndex(item => item.id === product.id)
+    
+    if (existingIndex > -1) {
+      // Update quantity if exists
+      cartItems[existingIndex].quantity = (cartItems[existingIndex].quantity || 1) + quantity
+    } else {
+      // Add new item
+      cartItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: quantity,
+        color: product.color,
+        size: product.size,
+        stock: product.stock
+      })
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('shopping_cart', JSON.stringify(cartItems))
+    
+    // Update timestamp for cross-tab sync
+    localStorage.setItem('cart-last-updated', Date.now().toString())
+    
+    // Trigger updates
+    updateCartCount()
+    window.dispatchEvent(new Event('cart-updated'))
+    
+    // Show notification
+    showCartNotification(product.name, quantity)
+    
+    console.log('Item added to cart:', product.name)
+    return cartItems
+  }
+  
+  // Function to remove item from cart
+  window.removeItemFromCart = (productId) => {
+    const cartItems = getCartFromStorage()
+    const newCart = cartItems.filter(item => item.id !== productId)
+    
+    localStorage.setItem('shopping_cart', JSON.stringify(newCart))
+    localStorage.setItem('cart-last-updated', Date.now().toString())
+    
+    updateCartCount()
+    window.dispatchEvent(new Event('cart-updated'))
+    
+    console.log('Item removed from cart:', productId)
+    return newCart
+  }
+  
+  // Function to clear cart
+  window.clearCart = () => {
+    localStorage.setItem('shopping_cart', '[]')
+    localStorage.setItem('cart-last-updated', Date.now().toString())
+    
+    updateCartCount()
+    window.dispatchEvent(new Event('cart-updated'))
+    
+    console.log('Cart cleared')
+  }
+  
+  // Function to get cart items
+  window.getCartItems = () => {
+    return getCartFromStorage()
+  }
+  
+  // Function to get cart count
+  window.getCartItemCount = () => {
+    return calculateCartCount()
+  }
+}
+
+// 6. Notification function
+const showCartNotification = (productName, quantity) => {
+  // Create notification element
+  const notification = document.createElement('div')
+  notification.className = 'cart-notification'
+  notification.innerHTML = `
+    <div class="notification-icon">
+      <i class="ph ph-check-circle"></i>
+    </div>
+    <div class="notification-content">
+      <div class="notification-title">Added to Cart!</div>
+      <div class="notification-text">${quantity}x ${productName}</div>
+    </div>
+    <button class="notification-close">
+      <i class="ph ph-x"></i>
+    </button>
+  `
+  
+  // Add styles
+  const style = document.createElement('style')
+  style.textContent = `
+    .cart-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 999999;
+      animation: slideInRight 0.3s ease;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #10b981;
+      max-width: 350px;
+    }
+    
+    .notification-icon {
+      color: #10b981;
+      font-size: 24px;
+    }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-title {
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+    
+    .notification-text {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .notification-close {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    .notification-close:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  `
+  
+  document.head.appendChild(style)
+  document.body.appendChild(notification)
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease'
+    setTimeout(() => {
+      if (notification.parentNode) document.body.removeChild(notification)
+      if (style.parentNode) document.head.removeChild(style)
+    }, 300)
+  }, 3000)
+  
+  // Manual close
+  const closeBtn = notification.querySelector('.notification-close')
+  closeBtn.addEventListener('click', () => {
+    notification.style.animation = 'slideOutRight 0.3s ease'
+    setTimeout(() => {
+      if (notification.parentNode) document.body.removeChild(notification)
+      if (style.parentNode) document.head.removeChild(style)
+    }, 300)
+  })
+}
+
+// ==================== EXISTING HEADER FUNCTIONS ====================
+
+// Fetch logo from API
 const fetchLogo = async () => {
   try {
     const response = await fetch('https://kartmania-api.vibrantick.org/common/media/read')
@@ -320,14 +639,7 @@ const fetchLogo = async () => {
     console.error('Error fetching logo:', error)
   }
 }
-/* Add to your watch in script for mobile search */
-watch(showMobileSearch, (newVal) => {
-  if (newVal) {
-    document.body.classList.add('mobile-search-open')
-  } else {
-    document.body.classList.remove('mobile-search-open')
-  }
-})
+
 // Fetch all products and search by name
 const fetchProducts = async (query = '') => {
   if (!query.trim()) {
@@ -453,10 +765,10 @@ const getProductImage = (product) => {
   return '/assets/images/thumbs/placeholder.png'
 }
 
-// Select product and navigate - FIXED FUNCTION
-const selectProduct = (product) => {
+// Select product and navigate
+const selectProduct = (product) => { 
   showDropdown.value = false
-  showMobileSearch.value = false
+  showMobileSearch.value = false 
   searchQuery.value = product.name
   
   // Navigate to product page
@@ -524,7 +836,7 @@ const loadRecentSearches = () => {
   }
 }
 
-// Handle input blur - FIXED FUNCTION
+// Handle input blur
 const onInputBlur = () => {
   // Small delay to allow click event to fire
   setTimeout(() => {
@@ -532,9 +844,24 @@ const onInputBlur = () => {
   }, 150)
 }
 
+// Add watch for mobile search state to manage body class
+watch(showMobileSearch, (newVal) => {
+  if (newVal) {
+    document.body.classList.add('mobile-search-open')
+  } else {
+    document.body.classList.remove('mobile-search-open')
+  }
+})
+
 // Initialize
 onMounted(() => {
   fetchLogo()
+  
+  // Initialize cart system
+  updateCartCount()
+  updateWishlistCount()
+  setupCartEventSystem()
+  setupGlobalCartHelpers()
   
   // Add global click handler to close dropdown when clicking outside
   document.addEventListener('click', (event) => {
@@ -548,11 +875,24 @@ onMounted(() => {
     }
   })
 })
+
+// Cleanup
+onUnmounted(() => {
+  // Remove event listeners
+  window.removeEventListener('storage', () => {})
+  window.removeEventListener('cart-updated', () => {})
+  window.removeEventListener('wishlist-updated', () => {})
+  
+  // Clear polling interval
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
+  }
+  
+  document.removeEventListener('click', () => {})
+})
 </script>
 
 <style scoped>
-/* Only keep necessary custom styles for mobile search overlay */
-
 /* Mobile Search Overlay Styles */
 .mobile-search-overlay {
   position: fixed;
@@ -862,20 +1202,104 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
 }
-
-/* 🔴 CRITICAL FIXES FOR DESKTOP DROPDOWN */
+/* SEARCH DROPDOWN SCROLLBAR STYLES - HIDDEN BUT FUNCTIONAL */
 .search-dropdown {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  border-radius: 12px !important;
-  animation: fadeIn 0.2s ease !important;
-  z-index: 99999 !important;
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  right: 0 !important;
-  margin-top: 8px !important;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
 }
+
+.search-dropdown::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure scroll works but no visible scrollbar */
+.search-dropdown {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* For better scrolling experience */
+.search-dropdown > div {
+  /* This ensures content is fully visible */
+  padding-right: 1px; /* Prevents content from being cut off */
+}
+
+/* Hover effect without scrollbar */
+.search-dropdown:hover {
+  /* Optional: Add slight shadow on hover */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Fix for Firefox */
+.search-dropdown {
+  scrollbar-color: transparent transparent !important;
+  scrollbar-width: none !important;
+}
+
+/* Fix for Edge */
+@supports (-ms-ime-align: auto) {
+  .search-dropdown {
+    -ms-overflow-style: none;
+  }
+}
+
+/* Fix for older browsers */
+.search-dropdown {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Alternative method using padding */
+.search-dropdown-wrapper {
+  position: relative;
+}
+
+.search-dropdown-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* For the results container inside */
+.search-dropdown > div {
+  /* Add padding to prevent content from touching edges */
+  padding-bottom: 8px;
+}
+
+/* Individual result item styling */
+.product-result {
+  position: relative;
+  z-index: 1
+  ;
+}
+
+/* Ensure smooth scrolling on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .search-dropdown {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+/*  CRITICAL FIXES FOR DESKTOP DROPDOWN */
+
 
 .product-result {
   transition: all 0.2s ease !important;
@@ -908,6 +1332,45 @@ onMounted(() => {
 .common-input {
   position: relative !important;
   z-index: 1001 !important;
+}
+
+/* Cart Badge Styles with Real-time Animation */
+.cart-badge {
+  animation: badgePulse 0.5s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cart-badge-pulse {
+  animation: strongPulse 0.5s ease-in-out;
+  box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.1);
+}
+
+@keyframes badgePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes strongPulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% { 
+    transform: scale(1.3);
+    box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Cart Link Hover Effect */
+.cart-link:hover .cart-badge {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 /* Animations */
@@ -966,6 +1429,4 @@ onMounted(() => {
 body.mobile-search-open {
   overflow: hidden !important;
 }
-
-
 </style>

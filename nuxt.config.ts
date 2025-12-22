@@ -49,7 +49,6 @@ export default defineNuxtConfig({
         { src: '/assets/js/bootstrap.bundle.min.js', defer: true },
         { src: '/assets/js/phosphor-icon.js', defer: true },
         { src: '/assets/js/select2.min.js', defer: true },
-        { src: '/assets/js/slick.min.js', defer: true },
         { src: '/assets/js/count-down.js', defer: true },
         { src: '/assets/js/jquery-ui.js', defer: true },
         { src: '/assets/js/wow.min.js', defer: true },
@@ -75,6 +74,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       api: {
+        
         categories: process.env.VITE_API_CATEGORIES,
         colors: process.env.VITE_API_COLORS,
         sizes: process.env.VITE_API_SIZES,
