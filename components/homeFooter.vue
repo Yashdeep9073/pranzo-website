@@ -3,20 +3,37 @@
     <div class="container container-lg">
       <div class="footer-item-wrapper d-flex align-items-start flex-wrap">
         <div class="footer-item" data-aos="fade-up" data-aos-duration="200">
-          <div class="max-w-340">
-            <div class="footer-item__logo">
-              <NuxtLink to="/">
-                <img src="/assets/images/logo/logo.png" alt="">
-              </NuxtLink>
-            </div>
-            <p class="mb-28 text-heading">We're Grocery Shop, an innovative team of food supliers.</p>
+       <div class="footer-item__logo">
+  <NuxtLink to="/">
+    <img src="/assets/images/logo/logo.png" alt="Vibrantick Infotech Solutions">
+  </NuxtLink>
+</div>
 
-            <div class="d-flex flex-column gap-8">
-              <p class="text-heading fw-medium">2972 Westheimer Rd. Santa Ana, Illinois 85486</p>
-              <a href="mailto:support@example.com" class="text-heading fw-medium hover-text-main-600">support@example.com</a>
-              <a href="tel:+(406)555-0120" class="text-heading fw-medium hover-text-main-600">+ (406) 555-0120</a>
-            </div>
-          </div>
+<p class="mb-28 text-heading">
+  Vibrantick Infotech Solutions
+</p>
+
+<div class="d-flex flex-column gap-8">
+  <p class="text-heading fw-medium">
+    Phase 8B, Industrial Area, Sector 74,<br>
+    Mohali, Punjab, India
+  </p>
+
+  <a 
+    href="mailto:info@vibrantick.org" 
+    class="text-heading fw-medium hover-text-main-600"
+  >
+    info@vibrantick.org
+  </a>
+
+  <a 
+    href="tel:+919915400090" 
+    class="text-heading fw-medium hover-text-main-600"
+  >
+    +91 99154 00090
+  </a>
+</div>
+
         </div>
         
         <div class="footer-item" data-aos="fade-up" data-aos-duration="400">

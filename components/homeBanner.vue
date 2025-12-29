@@ -3,40 +3,13 @@
   <div class="banner">
     <div class="container container-lg">
       <div class="banner-item rounded-24 overflow-hidden position-relative arrow-center">
-        <!-- Scroll Down Button -->
-        <a 
-          href="#featureSection" 
-          class="scroll-down w-84 h-84 text-center flex-center bg-main-600 rounded-circle border border-5 text-white border-white position-absolute start-50 translate-middle-x bottom-0 hover-bg-main-800"
-        >
-          <span class="icon line-height-0">
-            <i class="ph ph-caret-double-down"></i>
-          </span> 
-        </a>
-
         <!-- Background Image -->
-        <img 
-          src="/assets/images/bg/banner-bg.png" 
-          alt="Banner Background" 
-          class="banner-img position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 z-n1 object-fit-cover rounded-24"
-        >
+       <img 
+  src="/assets/images/buysection/full-shop.jpg"
+  alt="Banner Background"
+  class="banner-img position-absolute inset-0 w-100 h-100 object-fit-cover rounded-24"
+/>
 
-        <!-- Navigation Buttons -->
-        <div class="flex-align">
-          <button 
-            type="button" 
-            class="slick-prev slick-arrow flex-center rounded-circle box-shadow-4xl bg-white text-xl hover-bg-main-600 hover-text-white transition-1"
-            @click="slidePrev"
-          >
-            <i class="ph ph-caret-left"></i>
-          </button>
-          <button 
-            type="button" 
-            class="slick-next slick-arrow flex-center rounded-circle box-shadow-4xl bg-white text-xl hover-bg-main-600 hover-text-white transition-1"
-            @click="slideNext"
-          >
-            <i class="ph ph-caret-right"></i>
-          </button>
-        </div>
 
         <!-- Swiper Container -->
         <div ref="swiperContainer" class="swiper bannerSwiper">
@@ -49,43 +22,91 @@
             >
               <div class="banner-slider__item">
                 <div class="banner-slider__inner flex-between position-relative">
-                  <!-- Left Side - Dynamic Image -->
+                  <!-- Left Side - Content -->
+                  <div class="banner-item__content">
+                    <!-- Top Tagline -->
+                    <div class="banner-tagline mb-16">
+                      <span class="fw-bold text-uppercase text-white bg-danger-500 px-16 py-4 rounded-pill">
+                        END OF YEAR SALE
+                      </span>
+                    </div>
+                    
+                    <!-- Main Heading -->
+                    <h1 class="banner-main-heading text-white mb-12">
+                      HIGH ENERGY,<br>
+                      <span class="text-warning-400">HIGHER SAVINGS</span>
+                    </h1>
+                    
+                    <!-- Discount Badge -->
+                    <div class="discount-badge mb-20">
+                      <div class="discount-amount bg-white text-dark px-24 py-8 rounded-pill d-inline-block">
+                        <span class="fw-black display-4">50-70%</span>
+                        <span class="fw-bold text-uppercase ms-8">OFF</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Date Range -->
+                    <div class="date-range text-white mb-24">
+                      <span class="fw-semibold text-uppercase">DEC 25 - 30</span>
+                    </div>
+                    
+                    <!-- Category Tags -->
+                    <div class="category-tags d-flex gap-16 mb-30">
+                      <NuxtLink to="/shop-all?category=Women" >
+                      <span class="category-tag bg-white text-dark px-20 py-8 rounded-pill fw-semibold">
+                        FOR HER 
+                      </span>
+                      </NuxtLink>
+                       <NuxtLink  to="/shop-all?category=Men">
+                      <span class="category-tag bg-white text-dark px-20 py-8 rounded-pill fw-semibold">
+                        FOR HIM 
+                      </span>
+                      </NuxtLink>
+                    </div>
+                    
+                    <!-- CTA Button -->
+                    <NuxtLink to="/shop-all" class="btn btn-shop-now">
+                      SHOP NOW
+                      <span class="icon ms-8">
+                        <i class="ph ph-arrow-right"></i>
+                      </span>
+                    </NuxtLink>
+                  </div>
+
+                  <!-- Right Side - Product Image -->
                   <div class="banner-item__thumb">
                     <img 
                       :src="banner.image" 
                       :alt="banner.title || `Banner Image ${index + 1}`"
-                      width="500"
-                      height="400"
+                      width="600"
+                      height="500"
+                      class="banner-product-img"
                     >
-                  </div>
-
-                  <!-- Right Side - Content (Centered) -->
-                  <div class="banner-item__content text-center">
-                    <span class="fw-semibold text-success-600 text-capitalize mb-8 d-block">
-                      {{ banner.description || 'Save up to 50% off on your first order' }}
-                    </span>
-                    <h2 class="banner-item__title mb-30">
-                      {{ banner.title || 'Daily Grocery Order and' }} <br>
-                      Get <span class="text-main-600">Express</span> Delivery
-                    </h2>
-                    <div class="d-flex align-items-center gap-16 justify-content-center">
-                      <NuxtLink to="/shop" class="btn btn-main d-inline-flex align-items-center rounded-pill gap-8">
-                        Explore Shop 
-                        <span class="icon text-xl d-flex">
-                          <i class="ph ph-shopping-cart-simple"></i>
-                        </span> 
-                      </NuxtLink>
-                      <div class="d-flex align-items-end gap-8">
-                        <span class="text-heading fst-italic text-sm">Starting at</span>
-                        <h6 class="text-danger-600 mb-0"> $60.99</h6>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Navigation Buttons -->
+        <!-- <button 
+          type="button" 
+          class="swiper-button-prev slick-arrow flex-center rounded-circle box-shadow-4xl bg-white text-xl hover-bg-main-600 hover-text-white transition-1"
+          @click="slidePrev"
+        >
+          <i class="ph ph-caret-left"></i>
+        </button>
+        <button 
+          type="button" 
+          class="swiper-button-next slick-arrow flex-center rounded-circle box-shadow-4xl bg-white text-xl hover-bg-main-600 hover-text-white transition-1"
+          @click="slideNext"
+        >
+          <i class="ph ph-caret-right"></i>
+        </button> -->
+
+        <!-- Pagination Dots -->
+        <div class="swiper-pagination"></div>
       </div>
     </div>
   </div>
@@ -122,10 +143,10 @@ const fetchBanners = async () => {
     }
     const data = await response.json()
     if (data.data) {
-      // Filter for BANNER category and limit to first few (e.g., 2-3)
+      // Filter for BANNER category and limit to first few
       banners.value = data.data
         .filter((item: BannerItem) => item.category === 'BANNER')
-        .slice(0, 3) // Adjust limit as needed
+        .slice(0, 3)
       console.log('Banners loaded:', banners.value)
     }
   } catch (error) {
@@ -140,23 +161,27 @@ onMounted(async () => {
   if (import.meta.client && swiperContainer.value) {
     try {
       const Swiper = await import('swiper')
-      const { Autoplay, EffectFade } = await import('swiper/modules')
+      const { Autoplay, Navigation, Pagination } = await import('swiper/modules')
       
       // Initialize Swiper only if banners are available
       if (banners.value.length > 0) {
         // Initialize Swiper
         swiperInstance.value = new Swiper.default(swiperContainer.value, {
-          modules: [Autoplay, EffectFade],
+          modules: [Autoplay, Navigation, Pagination],
           loop: true,
-          effect: 'fade',
-          fadeEffect: {
-            crossFade: true
-          },
           autoplay: {
             delay: 5000,
             disableOnInteraction: false,
           },
           speed: 1000,
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
         }) as SwiperInstance
 
         console.log('Swiper initialized successfully')
@@ -189,89 +214,119 @@ const slidePrev = (): void => {
 
 <style scoped>
 .banner {
-  min-height: 600px;
+  min-height: 500px;
   position: relative;
+  margin-top: 20px;
 }
 
 .banner-item {
-  min-height: 600px;
-  padding: 40px 0;
-}
-
-.banner-img {
-  object-fit: cover;
+  min-height: 500px;
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  position: relative;
+  overflow: hidden;
 }
 
 .banner-slider__inner {
-  padding: 60px 0;
+  padding: 40px 60px;
   min-height: 500px;
-  align-items: center;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 40px;
 }
 
-/* Left Side - Image */
-.banner-item__thumb {
-  flex: 1;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.banner-item__thumb img {
-  max-width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: contain;
-}
-
-/* Right Side - Content */
+/* Left Content Side */
 .banner-item__content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding-left: 20px;
+  max-width: 50%;
+  padding-right: 40px;
 }
 
-.banner-item__title {
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #2d3748;
+.banner-tagline {
+  animation: fadeInDown 0.8s ease;
 }
 
-.banner-item__content .text-success-600 {
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
+.banner-main-heading {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  animation: fadeInLeft 0.8s ease 0.2s both;
 }
 
-/* Button Styles */
-.btn-main {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+.discount-badge {
+  animation: bounceIn 0.8s ease 0.4s both;
+}
+
+.discount-amount {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.discount-amount span:first-child {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.date-range {
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  animation: fadeInLeft 0.8s ease 0.6s both;
+}
+
+.category-tags {
+  animation: fadeInUp 0.8s ease 0.8s both;
+}
+
+.category-tag {
+  transition: transform 0.3s ease;
+}
+
+.category-tag:hover {
+  transform: translateY(-3px);
+}
+
+/* CTA Button */
+.btn-shop-now {
+  background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+  color: white;
   border: none;
-  padding: 12px 30px;
-  font-weight: 600;
+  padding: 16px 40px;
   font-size: 1.1rem;
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-  transition: all 0.3s ease;
-}
-
-.btn-main:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
-}
-
-/* Price Styles */
-.text-danger-600 {
-  font-size: 1.5rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 50px;
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  animation: fadeInUp 0.8s ease 1s both;
 }
 
-/* Swiper specific styles */
+.btn-shop-now:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(255, 107, 107, 0.6);
+  color: white;
+}
+
+/* Right Image Side */
+.banner-item__thumb {
+  flex: 1;
+  max-width: 50%;
+  text-align: center;
+  animation: fadeInRight 0.8s ease 0.4s both;
+}
+
+.banner-product-img {
+  max-width: 100%;
+  height: auto;
+  max-height: 450px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* Swiper Styles */
 .bannerSwiper {
   width: 100%;
   height: 100%;
@@ -279,8 +334,7 @@ const slidePrev = (): void => {
 }
 
 .swiper-slide {
-  height: auto;
-  opacity: 0;
+  opacity: 0.5;
   transition: opacity 0.5s ease;
 }
 
@@ -289,43 +343,148 @@ const slidePrev = (): void => {
 }
 
 /* Navigation Buttons */
-.flex-align {
+.swiper-button-prev,
+.swiper-button-next {
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 10;
   transform: translateY(-50%);
-}
-
-.slick-prev, .slick-next {
   width: 50px;
   height: 50px;
+  z-index: 10;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+}
+
+.swiper-button-prev {
+  left: 20px;
+}
+
+.swiper-button-next {
+  right: 20px;
+}
+
+/* Pagination Dots */
+.swiper-pagination {
+  bottom: 20px !important;
+}
+
+.swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: #ff6b6b;
+  transform: scale(1.2);
+}
+
+/* Animations */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Responsive Design */
+@media (max-width: 992px) {
+  .banner-main-heading {
+    font-size: 2.8rem;
+  }
+  
+  .discount-amount span:first-child {
+    font-size: 2.8rem;
+  }
+}
+
 @media (max-width: 768px) {
   .banner-slider__inner {
     flex-direction: column;
     text-align: center;
-    gap: 20px;
+    padding: 30px 20px;
+    gap: 30px;
   }
   
-  .banner-item__content {
-    padding-left: 0;
+  .banner-item__content,
+  .banner-item__thumb {
+    max-width: 100%;
+    padding-right: 0;
   }
   
-  .banner-item__title {
-    font-size: 2rem;
+  .banner-main-heading {
+    font-size: 2.2rem;
+  }
+  
+  .discount-amount span:first-child {
+    font-size: 2.2rem;
+  }
+  
+  .banner-product-img {
+    max-height: 300px;
+  }
+  
+  .swiper-button-prev,
+  .swiper-button-next {
+    display: none;
   }
 }
 </style>

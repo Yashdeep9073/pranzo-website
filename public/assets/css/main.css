@@ -9433,15 +9433,15 @@ input:focus-visible {
     }
 }
 
-.banner .slick-slider {
+/* .banner .slick-slider {
     position: unset;
-}
+} */
 
-.banner .slick-initialized.slick-slider .slick-slide {
+/* .banner .slick-initialized.slick-slider .slick-slide {
     margin: 0;
-}
+} */
 
-.banner-item {
+/* .banner-item {
     position: relative;
     padding-block-start: 80px;
     padding-block-end: 140px;
@@ -9455,7 +9455,7 @@ input:focus-visible {
     mask-position: top;
     mask-size: 100% 100%;
     gap: clamp(1.5rem, -2.151rem + 7.607vw, 4.5rem);
-}
+} */
 
 @media screen and (max-width: 767px) {
     .banner-item {
@@ -9594,34 +9594,34 @@ input:focus-visible {
 /* Slider Animation Css End */
 /* ============================== Banner Css End ========================== */
 /* ============================ Feature Section Css start =============================== */
-.feature {
+/* .feature {
     margin-top: 32px;
-}
+} */
 
-.feature .arrow-center:hover .slick-arrow {
+/* .feature .arrow-center:hover .slick-arrow {
     visibility: visible;
     opacity: 1;
     margin-left: -28px;
-}
+} */
 
-.feature .arrow-center:hover .slick-arrow.slick-next {
+/* .feature .arrow-center:hover .slick-arrow.slick-next {
     margin-right: -20px;
-}
+} */
 
-.feature .arrow-center .slick-arrow {
+/* .feature .arrow-center .slick-arrow {
     transform: translateY(0);
     margin-left: -40px;
     border: 1px solid var(--gray-100);
     visibility: hidden;
     opacity: 0;
     top: 54px;
-}
+} */
 
-.feature .arrow-center .slick-arrow.slick-next {
+/* .feature .arrow-center .slick-arrow.slick-next {
     margin-right: -30px;
-}
+} */
 
-.feature.feature-three .arrow-center .slick-arrow {
+/* .feature.feature-three .arrow-center .slick-arrow {
     top: 110px;
 }
 
@@ -9629,9 +9629,9 @@ input:focus-visible {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
     gap: 16px;
-}
+} */
 
-.feature-item-wrapper .feature-item:nth-child(10n+1) .feature-item__thumb {
+/* .feature-item-wrapper .feature-item:nth-child(10n+1) .feature-item__thumb {
     background: #E8F9E9;
 }
 
@@ -9645,9 +9645,9 @@ input:focus-visible {
 
 .feature-item-wrapper .feature-item:nth-child(10n+4) .feature-item__thumb {
     background: #FCF2E7;
-}
+} */
 
-.feature-item-wrapper .feature-item:nth-child(10n+5) .feature-item__thumb {
+/* .feature-item-wrapper .feature-item:nth-child(10n+5) .feature-item__thumb {
     background: #F5FBE3;
 }
 
@@ -9699,7 +9699,7 @@ input:focus-visible {
 
 .popular-products .product-card__thumb {
     width: 120px !important;
-}
+} */
 
 /* ============================ Feature Section Css End =============================== */
 /* ======================== promotional banner Css Start ============================== */
@@ -10226,15 +10226,15 @@ input:focus-visible {
 }
 /* ============================= Banner Three Css End ================================= */
 /* ============================== Promotional Banner Three Start ==========================  */
-.promo-three-item {
+/* .promo-three-item {
     padding: clamp(2rem, -4.542rem + 13.629vw, 7.375rem) clamp(1.5rem, -1.543rem + 6.339vw, 4rem);
-}
+} */
 
 /* ============================== Promotional Banner Three End ==========================  */
-.js-marquee {
+/* .js-marquee {
     display: flex;
     gap: 32px;
-}
+} */
 
 /* ============================== Deals Section Css Start ========================== */
 .deals__img {

@@ -1,6 +1,6 @@
 <template>
   <div>
-<HomeTop />
+<!-- <HomeTop /> -->
     <HomeBar />
     <HomeHeader />
         <slot/>   

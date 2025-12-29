@@ -32,9 +32,13 @@ useHead({
    <!-- <div class="preloader">
     <img src="/assets/images/icon/preloader.gif" alt="">
   </div> -->
+  <ClientOnly>
     <HomeBanner />
-<HomeFeature class="pt-30 pb-60" />
-    <HomePromotion />
+    </ClientOnly>
+ <ClientOnly>
+  <HomeFeature  />
+ </ClientOnly>
+     <HomePromotion />
     <HomeFlash />
     <HomeFlashm />
     <HomeRecomend  /> 
