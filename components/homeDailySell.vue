@@ -1,10 +1,9 @@
 <template>
-  <section class="best sells pb-80">
+  <section class="best sells pt-30 pb-80">
     <div class="container container-lg">
       <div class="section-heading">
         <div class="flex-between flex-wrap gap-8">
           <h5 class="mb-0">Daily Best Sells</h5>
-        <div @click="add">ajs</div>
         </div>
       </div>
 
@@ -261,11 +260,8 @@
   </section>
 </template>
 
-<script setup>
+<script setup> 
 import { ref, onMounted, onUnmounted } from 'vue'
-function add(){
-  console.log("hey")  
-}  
 // Countdown timers for each product
 const countdown1 = ref({ days: '02', hours: '08', minutes: '30', seconds: '45' })
 const countdown2 = ref({ days: '01', hours: '12', minutes: '15', seconds: '20' })
@@ -329,14 +325,16 @@ onUnmounted(() => {
     clearInterval(timerInterval)
   }
 })
+
 </script>
 
 <style scoped>
+
 /* Add any minimal styles if needed */
 .product-card.style-two:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
+} 
 
 .cover-img {
   object-fit: cover;

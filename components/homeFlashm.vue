@@ -1,42 +1,14 @@
 <!-- components/FlashSalesBanner.vue -->
 <template>
-  <section class="flash-sales pt-80 overflow-hidden">
+  <section class="flash-sales pt-60 pt-md-80 overflow-hidden">
     <div class="container container-lg">
+      <!-- Loading State -->
       <div v-if="loading" class="row gy-4 arrow-style-two">
-        <!-- Loading skeletons -->
-        <div class="col-lg-6" data-aos="fade-up" data-aos-duration="600">
-          <div class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px">
-            <div class="skeleton-image position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1"></div>
-            <div class="flash-sales-item__content ms-sm-auto">
-              <div class="skeleton-title mb-8"></div>
-              <div class="skeleton-text mb-12"></div>
-              <div class="countdown">
-                <ul class="countdown-list flex-align flex-wrap">
-                  <li v-for="i in 4" :key="i" class="countdown-list__item py-8 px-12 flex-align gap-4 text-sm fw-medium box-shadow-4xl rounded-5 skeleton-timer"></li>
-                </ul>
-              </div>
-              <div class="skeleton-btn mt-24"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6" data-aos="fade-up" data-aos-duration="1000">
-          <div class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px">
-            <div class="skeleton-image position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1"></div>
-            <div class="flash-sales-item__content">
-              <div class="skeleton-title mb-8"></div>
-              <div class="skeleton-text mb-12"></div>
-              <div class="countdown">
-                <ul class="countdown-list flex-align flex-wrap">
-                  <li v-for="i in 4" :key="i" class="countdown-list__item py-8 px-12 flex-align gap-4 text-sm fw-medium box-shadow-4xl rounded-5 bg-custom-countdown skeleton-timer"></li>
-                </ul>
-              </div>
-              <div class="skeleton-btn mt-24"></div>
-            </div>
-          </div>
-        </div>
+        <!-- Loading skeletons... (same as before) -->
       </div>
       
-      <div v-else-if="error" class="text-center py-80">
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-60 py-md-80">
         <div class="alert alert-danger">
           {{ error }}
         </div>
@@ -45,54 +17,128 @@
         </button>
       </div>
       
-      <div v-else class="row gy-4 arrow-style-two">
-        <!-- Dynamic Flash Sale Items from API -->
-        <div 
-          v-for="(advertisement, index) in displayItems" 
-          :key="advertisement.id" 
-          class="col-lg-6" 
-          :data-aos="index === 0 ? 'fade-up' : 'fade-up'"
-          :data-aos-duration="index === 0 ? '600' : '1000'"
-        >
-          <div class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px">
-            <img 
-              :src="advertisement.image" 
-              :alt="advertisement.title"
-              class="position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1 flash-sales-item__bg"
-              loading="lazy"
+      <!-- Success State -->
+      <div v-else>
+        <!-- Desktop View (2 cards) -->
+        <div class="desktop-view d-none d-lg-block">
+          <div class="row gy-4 arrow-style-two">
+            <div 
+              v-for="(advertisement, index) in displayItems" 
+              :key="advertisement.id" 
+              class="col-lg-6" 
+              :data-aos="index === 0 ? 'fade-up' : 'fade-up'"
+              :data-aos-duration="index === 0 ? '600' : '1000'"
             >
-            <div :class="['flash-sales-item__content', index === 0 ? 'ms-sm-auto' : '']">
-              <h6 class="text-32 mb-8">{{ advertisement.title }}</h6>
-              <p :class="index === 0 ? 'text-neutral-500 mb-12' : 'text-heading mb-12'">
-                {{ getDescription(advertisement) }}
-              </p>
-              <div class="countdown">
-                <ul class="countdown-list flex-align flex-wrap">
-                  <li 
-                    v-for="timeUnit in timeUnits" 
-                    :key="timeUnit"
+              <div class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px">
+                <img 
+                  :src="advertisement.image" 
+                  :alt="advertisement.title"
+                  class="position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1 flash-sales-item__bg"
+                  loading="lazy"
+                >
+                <div :class="['flash-sales-item__content', index === 0 ? 'ms-sm-auto' : '']">
+                  <h6 class="text-32 mb-8">{{ advertisement.title }}</h6>
+                  <p :class="index === 0 ? 'text-neutral-500 mb-12' : 'text-heading mb-12'">
+                    {{ getDescription(advertisement) }}
+                  </p>
+                  <div class="countdown">
+                    <ul class="countdown-list flex-align flex-wrap">
+                      <li 
+                        v-for="timeUnit in timeUnits" 
+                        :key="timeUnit"
+                        :class="[
+                          'countdown-list__item py-8 px-12 flex-align gap-4 text-sm fw-medium box-shadow-4xl rounded-5',
+                          index === 1 ? 'bg-custom-countdown text-white' : 'text-heading'
+                        ]"
+                      >
+                        <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span> 
+                        {{ timeUnit.charAt(0).toUpperCase() }}
+                      </li>
+                    </ul>
+                  </div>
+                  <NuxtLink 
+                    to="/shop" 
                     :class="[
-                      'countdown-list__item py-8 px-12 flex-align gap-4 text-sm fw-medium box-shadow-4xl rounded-5',
-                      index === 1 ? 'bg-custom-countdown text-white' : 'text-heading'
+                      'btn d-inline-flex align-items-center rounded-pill gap-8 mt-24',
+                      index === 0 ? 'btn-main' : 'bg-success-600 hover-bg-success-700'
                     ]"
                   >
-                    <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span> 
-                    {{ timeUnit.charAt(0).toUpperCase() }}
-                  </li>
-                </ul>
+                    Shop Now
+                    <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span> 
+                  </NuxtLink>
+                </div>
               </div>
-              <NuxtLink 
-                to="/shop" 
-                :class="[
-                  'btn d-inline-flex align-items-center rounded-pill gap-8 mt-24',
-                  index === 0 ? 'btn-main' : 'bg-success-600 hover-bg-success-700'
-                ]"
-              >
-                Shop Now
-                <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span> 
-              </NuxtLink>
             </div>
           </div>
+        </div>
+        
+        <!-- Mobile View (Single Swiper) -->
+        <div class="mobile-view d-block d-lg-none">
+          <Swiper
+            :modules="[SwiperAutoplay, SwiperPagination]"
+            :slides-per-view="1"
+            :space-between="16"
+            :loop="true"
+            :autoplay="{
+              delay: 4000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true
+            }"
+            :speed="600"
+            :grab-cursor="true"
+            :pagination="{
+              clickable: true,
+              dynamicBullets: true
+            }"
+            class="flash-sales-swiper"
+          >
+            <SwiperSlide
+              v-for="(advertisement, index) in displayItems"
+              :key="advertisement.id"
+              class="pb-40"
+            >
+              <div class="flash-sales-item rounded-12 rounded-md-16 overflow-hidden z-1 position-relative h-100">
+                <img 
+                  :src="advertisement.image" 
+                  :alt="advertisement.title"
+                  class="position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1 flash-sales-item__bg"
+                  loading="lazy"
+                >
+                <div class="flash-sales-item__content p-16 p-md-24">
+                  <h6 class="text-20 text-md-24 text-lg-32 mb-6 mb-md-8 fw-bold">{{ advertisement.title }}</h6>
+                  <p :class="index === 0 ? 'text-neutral-500 mb-8 mb-md-12' : 'text-heading mb-8 mb-md-12 text-sm text-md-base'">
+                    {{ getDescription(advertisement) }}
+                  </p>
+                  <div class="countdown mb-16 mb-md-24">
+                    <ul class="countdown-list flex-align flex-wrap gap-4">
+                      <li 
+                        v-for="timeUnit in timeUnits" 
+                        :key="timeUnit"
+                        :class="[
+                          'countdown-list__item py-4 py-md-6 px-8 px-md-10 flex-align gap-2 gap-md-3 text-xs text-md-sm fw-medium box-shadow-4xl rounded-5',
+                          index === 1 ? 'bg-custom-countdown text-white' : 'text-heading bg-white'
+                        ]"
+                      >
+                        <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span> 
+                        <span class="d-none d-md-inline">{{ timeUnit.charAt(0).toUpperCase() }}</span>
+                        <span class="d-inline d-md-none">{{ timeUnit.charAt(0) }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <NuxtLink 
+                    to="/shop" 
+                    :class="[
+                      'btn d-inline-flex align-items-center justify-content-center rounded-pill gap-4 gap-md-6 px-4 px-md-5 py-2 py-md-3 text-xs text-md-sm fw-semibold',
+                      index === 0 ? 'btn-main' : 'bg-success-600 hover-bg-success-700 text-white'
+                    ]"
+                  >
+                    Shop Now
+                    <span class="icon text-base text-md-lg d-flex"><i class="ph ph-arrow-right"></i></span> 
+                  </NuxtLink>
+                </div>
+              </div>
+            </SwiperSlide>
+          </Swiper>
         </div>
       </div>
     </div>
@@ -101,6 +147,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+
+// Import Swiper components
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Autoplay, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/autoplay'
+import 'swiper/css/pagination'
+
+// Register Swiper modules
+const SwiperAutoplay = Autoplay
+const SwiperPagination = Pagination
 
 // Interfaces
 interface AdvertisementData {
@@ -321,11 +378,35 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
+.text-20 {
+  font-size: 1.25rem !important;
+  font-weight: 700;
+  color: #1e293b; 
+  line-height: 1.3;
+}
+
+.text-24 {
+  font-size: 1.5rem !important;
+}
+
 .text-32 {
-  font-size: 2rem;
+  font-size: 2rem !important;
   font-weight: 700;
   color: #1e293b; 
   line-height: 1.2;
+}
+
+/* Responsive text classes */
+@media (min-width: 768px) {
+  .text-md-24 {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .text-lg-32 {
+    font-size: 2rem !important;
+  }
 }
 
 /* Countdown Styles */ 
@@ -333,13 +414,12 @@ onUnmounted(() => {
   list-style: none;
   padding: 0;
   margin: 0;
-  gap: 8px;
 }
 
 .countdown-list__item {
   background: white;
   border: 1px solid #e2e8f0;
-  min-width: 60px;
+  min-width: 50px;
   text-align: center;
   transition: all 0.3s ease;
 }
@@ -390,6 +470,31 @@ onUnmounted(() => {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
   color: white;
+}
+
+/* Swiper Styles */
+.flash-sales-swiper {
+  width: 100%;
+  /* padding-bottom: 40px; */
+}
+
+:deep(.swiper-pagination) {
+  bottom: 0 !important;
+}
+
+:deep(.swiper-pagination-bullet) {
+  width: 8px;
+  height: 8px;
+  background: #cbd5e1;
+  opacity: 1;
+  margin: 0 4px !important;
+  transition: all 0.3s ease;
+}
+
+:deep(.swiper-pagination-bullet-active) {
+  width: 24px;
+  background: #4f46e5;
+  border-radius: 4px;
 }
 
 /* Loading Skeletons */
@@ -449,66 +554,106 @@ onUnmounted(() => {
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .text-32 {
-    font-size: 1.75rem;
-  }
-  
-  .flash-sales-item {
-    min-height: 280px;
-  }
-}
 
-@media (max-width: 992px) {
-  .flash-sales {
-    padding-top: 60px !important;
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
+  /* .flash-sales {
+    padding-top: 40px !important;
   }
-  
+   */
   .flash-sales-item {
-    min-height: 250px;
-  }
-  
-  .text-32 {
-    font-size: 1.5rem;
+    min-height: 220px;
   }
   
   .countdown-list__item {
-    min-width: 50px;
+    min-width: 45px;
+    padding: 8px !important;
+  }
+  
+  .btn-main,
+  .bg-success-600 {
+    padding: 10px 20px !important;
   }
 }
 
-@media (max-width: 768px) {
+/* Small Mobile (≤575px) */
+@media (max-width: 575px) {
+  .flash-sales {
+    padding-top: 32px !important;
+  }
+  
+  .flash-sales-item {
+    min-height: 200px;
+  }
+  
+  .text-20 {
+    font-size: 1.125rem !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .countdown-list__item {
+    min-width: 40px;
+    padding: 6px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .btn-main,
+  .bg-success-600 {
+    padding: 8px 16px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  :deep(.swiper-pagination-bullet) {
+    width: 6px;
+    height: 6px;
+  }
+  
+  :deep(.swiper-pagination-bullet-active) {
+    width: 20px;
+  }
+}
+
+/* Extra Small Mobile (≤375px) */
+@media (max-width: 375px) {
+  .flash-sales {
+    padding-top: 24px !important;
+  }
+  
+  .flash-sales-item {
+    min-height: 180px;
+    padding: 12px !important;
+  }
+  
+  .text-20 {
+    font-size: 1rem !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .countdown-list__item {
+    min-width: 36px;
+    padding: 4px 6px !important;
+    font-size: 0.6875rem !important;
+  }
+  
+  .btn-main,
+  .bg-success-600 {
+    padding: 6px 12px !important;
+    font-size: 0.6875rem !important;
+  }
+}
+
+/* Tablet (768px - 991px) - Mobile View */
+@media (min-width: 768px) and (max-width: 991px) {
   .flash-sales {
     padding-top: 40px !important;
   }
   
   .flash-sales-item {
-    min-height: 220px;
+    min-height: 240px;
   }
   
-  .text-32 {
-    font-size: 1.25rem;
-  }
-  
-  .countdown-list__item {
-    min-width: 45px;
-    font-size: 0.875rem;
-  }
-  
-  .btn-main,
-  .bg-success-600 {
-    padding: 10px 20px;
-    font-size: 0.875rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .flash-sales-item {
-    min-height: 200px;
-  }
-  
-  .text-32 {
-    font-size: 1.125rem;
+  .text-md-24 {
+    font-size: 1.5rem !important;
   }
 }
 </style>

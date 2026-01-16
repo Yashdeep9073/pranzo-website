@@ -23,6 +23,7 @@
     "@popperjs/core": "^2.11.8",
     "@unhead/vue": "^2.0.19",
     "@urql/vue": "^2.0.0",
+    "@vite-pwa/nuxt": "^1.1.0",
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
     "aos": "^2.3.4",
@@ -45,4 +46,4 @@
     "@nuxt/typescript-build": "^3.0.2",
     "typescript": "^5.9.3"
   }
-} 
+}

@@ -1,6 +1,8 @@
 <script setup>
+import BannerStrip from '~/components/BannerStrip.vue'
 import HomeBanner from '~/components/homeBanner.vue'
 import HomeBrand from '~/components/homeBrand.vue'
+import HomeCategory from '~/components/homeCategory.vue'
 import HomeDailySell from '~/components/homeDailySell.vue'
 import HomeDiscount from '~/components/homeDiscount.vue'
 import HomeFeature from '~/components/homeFeature.vue'
@@ -17,7 +19,7 @@ import ProductNews from '~/components/productNews.vue'
 
 
 useHead({
-  title: "Home"  
+  title: "Home"
 })
 
 // const { data: homeData } = await useFetch(
@@ -29,34 +31,35 @@ useHead({
 
 <template>
   <div class="main-container">
-   <!-- <div class="preloader">
+    <!-- <div class="preloader">
     <img src="/assets/images/icon/preloader.gif" alt="">
   </div> -->
-  <ClientOnly>
+
+
+    <BannerStrip />
+    <!-- <ClientOnly> -->
+    <Hometocategory/>
     <HomeBanner />
-    </ClientOnly>
- <ClientOnly>
-  <HomeFeature  />
- </ClientOnly>
-     <HomePromotion />
+    <HomeFeature />
+    <!-- </ClientOnly> --> 
+    <HomePromotion />
     <HomeFlash />
+    <HomeBrand />
     <HomeFlashm />
-    <HomeRecomend  /> 
-    <HomeOffer/>
-    <HomeHotdeal/>
-    <HomeDiscount/>
-    <HomeShortProduct/>
-    <HomeBrand/>
-    <HomeDailySell/>
-    <ProductNews/>
-
-
-      <!-- <section class="product-section">
+    <HomeCategory />
+    <HomeRecomend />
+    <HomeOffer />
+    <HomeHotdeal />
+    <HomeDiscount />
+    <HomeShortProduct />
+    <HomeDailySell />
+    <ProductNews />
+    <!-- <section class="product-section">
       <div class="container">
         <h2 class="section-title">Our Products</h2>
-        <ProductGrid :products="homeProducts" /> 
+        <ProductGrid :products="homeProducts" />  
       </div> 
-    </section>  -->
+    </section>  --> 
   </div>
 </template>
 
@@ -66,7 +69,7 @@ useHead({
   flex-direction: column;
   min-height: 100vh;
 }
- 
+
 .product-section {
   padding: 60px 0;
   background: #f8f9fa;

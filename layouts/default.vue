@@ -1,7 +1,7 @@
 <template>
   <div>
 <!-- <HomeTop /> -->
-    <HomeBar />
+    <!-- <HomeBar /> -->
     <HomeHeader />
         <slot/>   
     <HomeFooter/>   

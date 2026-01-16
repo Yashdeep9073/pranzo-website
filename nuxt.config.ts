@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
-    plugins: ['~/plugins/toast.client.js']
-,
+  plugins: ['~/plugins/toast.client.js'],
+
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
@@ -15,9 +15,8 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    '@nuxt/image',
     '@nuxt/ui',
-    // Urql के लिए module
+    '@vite-pwa/nuxt' //  PWA MODULE ADDED
   ],
 
   css: [
@@ -30,10 +29,14 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-           {
+        {
           rel: 'icon',
           type: 'image/png',
-          href: '/assets/images/bg/favicon.png'
+          href: '/icons/icon-192.png' //  PWA icon
+        },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap'
         },
         { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' },
         { rel: 'stylesheet', href: '/assets/css/bootstrap.min.css' },
@@ -75,9 +78,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      api: {
-        
-        categories: process.env.VITE_API_CATEGORIES,
+      api: { 
+          Media:process.env.VITE_API_MEDIA,
+        categories: process.env.VITE_API_CATEGORIES, 
         colors: process.env.VITE_API_COLORS,
         sizes: process.env.VITE_API_SIZES,
         brands: process.env.VITE_API_BRANDS,
@@ -85,6 +88,34 @@ export default defineNuxtConfig({
         blogs: process.env.VITE_API_BLOG,
         contact: process.env.VITE_API_CONATCT
       }
+    }
+  },
+
+  //PWA CONFIG
+  pwa: {
+    registerType: 'autoUpdate',
+
+    manifest: {
+      name: 'Kartmania',
+      short_name: 'Kartmania',
+      description: 'Kartmania Ecommerce App',
+      theme_color: '#ffffff',
+      background_color: '#ffffff',
+      display: 'standalone',
+      start_url: '/',
+
+      icons: [
+        {
+          src: '/icons/icon-192.png',
+          sizes: '192x192',
+          type: 'image/png'
+        },
+        {
+          src: '/icons/icon-512.png',
+          sizes: '512x512',
+          type: 'image/png'
+        }
+      ]
     }
   }
 })

@@ -107,9 +107,7 @@
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #21c6df, #6366f1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+ color: black;
 }
 /* Scoped styles if any overrides needed; global CSS already handles classes. */
 </style> 

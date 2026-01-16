@@ -185,5 +185,4 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Component-specific styles yahaan */
 </style>

@@ -44,31 +44,241 @@
 
   <!-- Main Content -->
   <section v-show="!showInitialLoading" class="shop py-80">
-    <!-- Mobile Sidebar Overlay -->
+    <!-- Mobile Filter Overlay -->   
     <div 
       v-if="showMobileSidebar" 
-      class="sidebar-overlay d-lg-none"
+      class="mobile-filter-overlay d-lg-none"
       @click="closeMobileSidebar"
     ></div>
     
+    <!-- Mobile Filter Sheet -->
+    <div 
+      v-if="showMobileSidebar"
+      class="mobile-filter-sheet d-lg-none"
+      :class="{ 'show': showMobileSidebar }"
+    >
+      <div class="filter-sheet-header">
+        <h6>Filters</h6>
+        <button class="close-filter-btn" @click="closeMobileSidebar">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      
+      <div class="filter-sheet-content">
+        <!-- Active Filters Summary -->
+        <div v-if="hasActiveFilters" class="mobile-active-filters">
+          <div class="active-filters-chips">
+            <span 
+              v-for="filter in getMobileFilterChips()" 
+              :key="filter.key"
+              class="mobile-filter-chip"
+            >
+              {{ filter.label }}
+              <i class="ph ph-x" @click="filter.clearFn"></i>
+            </span>
+          </div>
+          <button class="clear-all-mobile" @click="clearAllFilters" :disabled="isLoading">
+            Clear All
+          </button>
+        </div>
+        
+        <!-- Mobile Filter Options -->
+        <div class="mobile-filter-options">
+          <!-- Sort Options -->
+          <div class="mobile-filter-section">
+            <h6>Sort By</h6>
+            <div class="mobile-sort-options">
+              <button
+                v-for="option in sortOptions"
+                :key="option.value"
+                :class="{ 'active': filters.sortBy === option.value }"
+                @click="selectSortOptionMobile(option.value)"
+                :disabled="isLoading"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Category Filters -->
+          <div class="mobile-filter-section" v-if="categories.length > 0">
+            <div class="flex-between mb-12">
+              <h6>Category</h6>
+              <button v-if="filters.category" @click="clearCategoryFilter" class="btn-clear" :disabled="isLoading">
+                Clear
+              </button>
+            </div>
+            <div class="mobile-quick-filters">
+              <button
+                :class="{ 'active': !filters.category }"
+                @click="clearCategoryFilter"
+                :disabled="isLoading"
+              >
+                All
+              </button>
+              <button
+                v-for="category in categories.slice(0, 5)"
+                :key="category.id"
+                :class="{ 'active': filters.category === category.name }"
+                @click="toggleCategoryFilter(category.name)"
+                :disabled="isLoading"
+              >
+                {{ category.name }}
+              </button>
+              <NuxtLink to="/categories" class="view-all-link" v-if="categories.length > 5">
+                View All
+              </NuxtLink>
+            </div>
+          </div>
+         <!-- Size Filters -->
+<h6 class="text-black text-lg font-bold pb-10">Sizes</h6>
+             <div class="size-filters pb-10">
+                <button 
+                  class="size-btn"
+                  :class="{ 
+                    'size-btn-active': !filters.size
+                  }"
+                  @click="clearSizeFilter"
+                  :disabled="isLoading"
+                >
+                  All Sizes
+                </button>
+                <button 
+                  v-for="size in sizes" 
+                  :key="size.id"
+                  class="size-btn"
+                  :class="{ 
+                    'size-btn-active': filters.size === size.size
+                  }"
+                  @click="toggleSizeFilter(size.size)"
+                  :disabled="isLoading"
+                >
+                  {{ size.size }}
+                </button>
+              </div>
+          <!-- Price Range -->
+         <div class="mobile-price-range">
+  <div class="price-display">
+    <span>₹{{ formatPrice(priceRange.min) }}</span>
+    <span class="separator">-</span>
+    <span>₹{{ formatPrice(priceRange.max) }}</span>
+  </div>
+
+  <div class="range-slider-wrapper">
+    <!-- MIN -->
+    <input
+      type="range"
+      :min="0"
+      :max="defaultMaxPrice"
+      :step="100"
+      v-model.number="priceRange.min"
+      @input="syncLivePrice"
+      @change="applyPriceFilter"
+      :disabled="isLoading"
+      class="range-slider"
+    />
+
+    <!-- MAX -->
+    <input
+      type="range"
+      :min="0"
+      :max="defaultMaxPrice"
+      :step="100"
+      v-model.number="priceRange.max"
+      @input="syncLivePrice"
+      @change="applyPriceFilter"
+      :disabled="isLoading"
+      class="range-slider"
+    />
+  </div>
+</div>
+
+          
+          <!-- Color Filters -->
+          <div class="mobile-filter-section" v-if="colors.length > 0">
+            <div class="flex-between mb-12">
+              <h6>Color</h6>
+              <button v-if="filters.color" @click="clearColorFilter" class="btn-clear" :disabled="isLoading">
+                Clear
+              </button>
+            </div>
+            <div class="mobile-color-filters">
+              <button
+                :class="{ 'active': !filters.color }"
+                @click="clearColorFilter"
+                :disabled="isLoading"
+              >
+                All
+              </button>
+              <button
+                v-for="color in colors.slice(0, 6)"
+                :key="color"
+                :class="{ 'active': filters.color === color }"
+                @click="toggleColorFilter(color)"
+                :disabled="isLoading"
+                class="color-filter-btn"
+              >
+                <span 
+                  class="color-dot-mobile"
+                  :style="{ backgroundColor: getColorHex(color) }"
+                ></span>
+                <span>{{ color }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="filter-sheet-actions">
+        <button class="btn-apply-filters" @click="applyMobileFilters" :disabled="isLoading">
+          Apply Filters ({{ pagination.total }} products)
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Filter Toggle Bar -->
+    <div class="mobile-filter-toggle-bar d-lg-none">
+      <div class="container container-lg">
+        <div class="mobile-filter-summary">
+          <span class="product-count">
+            {{ pagination.total || 0 }} products
+          </span>
+          <span v-if="hasActiveFilters" class="active-filter-count">
+            ({{ getActiveFilterCount() }} active)
+          </span>
+        </div>
+        <div class="mobile-filter-buttons">
+          <div class="custom-dropdown-mobile">
+            <button class="mobile-sort-btn" @click="toggleSortDropdownMobile" :disabled="isLoading">
+              <i class="ph ph-arrow-up-down"></i>
+              <span>{{ getSortLabel(filters.sortBy) }}</span>
+            </button>
+            <div v-if="isSortDropdownOpenMobile" class="sort-dropdown-mobile">
+              <button
+                v-for="option in sortOptions"
+                :key="option.value"
+                :class="{ 'active': filters.sortBy === option.value }"
+                @click="selectSortOption(option.value)"
+                :disabled="isLoading"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+          <button class="mobile-filter-btn" @click="toggleMobileSidebar" :disabled="isLoading">
+            <i class="ph ph-funnel"></i>
+            <span>Filters</span>
+            <span v-if="hasActiveFilters" class="filter-indicator"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="container container-lg">
       <div class="row">
-        <!-- Sidebar Start -->
-        <div 
-          class="col-lg-3 sidebar-mobile-wrapper"
-          :class="{ 'mobile-open': showMobileSidebar }"
-        >
+        <!-- Desktop Sidebar -->
+        <div class="col-lg-3 d-none d-lg-block">
           <div class="shop-sidebar">
-            <!-- Close button for mobile -->
-            <button
-              type="button"
-              class="shop-sidebar__close d-lg-none"
-              @click="closeMobileSidebar"
-              :disabled="isLoading"
-            >
-              <i class="ph ph-x"></i>
-            </button>
-              
             <!-- Product Category -->
             <div v-if="categories.length > 0" class="shop-sidebar__box mb-32">
               <div class="flex-between mb-24">
@@ -114,7 +324,7 @@
               </ul>
             </div>
 
-            <!-- Filter by Brand -->
+            <!-- Filter by Brand --> 
             <div v-if="brands.length > 0" class="shop-sidebar__box mb-32">
               <div class="flex-between mb-24">
                 <h6>Filter by Brand</h6>
@@ -159,6 +369,7 @@
                              :src="brand.logo" 
                              :alt="brand.name"
                              class="brand-logo"
+                             loading="lazy"
                              @error="handleImageError">
                         <span>{{ brand.name }}</span>
                       </div>
@@ -228,7 +439,7 @@
                 <li class="mb-16">
                   <div class="form-check">
                     <input 
-                      type="radio" 
+                      type="checkbox" 
                       name="colorFilter"
                       id="color-all"
                       :checked="!filters.color"
@@ -246,7 +457,7 @@
                 <li v-for="color in colors" :key="color" class="mb-16">
                   <div class="form-check">
                     <input 
-                      type="radio" 
+                      type="checkbox" 
                       name="colorFilter"
                       :id="`color-${color}`"
                       :checked="filters.color === color"
@@ -348,15 +559,16 @@
 
             <!-- Advertise -->
             <div class="advertise-box">
-              <img src="/assets/images/thumbs/advertise-img1.png" alt="Advertisement" @error="handleImageError">
+              <img src="/assets/images/thumbs/advertise-img1.png" alt="Advertisement" 
+                   loading="lazy" @error="handleImageError">
             </div>
           </div>
         </div>
 
         <!-- Content Start -->
-        <div class="col-lg-9">
-          <!-- Top Bar -->
-          <div class="product-topbar">
+        <div class="col-lg-9 col-12">
+          <!-- Desktop Top Bar -->
+          <div class="product-topbar d-none d-lg-flex">
             <div class="topbar-info">
               <span class="count-text">
                 Showing {{ pagination.from || 0 }}-{{ pagination.to || 0 }} of {{ pagination.total || 0 }} products
@@ -391,32 +603,29 @@
                   :disabled="isLoading"
                 >
                   <i class="ph-bold ph-list-dashes"></i>
-                </button>
+                </button> 
               </div>
 
               <!-- Sort Dropdown -->
-             <div class="custom-dropdown d-none d-lg-block">
-  <button class="custom-btn" @click="toggleSortDropdown" :disabled="isLoading">
-    <i class="ph ph-arrow-up-down"></i>
-    <span>Sort by: {{ getSortLabel(filters.sortBy) }}</span>
+              <div class="custom-dropdown d-none d-lg-block">
+                <button class="custom-btn" @click="toggleSortDropdown" :disabled="isLoading">
+                  <i class="ph ph-arrow-up-down"></i>
+                  <span>Sort by: {{ getSortLabel(filters.sortBy) }}</span>
+                  <i class="arrow" :class="{ open: isSortDropdownOpen }">▼</i>
+                </button>
 
-    <!-- arrow -->
-    <i class="arrow" :class="{ open: isSortDropdownOpen }">▼</i>
-  </button>
-
-  <ul v-if="isSortDropdownOpen" class="custom-menu">
-    <li v-for="option in sortOptions" :key="option.value">
-      <button
-        :class="{ active: filters.sortBy === option.value }"
-        @click="selectSortOption(option.value)"
-        :disabled="isLoading"
-      >
-        {{ option.label }}
-      </button>
-    </li>
-  </ul>
-</div>
-
+                <ul v-if="isSortDropdownOpen" class="custom-menu">
+                  <li v-for="option in sortOptions" :key="option.value">
+                    <button
+                      :class="{ active: filters.sortBy === option.value }"
+                      @click="selectSortOption(option.value)"
+                      :disabled="isLoading"
+                    >
+                      {{ option.label }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
 
               <!-- Mobile Sidebar Filter -->
               <button 
@@ -431,73 +640,68 @@
           </div>
 
           <!-- Active Filters Bar -->
-        <div v-if="hasActiveFilters" class="active-filters-bar">
-  
-  <!-- Header -->
-  <div class="filters-header">
-    <div class="title">
-      <i class="ph ph-funnel"></i>
-      <span>Active Filters</span>
-    </div>
+          <div v-if="hasActiveFilters" class="active-filters-bar">
+            <div class="filters-header">
+              <div class="title">
+                <i class="ph ph-funnel"></i>
+                <span>Active Filters</span>
+              </div>
 
-    <div class="actions">
-      <button class="link-btn" @click="copyURLToClipboard" :disabled="isLoading">
-        <i class="ph ph-copy"></i>
-        Copy link
-      </button>
+              <div class="actions">
+                <button class="link-btn" @click="copyURLToClipboard" :disabled="isLoading">
+                  <i class="ph ph-copy"></i>
+                  Copy link
+                </button>
 
-      <button class="clear-all" @click="clearAllFilters" :disabled="isLoading">
-        Clear all
-      </button>
-    </div>
-  </div>
+                <button class="clear-all" @click="clearAllFilters" :disabled="isLoading">
+                  Clear all
+                </button>
+              </div>
+            </div>
 
-  <!-- Filter Chips -->
-  <div class="filters-chips">
+            <div class="filters-chips">
+              <!-- Category -->
+              <button v-if="filters.category" class="chip" @click="clearCategoryFilter" :disabled="isLoading">
+                {{ filters.category }}
+                <i class="ph ph-x"></i>
+              </button>
 
-    <!-- Category -->
-    <button v-if="filters.category" class="chip" @click="clearCategoryFilter">
-      {{ filters.category }}
-      <i class="ph ph-x"></i>
-    </button>
+              <!-- Brand -->
+              <button v-if="filters.brand" class="chip" @click="clearBrandFilter" :disabled="isLoading">
+                <img
+                  v-if="getBrandLogo(filters.brand)"
+                  :src="getBrandLogo(filters.brand)"
+                  class="chip-logo"
+                  loading="lazy"
+                  @error="handleImageError"
+                />
+                {{ filters.brand }}
+                <i class="ph ph-x"></i>
+              </button>
 
-    <!-- Brand -->
-    <button v-if="filters.brand" class="chip" @click="clearBrandFilter">
-      <img
-        v-if="getBrandLogo(filters.brand)"
-        :src="getBrandLogo(filters.brand)"
-        class="chip-logo"
-        @error="handleImageError"
-      />
-      {{ filters.brand }}
-      <i class="ph ph-x"></i>
-    </button>
+              <!-- Color -->
+              <button v-if="filters.color" class="chip" @click="clearColorFilter" :disabled="isLoading">
+                <span
+                  class="color-dot"
+                  :style="{ backgroundColor: getColorHex(filters.color) }"
+                ></span>
+                {{ filters.color }}
+                <i class="ph ph-x"></i>
+              </button>
 
-    <!-- Color -->
-    <button v-if="filters.color" class="chip" @click="clearColorFilter">
-      <span
-        class="color-dot"
-        :style="{ backgroundColor: getColorHex(filters.color) }"
-      ></span>
-      {{ filters.color }}
-      <i class="ph ph-x"></i>
-    </button>
+              <!-- Size -->
+              <button v-if="filters.size" class="chip" @click="clearSizeFilter" :disabled="isLoading">
+                Size: {{ filters.size }}
+                <i class="ph ph-x"></i>
+              </button>
 
-    <!-- Size -->
-    <button v-if="filters.size" class="chip" @click="clearSizeFilter">
-      Size: {{ filters.size }}
-      <i class="ph ph-x"></i>
-    </button>
-
-    <!-- Price -->
-    <button v-if="isPriceFilterApplied" class="chip" @click="resetPriceFilter">
-      ₹{{ formatPrice(filters.minPrice) }} – ₹{{ formatPrice(filters.maxPrice) }}
-      <i class="ph ph-x"></i>
-    </button>
-
-  </div>
-</div>
-
+              <!-- Price -->
+              <button v-if="isPriceFilterApplied" class="chip" @click="resetPriceFilter" :disabled="isLoading">
+                ₹{{ formatPrice(filters.minPrice) }} – ₹{{ formatPrice(filters.maxPrice) }}
+                <i class="ph ph-x"></i>
+              </button>
+            </div>
+          </div>
 
           <!-- Products -->
           <div>
@@ -536,9 +740,9 @@
                       <button @click="addToWishlist(product)" title="Add to Wishlist" :disabled="isLoading">
                         <i class="ph ph-heart" :class="{ 'in-wishlist': isInWishlist(product) }"></i>
                       </button>
-                      <button @click="quickView(product)" title="Quick View" :disabled="isLoading">
+                      <!-- <button @click="quickView(product)" title="Quick View" :disabled="isLoading">
                         <i class="ph ph-eye"></i>
-                      </button>
+                      </button> -->
                     </div>
                   </div>
                   
@@ -551,15 +755,15 @@
                       </span>
                     </div>
                       
-                    <div class="product-title-section">
+                    <div  class="product-title-section">
                       <NuxtLink :to="getProductLink(product)" class="product-link">
-                        <h3 class="product-title">
-                          {{ truncateText(getProductName(product), 50) }}
-                        </h3>
+                        <h2 class="product-title">
+                          {{ truncateText(getProductName(product),16) }}
+                        </h2>
 
-                        <p class="product-description">
+                        <!-- <p class="product-description">
                           {{ product.mainProduct?.description || '' }}
-                        </p>
+                        </p> -->
 
                         <div v-if="getProductColor(product) || getProductSize(product)" class="variant-info">
                           <span v-if="getProductColor(product)" class="variant-chip">
@@ -568,12 +772,11 @@
                           </span>
                           <span v-if="getProductSize(product)" class="variant-chip size-chip">
                             Size {{ getProductSize(product) }}
-                            
                           </span>
-                                      <span class="review-badge">
-  <i class="ph ph-eye-bold"></i>
-  {{ (getReviewCount(product) || 12) + Math.floor(Math.random() * 5) + 1 }} Reviews
-</span> 
+                          <span class="review-badge">
+                            <i class="ph ph-eye-bold"></i>
+                            {{ (getReviewCount(product) || 12) + Math.floor(Math.random() * 5) + 1 }} Reviews
+                          </span> 
                         </div>
                       </NuxtLink>
                     </div>
@@ -587,7 +790,6 @@
                              'empty': star > Math.round(getProductRating(product))
                            }"></i>
                       </div>
-
                     </div>
                     
                     <!-- Price -->
@@ -731,8 +933,8 @@ import { useProductStore } from '../../store/useProductStore'
 import { encodeId } from "../../utlis/encode"
 import { useWishlistStore } from '../../store/useWishlistStore'
 import { useToast } from "vue-toastification";
-const toast = useToast();
 
+const toast = useToast();
 const route = useRoute()
 const wishlistStore = useWishlistStore()
 const productStore = useProductStore()
@@ -741,6 +943,7 @@ const productStore = useProductStore()
 const viewMode = ref('grid')
 const showMobileSidebar = ref(false)
 const isSortDropdownOpen = ref(false)
+const isSortDropdownOpenMobile = ref(false)
 const showInitialLoading = ref(true)
 const priceRange = ref({ min: 0, max: 50000 })
 
@@ -772,6 +975,10 @@ const isPriceFilterApplied = computed(() => {
 // Helper functions
 const hasImage = (product) => {
   return productStore.getProductImage(product) !== '/assets/images/placeholder.jpg'
+}
+const syncLivePrice = () => {
+  filters.minPrice = priceRange.value.min
+  filters.maxPrice = priceRange.value.max
 }
 
 const truncateText = (text, maxLength = 50) => {
@@ -826,7 +1033,76 @@ const getProductLink = (product) => {
     url += `?color=${encodeURIComponent(productColor)}`
   }
   
-  return url
+  return url 
+}
+
+// Mobile-specific functions
+const getMobileFilterChips = () => {
+  const chips = []
+  const f = filters.value
+  
+  if (f.category) {
+    chips.push({
+      key: 'category',
+      label: f.category,
+      clearFn: clearCategoryFilter
+    })
+  }
+  
+  if (f.brand) {
+    chips.push({
+      key: 'brand',
+      label: f.brand,
+      clearFn: clearBrandFilter
+    })
+  }
+  
+  if (f.color) {
+    chips.push({
+      key: 'color',
+      label: f.color,
+      clearFn: clearColorFilter
+    })
+  }
+  
+  if (f.size) {
+    chips.push({
+      key: 'size',
+      label: `Size: ${f.size}`,
+      clearFn: clearSizeFilter
+    })
+  }
+  
+  if (isPriceFilterApplied.value) {
+    chips.push({
+      key: 'price',
+      label: `₹${formatPrice(f.minPrice)}-₹${formatPrice(f.maxPrice)}`,
+      clearFn: resetPriceFilter
+    })
+  }
+  
+  return chips
+}
+
+const getActiveFilterCount = () => {
+  let count = 0
+  const f = filters.value
+  
+  if (f.category) count++
+  if (f.brand) count++
+  if (f.color) count++
+  if (f.size) count++
+  if (isPriceFilterApplied.value) count++
+  
+  return count
+} 
+
+const selectSortOptionMobile = (value) => {
+  selectSortFilter(value)
+}
+
+const applyMobileFilters = () => {
+  closeMobileSidebar()
 }
 
 // Filter functions with URL update
@@ -861,7 +1137,7 @@ const clearColorFilter = async () => {
 }
 
 const toggleSizeFilter = async (size) => {
-  await productStore.toggleSizeFilter(size)
+  await productStore.toggleSizeFilter(size) 
   updateURL()
 }
 
@@ -906,6 +1182,7 @@ const clearAllFilters = async () => {
   priceRange.value = { min: 0, max: defaultMaxPrice.value }
   await productStore.clearAllFilters()
   updateURL()
+  closeMobileSidebar()
 }
 
 // URL update function
@@ -935,7 +1212,6 @@ const goToPage = async (page) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
-
 const getVisiblePages = () => { 
   const pages = []
   const total = pagination.value.lastPage
@@ -971,9 +1247,14 @@ const toggleSortDropdown = () => {
   isSortDropdownOpen.value = !isSortDropdownOpen.value
 }
 
+const toggleSortDropdownMobile = () => {
+  isSortDropdownOpenMobile.value = !isSortDropdownOpenMobile.value
+}
+
 const selectSortOption = (value) => {
   selectSortFilter(value)
   isSortDropdownOpen.value = false
+  isSortDropdownOpenMobile.value = false
 }
 
 const toggleMobileSidebar = () => {
@@ -1056,65 +1337,25 @@ const copyURLToClipboard = async () => {
 const handleImageError = (event) => {
   event.target.src = '/assets/images/placeholder.jpg'
 }
-
+// Watch for filter changes to update price range
+watch(() => filters.value, (newFilters) => {
+  priceRange.value = {
+    min: newFilters.minPrice,
+    max: newFilters.maxPrice
+  };
+}, { deep: true, immediate: true });
 // Initialize
 // Initialize
 onMounted(async () => {
   try {
-    // 1. First initialize the store
+    // Just initialize the store - it will handle URL syncing internally
     await productStore.initialize();
     
-    // 2. Parse URL parameters and apply filters
-    const query = route.query;
-    
-    // First clear any existing filters
-    await productStore.clearAllFilters();
-    
-    // Apply URL filters sequentially
-    const filterPromises = [];
-    
-    if (query.category) {
-      filterPromises.push(productStore.toggleCategoryFilter(query.category));
-    }
-        
-    if (query.brand) {
-      filterPromises.push(productStore.toggleBrandFilter(query.brand));
-    }
-    
-    if (query.color) {
-      filterPromises.push(productStore.toggleColorFilter(query.color));
-    }
-    
-    if (query.size) {
-      filterPromises.push(productStore.toggleSizeFilter(query.size));
-    }
-    
-    // Apply other filters after category/brand/color/size
-    if (query.sort) {
-      filterPromises.push(productStore.updateFilters({ sortBy: query.sort }));
-    }
-    
-    // Apply price filters
-    if (query.min_price || query.max_price) {
-      const min = parseInt(query.min_price) || 0;
-      const max = parseInt(query.max_price) || defaultMaxPrice.value;
-      filterPromises.push(productStore.updateFilters({
-        minPrice: Math.min(min, max),
-        maxPrice: Math.max(min, max)
-      }));
-      priceRange.value = { min, max };
-    }
-    
-    // Apply pagination
-    if (query.page) {
-      const page = parseInt(query.page);
-      if (page > 0) {
-        filterPromises.push(productStore.updateFilters({ page }));
-      }
-    }
-    
-    // Wait for all filters to be applied
-    await Promise.all(filterPromises);
+    // Sync price range with current filters
+    priceRange.value = {
+      min: filters.value.minPrice,
+      max: filters.value.maxPrice
+    };
     
     showInitialLoading.value = false;
   } catch (error) {
@@ -1127,10 +1368,403 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.body.classList.remove('no-scroll')
 })
+definePageMeta({
+  scrollToTop: true
+})
 </script>
 
 <style scoped>
-/* All styles remain the same as your original file */
+/* Mobile Filter Overlay & Sheet */
+.mobile-filter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.mobile-filter-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80vh;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  z-index: 1000;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.mobile-filter-sheet.show {
+  transform: translateY(0);
+}
+
+.filter-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.filter-sheet-header h6 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-filter-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.filter-sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-active-filters {
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.active-filters-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mobile-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #333;
+  border: none;
+}
+
+.mobile-filter-chip i {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.clear-all-mobile {
+  width: 100%;
+  padding: 12px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear-all-mobile:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-filter-options {
+  padding: 16px 0;
+}
+
+.mobile-filter-section {
+  margin-bottom: 24px;
+}
+
+.mobile-filter-section h6 {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.mobile-sort-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-sort-options button {
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.mobile-sort-options button.active {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.mobile-sort-options button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mobile-quick-filters button {
+  padding: 8px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mobile-quick-filters button.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+.mobile-quick-filters button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.view-all-link {
+  color: #4f46e5;
+  font-size: 14px;
+  text-decoration: none;
+  padding: 8px 12px;
+}
+
+.mobile-price-range {
+  background: #4b015a;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.price-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: whitesmoke;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.price-display .separator {
+  color: #ffffff;
+}
+
+.range-slider-wrapper {
+  position: relative;
+  height: 40px;
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;      
+  background: #d85707;      
+  border-radius: 6px;
+  outline: none;
+}
+
+
+.range-slider::-webkit-slider-thumb {
+  pointer-events: auto;
+  width: 24px;
+  height: 24px;
+  background: #fffeff;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.mobile-color-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.color-filter-btn.active {
+  border-color: #4f46e5;
+  background: #f0f0ff;
+}
+
+.color-dot-mobile {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 1px #e5e7eb;
+}
+
+.filter-sheet-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.btn-apply-filters {
+  width: 100%;
+  padding: 16px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-apply-filters:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-filter-toggle-bar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  background: white;
+  z-index: 500;
+  border-bottom: 1px solid #f0f0f0;
+  margin-top: 50px;
+  padding-bottom: 10px;
+}
+
+.mobile-filter-summary {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.product-count {
+  font-weight: 600;
+  color: #333;
+}
+
+.active-filter-count {
+  color: #105cb2;
+  font-weight: 500;
+}
+
+.mobile-filter-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.custom-dropdown-mobile {
+  position: relative;
+  flex: 1;
+}
+
+.mobile-sort-btn,
+.mobile-filter-btn {
+  padding: 1px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.mobile-filter-btn {
+  width: auto;
+  min-width: 100px;
+  position: relative;
+}
+
+.filter-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  background: #ff4444;
+  border-radius: 50%;
+}
+
+.sort-dropdown-mobile {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin-top: 4px;
+}
+
+.sort-dropdown-mobile button {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+}
+
+.sort-dropdown-mobile button.active {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.sort-dropdown-mobile button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Active Filters*/
 .arrow {
   display: inline-block;
@@ -1140,7 +1774,7 @@ onBeforeUnmount(() => {
 }
 
 .arrow.open {
-  transform: rotate(180deg); /* arrow upar chala jayega */
+  transform: rotate(180deg);
 }
 
 .active-filters-bar {
@@ -1148,6 +1782,7 @@ onBeforeUnmount(() => {
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 16px;
+  margin-bottom: 24px;
 }
 
 .filters-header {
@@ -1177,12 +1812,22 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
+.link-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .clear-all {
   background: none;
   border: none;
   color: #d32f2f;
   font-size: 14px;
   cursor: pointer;
+}
+
+.clear-all:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .filters-chips {
@@ -1201,6 +1846,7 @@ onBeforeUnmount(() => {
   border: 1px solid #ddd;
   border-radius: 20px;
   cursor: pointer;
+  border: none;
 }
 
 .chip:hover {
@@ -1209,6 +1855,11 @@ onBeforeUnmount(() => {
 
 .chip i {
   font-size: 12px;
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .color-dot {
@@ -1244,7 +1895,6 @@ onBeforeUnmount(() => {
   color: inherit;
   display: block;
 }
-/* Active Filters*/
 
 /* Title */
 .product-title {
@@ -1256,23 +1906,24 @@ onBeforeUnmount(() => {
 }
 
 /* Description (2 line clamp) */
-.product-description {
+/* .product-description {
   font-size: 13px;
   color: #666;
   line-height: 1.4;
   margin-bottom: 6px;
-
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
+} */
 
 /* Variant Info */
 .variant-info {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  align-items: center;
+  margin-top: 8px;
 }
 
 /* Chips */
@@ -1301,10 +1952,7 @@ onBeforeUnmount(() => {
   color: #3730a3;
 }
 
-.Toastify__toast {
-  padding: 4px 10px !important;
-  font-size: 12px;
-}
+/* Skeleton Loading */
 .skeleton-container {
   min-height: 100vh;
   background: white;
@@ -1528,14 +2176,12 @@ h6 {
 }
 
 .size-btn:hover:not(:disabled) {
-  border-color: #4f46e5;
-  color: #4f46e5;
+  color: #000000;
 }
 
 .size-btn-active {
-  background: #4f46e5;
+  background: #034cb9;
   color: white;
-  border-color: #4f46e5;
 }
 
 .size-btn:disabled {
@@ -1575,40 +2221,6 @@ h6 {
   width: 100%;
   height: auto;
   border-radius: 8px;
-}
-
-/* Mobile Sidebar */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-}
-
-.sidebar-mobile-wrapper {
-  position: relative;
-}
-
-@media (max-width: 991px) {
-  .sidebar-mobile-wrapper {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 320px;
-    max-width: 90%;
-    height: 100vh;
-    z-index: 1000;
-    background: white;
-    transition: left 0.3s ease;
-    overflow-y: auto;
-  }
-  
-  .sidebar-mobile-wrapper.mobile-open {
-    left: 0;
-  }
 }
 
 /* Product Topbar */
@@ -1742,8 +2354,9 @@ h6 {
 }
 
 .mobile-filter-btn {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 25px;
+ 
   border: 1px solid #d1d5db;
   border-radius: 6px;
   background: white;
@@ -1770,101 +2383,14 @@ h6 {
   border: 2px solid white;
 }
 
-/* Active Filters Bar */
-.active-filters-bar {
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 8px;
-}
-
-.active-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.active-filter-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 14px;
-}
-
-.active-filter-item button {
-  background: none;
-  border: none;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0;
-}
-
-.active-filter-item button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-copy-link {
-  padding: 6px 12px;
-  border: 1px solid #4f46e5;
-  border-radius: 6px;
-  background: white;
-  color: #4f46e5;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.btn-copy-link:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-clear-all {
-  padding: 6px 12px;
-  border: 1px solid #dc2626;
-  border-radius: 6px;
-  background: white;
-  color: #dc2626;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.btn-clear-all:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.color-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 1px #e5e7eb;
-}
-
 /* Product Grid */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 50px;
 }
+
 
 .product-card {
   border: 1px solid #e5e7eb;
@@ -1877,13 +2403,20 @@ h6 {
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
+}  
 
 .product-image {
   position: relative;
-  height: 280px;
-  background: #f9fafb;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 
 .product-image a {
   display: block;
@@ -1891,22 +2424,24 @@ h6 {
 }
 
 .product-image img {
-  width: 100%;
+  width:100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; 
+  object-position: center;
+  transition: transform 0.4s ease;
 }
 
 .no-image {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; 
   justify-content: center;
   color: #9ca3af;
 }
 
 .no-image i {
-  font-size: 48px;
+  font-size: 48px; 
   margin-bottom: 8px;
 }
 
@@ -1946,8 +2481,8 @@ h6 {
 }
 
 .product-actions button {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
   background: white;
@@ -1961,7 +2496,7 @@ h6 {
 }
 
 .product-actions button:hover:not(:disabled) {
-  background: #4f46e5;
+  background: #de0060;
   color: white;
 }
 
@@ -1975,7 +2510,7 @@ h6 {
 }
 
 .product-info {
-  padding: 16px;
+  padding: 6px;
 }
 
 .product-meta {
@@ -2005,7 +2540,7 @@ h6 {
 }
 
 .product-title-section a:hover {
-  color: #4f46e5;
+  color: #c50360;
 }
 
 .variant-info {
@@ -2028,14 +2563,14 @@ h6 {
   box-shadow: 0 0 0 1px #e5e7eb;
 }
 
-.product-rating {
+/* .product-rating {
   display: flex;
   align-items: center;
   gap: 4px;
   margin: 12px 0;
   font-size: 12px;
   color: #6b7280;
-}
+} */
 
 .stars {
   display: flex;
@@ -2084,7 +2619,7 @@ h6 {
   font-weight: 500;
 }
 
-.add-to-cart-btn {
+/* .add-to-cart-btn {
   width: 100%;
   padding: 12px;
   background: #4f46e5;
@@ -2099,9 +2634,9 @@ h6 {
   justify-content: center;
   gap: 8px;
   transition: background 0.2s;
-}
+} */
 
-.add-to-cart-btn:hover:not(:disabled) {
+/* .add-to-cart-btn:hover:not(:disabled) {
   background: #4338ca;
 }
 
@@ -2113,7 +2648,7 @@ h6 {
 .add-to-cart-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
+} */
 
 /* List View */
 .list-view {
@@ -2122,7 +2657,7 @@ h6 {
   gap: 16px;
 }
 
-.product-list-item {
+.product-list-item { 
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   background: white;
@@ -2345,7 +2880,74 @@ h6 {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 576px) {
+.product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px; 
+  }
+  .stars{
+    display: none;
+  }
+  .discount-badge{
+   display: none;
+  }
+  .variant-info{
+    display: none;
+  }
+  .product-rating{
+    display: none;
+  }
+  .product-title{
+    padding: 0;
+    margin: 0;
+  }
+  .product-price{
+    margin: 0;
+  }
+}
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .product-image {
+    aspect-ratio: 1 / 1; 
+  }
+
+  .product-image img {
+    object-fit: contain; 
+  }
+
+  .product-title {
+    font-size: 13px;
+  }
+
+  .product-description {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .current-price {
+    font-size: 14px;
+  }
+    .product-actions {
+    top: 10px;
+    right: 0px;
+    gap: 6px;
+  }
+
+  .product-actions button {
+    width: 10px;
+    height: 15px;
+  }
+
+  .product-actions i {
+    font-size: 18px;
+  }
+}
+
+/* @media (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 16px;
@@ -2373,6 +2975,31 @@ h6 {
     align-items: flex-start;
     gap: 8px;
   }
+  
+  .filters-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .filters-chips::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+} */
+@media (min-width: 1024px) {
+  .product-image {
+    aspect-ratio: 4 / 5; 
+  }
+
+  .product-image img {
+    object-fit:contain;  
+  }
 }
 
 @media (max-width: 576px) {
@@ -2384,13 +3011,61 @@ h6 {
     padding: 16px;
   }
   
-  .product-info {
+  /* .product-info {
     padding: 12px;
+  } */
+  
+  .mobile-filter-sheet {
+    height: 85vh;
+  }
+  
+  .filter-sheet-content {
+    padding: 0 16px;
   }
 }
 
 /* Utility */
 .no-scroll {
   overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Performance Optimizations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Touch-friendly */
+@media (hover: none) {
+  .product-actions button {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .pagination-btn {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .btn-add-cart,
+  wishlist.btn- {
+    padding: 12px 24px;
+  }
 }
 </style>

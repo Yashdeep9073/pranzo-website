@@ -24,7 +24,7 @@ export const useProductStore = defineStore('productStore', () => {
 
     // Category data with nested structure
     categories: [],
-    categoryTree: [], // This will hold the nested structure
+    categoryTree: [],
     colors: [],
     sizes: [],
     brands: [],
@@ -77,12 +77,12 @@ export const useProductStore = defineStore('productStore', () => {
       })) || []
     }))
   }
-
+const API_URL_CATEGORIES = config.public.api.categories
   const fetchCategoriesWithNestedData = async () => {
     try {
       console.log('Fetching categories with nested data...')
       
-      const response = await fetch('https://kartmania-api.vibrantick.org/common/product-category/read')
+      const response = await fetch(API_URL_CATEGORIES)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -93,14 +93,12 @@ export const useProductStore = defineStore('productStore', () => {
       
       if (data.data && Array.isArray(data.data)) {
         state.value.categories = data.data
-        state.value.categoryTree = buildCategoryTree(data.data)
-        console.log('Category tree built:', state.value.categoryTree)
+        state.value.categoryTree = buildCategoryTree(data.data) 
+        // console.log('Category tree built:', state.value.categoryTree)
         
-        // Calculate total products count
         const totalProducts = data.data.reduce((sum, category) => {
           return sum + (category._count?.products || 0)
         }, 0)
-        
         return {
           categories: data.data,
           categoryTree: state.value.categoryTree,
@@ -148,7 +146,7 @@ export const useProductStore = defineStore('productStore', () => {
       name: size.size
     }))
   })
-
+  
   const availableBrands = computed(() => {
     if (!state.value.brands.length) return []
 
@@ -205,7 +203,7 @@ export const useProductStore = defineStore('productStore', () => {
   const getDescription = (product) => {
     return product.mainProduct.description
   }
-
+  
   const getProductBrand = (product) => {
     return product.brand?.name || null
   }
@@ -445,9 +443,22 @@ export const useProductStore = defineStore('productStore', () => {
       maxPrice: defaultMaxPrice.value
     }
 
-    // Parse from URL
+    // Parse from URL - SINGLE DECODE ONLY
     if (query.category) {
-      newFilters.category = decodeURIComponent(query.category)
+      // First, check if it's already a simple string
+      if (typeof query.category === 'string' && !query.category.includes('%')) {
+        newFilters.category = query.category
+      } else {
+        // Try to decode only once
+        try {
+          const decoded = decodeURIComponent(query.category)
+          // Replace any double encoded spaces
+          newFilters.category = decoded.replace(/%20/g, ' ').trim()
+        } catch (error) {
+          console.error('Error decoding category:', error)
+          newFilters.category = query.category
+        }
+      }
     }
 
     if (query.color) {
@@ -459,7 +470,15 @@ export const useProductStore = defineStore('productStore', () => {
     }
 
     if (query.brand) {
-      newFilters.brand = decodeURIComponent(query.brand)
+      if (typeof query.brand === 'string' && !query.brand.includes('%')) {
+        newFilters.brand = query.brand
+      } else {
+        try {
+          newFilters.brand = decodeURIComponent(query.brand)
+        } catch (error) {
+          newFilters.brand = query.brand
+        }
+      }
     }
 
     if (query.sort) {
@@ -478,6 +497,7 @@ export const useProductStore = defineStore('productStore', () => {
       newFilters.maxPrice = parseInt(query.max_price) || defaultMaxPrice.value
     }
 
+    console.log('Parsed filters from URL:', newFilters)
     return newFilters
   }
 
@@ -488,15 +508,26 @@ export const useProductStore = defineStore('productStore', () => {
 
     const query = {}
 
-    // Only add to URL if filter is active
-    if (filters.category) query.category = encodeURIComponent(filters.category)
+    // Only add to URL if filter is active - SINGLE ENCODE ONLY
+    if (filters.category && filters.category !== 'all') {
+      // Encode only once and replace spaces with %20 (not +)
+      const encodedCategory = encodeURIComponent(filters.category)
+      query.category = encodedCategory
+    }
+    
     if (filters.color) query.color = filters.color
     if (filters.size) query.size = filters.size
-    if (filters.brand) query.brand = encodeURIComponent(filters.brand)
+    
+    if (filters.brand) {
+      query.brand = encodeURIComponent(filters.brand)
+    }
+    
     if (filters.sortBy !== 'popularity') query.sort = filters.sortBy
     if (filters.minPrice > 0) query.min_price = filters.minPrice
     if (filters.maxPrice < defaultMaxPrice.value) query.max_price = filters.maxPrice
     if (filters.page > 1) query.page = filters.page
+
+    console.log('Updating URL with query:', query)
 
     // Mark that we're updating URL
     state.value.urlUpdateInProgress = true
@@ -512,7 +543,49 @@ export const useProductStore = defineStore('productStore', () => {
       }, 50)
     })
   }
+// ==================== EXTERNAL LINK HANDLING ====================
 
+const applyFiltersFromExternalLink = async (filtersObj) => {
+  try {
+    state.value.isLoading = true;
+    
+    // Reset everything first
+    state.value.allProducts = [];
+    state.value.filteredAndSortedProducts = [];
+    
+    // Base filters
+    const baseFilters = {
+      category: '',
+      sortBy: 'popularity',
+      page: 1,
+      limit: 12,
+      color: '',
+      size: '',
+      brand: '',
+      minPrice: 0,
+      maxPrice: defaultMaxPrice.value
+    };
+    
+    // Merge with provided filters
+    const mergedFilters = { ...baseFilters, ...filtersObj };
+    
+    // Update state
+    state.value.filters = mergedFilters;
+    
+    // Fetch products
+    await fetchProductsWithFilters(mergedFilters);
+    
+    // Update URL
+    updateURLFromFilters(mergedFilters);
+    
+    return true;
+  } catch (error) {
+    console.error('Error applying filters from external link:', error);
+    throw error;
+  } finally {
+    state.value.isLoading = false;
+  }
+};
   // ==================== FETCH FILTER OPTIONS ====================
 
   const fetchFilterOptions = async () => {
@@ -553,7 +626,7 @@ export const useProductStore = defineStore('productStore', () => {
       } else {
         state.value.sizes = []
       }
-
+      
       // Brands
       if (brandsData.data?.length) {
         state.value.brands = brandsData.data.map(brand => ({
@@ -596,9 +669,20 @@ export const useProductStore = defineStore('productStore', () => {
       filterParams.push(`size: "${filters.size}"`)
     }
 
-    // Add category filter if selected
-    if (filters.category) {
-      filterParams.push(`category: "${filters.category}"`)
+    // Add category filter if selected - FIXED
+    if (filters.category && filters.category !== 'all') {
+      // Find category in categories array to get ID
+      const categoryObj = state.value.categories.find(cat => 
+        cat.name === filters.category || cat.name.toLowerCase() === filters.category.toLowerCase()
+      )
+      
+      if (categoryObj) {
+        // Use category name (not ID) based on API expectation
+        filterParams.push(`category: "${categoryObj.name}"`)
+      } else {
+        // Use the category name from filter
+        filterParams.push(`category: "${filters.category}"`)
+      }
     }
 
     // Add brand filter if selected
@@ -620,6 +704,7 @@ export const useProductStore = defineStore('productStore', () => {
             groupId
             name
             category {
+              id
               name
             }
             mainProduct {
@@ -674,7 +759,9 @@ export const useProductStore = defineStore('productStore', () => {
       color: filters.color || 'none',
       size: filters.size || 'none',
       category: filters.category || 'none',
-      brand: filters.brand || 'none'
+      brand: filters.brand || 'none',
+      page: filters.page,
+      limit: filters.limit
     })
 
     return query
@@ -704,7 +791,7 @@ export const useProductStore = defineStore('productStore', () => {
       // Build GraphQL query with all active filters
       const query = buildGraphQLQuery(mergedFilters)
 
-      console.log('Sending GraphQL query:', query)
+      console.log('Sending GraphQL query with filters:', mergedFilters)
 
       // Use $fetch with proper configuration
       const response = await $fetch(API_ENDPOINTS.graphql, {
@@ -715,7 +802,7 @@ export const useProductStore = defineStore('productStore', () => {
         body: JSON.stringify({ query })
       })
 
-      console.log('GraphQL response:', response)
+      console.log('GraphQL response received:', response)
 
       if (response.data?.productFilter?.data) {
         const products = response.data.productFilter.data.map(product => {
@@ -760,8 +847,10 @@ export const useProductStore = defineStore('productStore', () => {
         // Apply client-side price filtering and sorting
         filterAndSortProducts()
 
-        // Update URL
-        updateURLFromFilters(mergedFilters)
+        // Update URL - but only if we're not syncing from URL
+        if (!state.value.isUpdatingFromURL) {
+          updateURLFromFilters(mergedFilters)
+        }
 
         return {
           products: state.value.filteredAndSortedProducts,
@@ -796,7 +885,7 @@ export const useProductStore = defineStore('productStore', () => {
 
   const updateFilters = async (newFilters) => {
     await fetchProductsWithFilters(newFilters)
-  }
+  } 
 
   // ====================TOGGLE FILTER FUNCTIONS====================
 
@@ -831,12 +920,23 @@ export const useProductStore = defineStore('productStore', () => {
   const toggleCategoryFilter = async (category) => {
     const currentFilters = { ...state.value.filters }
 
-    if (currentFilters.category === category) {
+    // Check if same category (case insensitive)
+    const isSameCategory = currentFilters.category.toLowerCase() === category.toLowerCase()
+
+    if (isSameCategory) {
       // Remove category filter
       currentFilters.category = ''
     } else {
-      // Add category filter
-      currentFilters.category = category
+      // Add category filter - use the exact category name from store
+      const categoryObj = state.value.categories.find(cat => 
+        cat.name.toLowerCase() === category.toLowerCase()
+      )
+      
+      if (categoryObj) {
+        currentFilters.category = categoryObj.name // Use the exact name from store
+      } else {
+        currentFilters.category = category
+      }
     }
 
     await fetchProductsWithFilters(currentFilters)
@@ -910,6 +1010,8 @@ export const useProductStore = defineStore('productStore', () => {
       // Get filters from URL
       const urlFilters = parseFiltersFromURL()
 
+      console.log('Syncing from URL with filters:', urlFilters)
+
       // Update filters in state
       state.value.filters = urlFilters
 
@@ -926,45 +1028,57 @@ export const useProductStore = defineStore('productStore', () => {
   }
 
   // ==================== INITIALIZATION ====================
-
-  const initialize = async () => {
-    if (state.value.hasInitialized) {
-      return true
-    }
-
-    try {
-      state.value.isLoading = true
-
-      // 1. Load filter options (colors, sizes, etc. from separate APIs)
-      await fetchFilterOptions()
-
-      // 2. Load all products initially (no filters)
-      await fetchProductsWithFilters({})
-
-      state.value.hasInitialized = true
-      state.value.isLoading = false
-
-      return true
-
-    } catch (error) {
-      console.error('Failed to initialize store:', error)
-      state.value.isLoading = false
-      state.value.hasInitialized = true
-      return false
-    }
+const initialize = async () => {
+  if (state.value.hasInitialized) {
+    return true
   }
 
+  try {
+    state.value.isLoading = true
+
+    // 1. Load filter options (colors, sizes, etc. from separate APIs)
+    await fetchFilterOptions()
+
+    // 2. Check if URL has filters
+    const query = route.query
+    const hasUrlFilters = Object.keys(query).length > 0
+
+    if (hasUrlFilters) {
+      // Use syncFiltersFromURL which handles URL parameters properly
+      await syncFiltersFromURL()
+    } else {
+      // Load all products initially (no filters)
+      await fetchProductsWithFilters({})
+    }
+
+    state.value.hasInitialized = true
+    state.value.isLoading = false
+
+    return true
+
+  } catch (error) {
+    console.error('Failed to initialize store:', error)
+    state.value.isLoading = false
+    state.value.hasInitialized = true
+    return false
+  }
+}
   // ==================== WATCHERS ====================
 
-  watch(() => route.query, (newQuery, oldQuery) => {
-    if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) {
-      return
-    }
-
-    if (!state.value.isUpdatingFromURL && !state.value.urlUpdateInProgress) {
-      syncFiltersFromURL()
-    }
-  }, { deep: true })
+watch(() => route.query, (newQuery, oldQuery) => {
+  // Don't sync if we're already updating
+  if (state.value.isUpdatingFromURL || state.value.urlUpdateInProgress) {
+    return;
+  }
+  
+  // Check if query actually changed
+  if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) {
+    return;
+  }
+  
+  console.log('Route query changed, syncing from URL...');
+  syncFiltersFromURL();
+}, { deep: true, immediate: false });
 
   // ==================== EXPORTS ====================
 
@@ -990,6 +1104,7 @@ export const useProductStore = defineStore('productStore', () => {
 
     // New actions
     fetchCategoriesWithNestedData,
+    applyFiltersFromExternalLink,
     
     // Existing actions
     fetchProducts: fetchProductsWithFilters,
