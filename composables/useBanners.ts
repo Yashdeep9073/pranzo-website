@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import useSWRV from 'swrv'
-
+        
 export interface BannerItem {
   id: number
   title: string
@@ -11,13 +11,16 @@ export interface BannerItem {
   updatedAt?: string
 }
 
+const config = useRuntimeConfig() 
+const API_URL_MEDIA = config.public.api.media
+
 // Cache key generator
 const getBannersKey = (apiUrl: string) => `banners:${apiUrl}`
 
 // Fetcher function
 const bannersFetcher = async (url: string): Promise<BannerItem[]> => {
   try {
-    const response = await fetch(url)
+    const response = await fetch(API_URL_MEDIA)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch banners: ${response.statusText}`)
@@ -25,10 +28,10 @@ const bannersFetcher = async (url: string): Promise<BannerItem[]> => {
     
     const data = await response.json()
     
-    // Adjust based on your API response structure
+    // Adjust based on your API response structure 
     if (data && data.data) {
       return data.data
-        .filter((item: BannerItem) => item.category === 'BANNER')
+        .filter((item: BannerItem) => item.category === 'HEROSECTION')
         .slice(0, 3)
         .map((item: BannerItem) => ({
           ...item,
@@ -87,7 +90,7 @@ export function useBanners(apiUrl: string) {
     isEmpty,
     
     // Error
-    error: bannersError,
+    error: bannersError, 
     
     // Actions
     refresh: refreshBanners,

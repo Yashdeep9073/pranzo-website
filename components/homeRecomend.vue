@@ -223,6 +223,7 @@ onMounted(async () => {
   }
 })
 
+
 // ==================== SIMPLE CATEGORY SWITCHING ====================
 const loadProductsForCategory = async (categoryId) => {
   if (activeTab.value === categoryId || isLoading.value) return

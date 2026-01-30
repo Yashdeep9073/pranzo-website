@@ -238,7 +238,7 @@ const loadCategories = async () => {
     isLoading.value = true
     
     // Fetch categories using the store method
-    const result = await productStore.fetchCategoriesWithNestedData()
+    const result = await productStore.fetchCategoriesWithNestedData() 
     if (result.categories && result.categories.length > 0) {
       // Process ALL categories - NO FILTERING
       categories.value = result.categories

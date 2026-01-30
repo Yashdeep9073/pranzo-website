@@ -5,7 +5,7 @@ const store = useProductStore()
 
 <template>
   <div>
-    <h3>Category</h3>
+    <h3>Category</h3> 
     <button @click="store.setCategory('electronics')">Electronics</button>
     <button @click="store.setCategory('jewelery')">Jewelery</button>
     <button @click="store.setCategory(`men's clothing`)">

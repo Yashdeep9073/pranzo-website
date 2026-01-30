@@ -252,7 +252,7 @@
                 Shop Now
                 <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span>
               </NuxtLink>
-            </div>
+            </div>  
           </div>
         </div>
       </div>

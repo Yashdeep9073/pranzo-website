@@ -9,7 +9,7 @@ import HomeFlashm from "~/components/homeFlashm.vue"
 import LazySection from "~/components/LazySection.vue"
 
 /* Heavy components (ASYNC) */
-const HomePromotion = defineAsyncComponent(() =>
+const HomePromotion = defineAsyncComponent(() => 
   import("~/components/homePromotion.vue")
 )
 const HomeFlash = defineAsyncComponent(() =>
@@ -25,10 +25,10 @@ const HomeRecomend = defineAsyncComponent(() =>
   import("~/components/homeRecomend.vue")
 )
 const HomeOffer = defineAsyncComponent(() =>
-  import("~/components/homeOffer.vue")
+  import("~/components/homeOffer.vue") 
 )
 const HomeHotdeal = defineAsyncComponent(() =>
-  import("~/components/homeHotdeal.vue")
+  import("~/components/homeHotdeal.vue") 
 )
 const HomeDiscount = defineAsyncComponent(() =>
   import("~/components/homeDiscount.vue")
@@ -54,18 +54,18 @@ useHead({ title: "Home" })
     <HomeFeature />
 
     <!-- BELOW THE FOLD (LAZY) -->
-    <LazySection :component="HomePromotion" />
+    <LazySection :component="HomePromotion"/>
     <LazySection :component="HomeFlash" />
     <LazySection :component="HomeBrand" />
-    <LazySection :component="HomeFlashm" />
-    <LazySection :component="HomeCategory" />
+    <LazySection :component="HomeFlashm" /> 
+    <LazySection :component="HomeCategory" /> 
     <LazySection :component="HomeRecomend" /> 
-    <LazySection :component="HomeOffer" />
-    <LazySection :component="HomeHotdeal" />
+    <LazySection :component="HomeOffer" /> 
+    <LazySection :component="HomeHotdeal" /> 
     <LazySection :component="HomeDiscount" />
     <LazySection :component="HomeShortProduct" />
-    <LazySection :component="HomeDailySell" />
-    <LazySection :component="ProductNews" />
+    <LazySection :component="HomeDailySell" /> 
+    <LazySection :component="ProductNews" /> 
   </div>
 </template>
 

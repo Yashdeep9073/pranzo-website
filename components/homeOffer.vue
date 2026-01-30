@@ -71,7 +71,7 @@
                     class="deal-image"
                     loading="lazy"
                     @error="handleImageError"
-                  />
+                  /> 
                   <!-- Overlay Gradient for Text Readability -->
                   <div class="image-overlay"></div>
                   
@@ -298,6 +298,8 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/mousewheel'
 import 'swiper/css/free-mode'
+  const config = useRuntimeConfig()
+const API_URL_MEDIA = config.public.api.media
 
 // Interfaces
 interface OfferData {
@@ -318,16 +320,13 @@ const error = ref<string | null>(null)
 const swiper = ref<HTMLElement | null>(null)
 let swiperInstance: Swiper | null = null
 
-// API URL
-const API_URL = 'https://kartmania-api.vibrantick.org/common/media/read'
-
 // Fetch offer data from API
 const fetchOfferData = async () => {
   try {
     loading.value = true
     error.value = null
     
-    const response = await fetch(API_URL)
+    const response = await fetch(API_URL_MEDIA)
     
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`)

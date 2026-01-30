@@ -307,7 +307,7 @@ const getRandomAvailable = () => {
 const handleImageError = (event, index) => {
   const img = event.target
   const fallbackImages = [ 
-    "/assets/images/thumbs/product-img26.png",
+    "/assets/images/thumbs/product-img26.png", 
     "/assets/images/thumbs/product-img27.png",
     "/assets/images/thumbs/product-img28.png",
     "/assets/images/thumbs/product-img29.png",
@@ -316,6 +316,8 @@ const handleImageError = (event, index) => {
     "/assets/images/thumbs/product-img3.png"
   ]
   img.src = fallbackImages[index % fallbackImages.length] 
+    img.onerror = null 
+
 }  
 
 const addToCart = (product) => {
@@ -348,7 +350,7 @@ const fetchOffers = async () => {
     const response = await $fetch(API_URL, {
       method: 'GET',
       params: {
-        offerType: 'FLASH_SALE',
+        offerType: 'FLASH_SALE', 
         isActive: true
       },
       headers: {

@@ -7,7 +7,7 @@ export const useProductStore = defineStore('productStore', () => {
   const router = useRouter()
   const config = useRuntimeConfig()
 
-  // ==================== STATE ====================
+  // ==================== STATE ==================== 
   const state = ref({
     // Product data 
     products: [],
@@ -77,12 +77,13 @@ export const useProductStore = defineStore('productStore', () => {
       })) || []
     }))
   }
-const API_URL_CATEGORIES = config.public.api.categories
+
+const API_URL_CATEGORIES = config.public.api.categories  
   const fetchCategoriesWithNestedData = async () => {
     try {
       console.log('Fetching categories with nested data...')
       
-      const response = await fetch(API_URL_CATEGORIES)
+      const response = await fetch(API_URL_CATEGORIES)  
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -171,9 +172,9 @@ const API_URL_CATEGORIES = config.public.api.categories
   // ==================== API ENDPOINTS ====================
 
   const API_ENDPOINTS = {
-    categories: config.public.api.categories,
-    colors: config.public.api.colors,
-    sizes: config.public.api.sizes,
+    categories: config.public.api.categories,  
+    colors: config.public.api.colors,  
+    sizes: config.public.api.sizes, 
     brands: config.public.api.brands,
     graphql: config.public.api.graphql
   }
@@ -216,7 +217,7 @@ const API_URL_CATEGORIES = config.public.api.categories
     if (mainProduct.discountValue && mainProduct.discountValue > 0) {
       return Math.round(price * (1 - mainProduct.discountValue / 100))
     }
-    return price
+    return price 
   }
 
   const getOriginalPrice = (product) => {
@@ -374,7 +375,7 @@ const API_URL_CATEGORIES = config.public.api.categories
   }
 
   // ==================== FILTER & SORT PRODUCTS ====================
-
+  
   const filterAndSortProducts = () => {
     if (state.value.allProducts.length === 0) {
       state.value.filteredAndSortedProducts = []
@@ -388,10 +389,10 @@ const API_URL_CATEGORIES = config.public.api.categories
       }
       return
     }
-
+  
     let filtered = [...state.value.allProducts]
     const currentFilters = state.value.filters
-
+  
     // Apply price filter (client-side)
     if (currentFilters.minPrice > 0 || currentFilters.maxPrice < defaultMaxPrice.value) {
       filtered = filtered.filter(product => {

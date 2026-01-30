@@ -72,8 +72,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      api: {
-        Media: process.env.VITE_API_MEDIA,
+      api: { 
+        media: process.env.VITE_API_MEDIA,
         categories: process.env.VITE_API_CATEGORIES,
         colors: process.env.VITE_API_COLORS,
         sizes: process.env.VITE_API_SIZES,

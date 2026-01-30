@@ -157,12 +157,13 @@ import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/autoplay'
 import 'swiper/css/pagination'
-
+const config = useRuntimeConfig() 
+const API_URL = config.public.api.media
 // Register Swiper modules
 const SwiperAutoplay = Autoplay
 const SwiperPagination = Pagination
 // Track dark/light image per ad (by id)
-const imageToneMap = ref<Record<number, boolean>>({})
+const imageToneMap = ref<Record<number, boolean>>({}) 
 
 // Detect brightness
 const detectImageBrightness = (src: string): Promise<boolean> => {
@@ -245,8 +246,6 @@ const countdowns = ref<CountdownTimer[]>([
   { days: 1, hours: 6, minutes: 15, seconds: 20 }
 ])
 
-// API URL
-const API_URL = 'https://kartmania-api.vibrantick.org/common/media/read'
 
 // Get items to display (max 2)
 const displayItems = computed(() => {

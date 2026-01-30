@@ -1,28 +1,31 @@
 <template>
   <div class="banner-wrapper">
-    <div class="offer-strip">
+    <div class="offer-strip" v-if="offerData">
+      <span class="offer-text">
+        FLAT {{ offerData.discountValue }}% OFF | {{ offerData.name }}
+      </span>
+    </div>
+
+    <div class="offer-strip" v-else>
       <span class="offer-text">
         FLAT 40% OFF | Limited Time Deal 
       </span>
     </div>
 
     <div class="banner-content">
-      <!-- Text Section - Left -->
       <div class="banner-text">
-        <p>Top styles curated for you</p> 
+        <p v-if="offerData?.description">{{ offerData.description }}</p>
+        <p v-else>Top styles curated for you</p> 
       </div>
 
-      <!-- Images Section - Right -->
       <div class="images-section">
-        <!-- Main Product Image -->
         <img
           src="/assets/images/bg/shirt-removebg-preview.png"
           alt="Shirt"
           class="main-img"
         /> 
         
-        <!-- Shop Button at Bottom Right Corner -->
-        <NuxtLink to="/shop-all" class="shop-link">
+        <NuxtLink :to="`/shop-all?offer=${offerData?.slug || 'all'}`" class="shop-link">
           <button class="shop-btn">
             Shop Now →
           </button>
@@ -30,17 +33,96 @@
       </div>
     </div>
 
-    <!-- Background Container -->
     <div class="banner-bg-wrapper">
       <img
+        v-if="primaryImageUrl"
+        :src="primaryImageUrl"
+        :alt="offerData?.name || 'Banner'"
+        class="banner-bg"
+        @error="handleImageError"
+      />
+      <img
+        v-else
         src="/assets/images/buysection/t-shirt1.jpg"
-        alt="Banner"
+        alt="Fallback Banner"
         class="banner-bg"
       />
       <div class="bg-overlay"></div>
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const offerData = ref(null)
+const primaryImageUrl = ref('')
+const isLoading = ref(true)
+const hasError = ref(false)
+
+const getPrimaryImageUrl = (images) => {
+  if (!images || images.length === 0) return null
+  
+  const primaryImage = images.find(img => img.isPrimary)
+  if (primaryImage) return primaryImage.imageUrl
+  
+  return images[0]?.imageUrl || null
+}
+
+const handleImageError = () => {
+  primaryImageUrl.value = '/assets/images/buysection/t-shirt1.jpg'
+}
+
+const fetchOfferData = async () => {
+  try {
+    isLoading.value = true
+    hasError.value = false
+    
+    const config = useRuntimeConfig()
+    const API_URL = config.public.api.offers
+    
+    const response = await fetch(API_URL)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const result = await response.json()
+    
+    const activeOffer = result.data?.find(offer => 
+      offer.isActive && offer.images?.length > 0
+    )
+    
+    if (activeOffer) {
+      offerData.value = activeOffer
+      primaryImageUrl.value = getPrimaryImageUrl(activeOffer.images)
+    }
+    
+  } catch (error) {
+    console.error('Error fetching offer data:', error)
+    hasError.value = true
+    offerData.value = null
+    primaryImageUrl.value = '/assets/images/buysection/t-shirt1.jpg'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchOfferData()
+})
+
+// const refreshInterval = ref(null)
+// onMounted(() => {
+//   fetchOfferData()
+//   refreshInterval.value = setInterval(fetchOfferData, 5 * 60 * 1000)
+// })
+// onUnmounted(() => {
+//   if (refreshInterval.value) {
+//     clearInterval(refreshInterval.value)
+//   }
+// })
+</script>
 
 <style scoped>
 .banner-wrapper {
@@ -55,7 +137,10 @@
   z-index: 10;
 }
 
-/* Background Wrapper */
+.banner-wrapper.loading {
+  opacity: 0.7;
+}
+
 .banner-bg-wrapper {
   position: absolute;
   top: 0;
@@ -75,8 +160,12 @@
   position: absolute;
   top: 0;
   left: 0;
+  transition: opacity 0.3s ease;
 }
 
+.banner-bg.loaded {
+  opacity: 1;
+}
 
 .offer-strip {
   position: absolute;
@@ -92,6 +181,9 @@
   color: #fff;
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .banner-content {
@@ -106,6 +198,7 @@
   justify-content: space-between;
   padding: 0 24px;
 }
+
 .banner-text {
   flex: 1;
   color: #fff;
@@ -118,6 +211,7 @@
   opacity: 0.9;
   font-weight: 500;
   max-width: 150px;
+  line-height: 1.4;
 }
 
 .images-section {
@@ -137,13 +231,14 @@
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
   margin-right: 20px;
 }
+
 .shop-link {
   position: absolute;
   bottom: 15px;
   right: 0;
   z-index: 6;
 }
-   
+
 .shop-btn {
   background: #fff;
   color: #046ab7;
@@ -164,7 +259,7 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
-/* ==================== RESPONSIVE ==================== */
+/* ==================== resposnive ==================== */
 
 @media (max-width: 768px) {
   .banner-wrapper {
@@ -204,6 +299,7 @@
     left: 16px;
     padding: 5px 12px;
   }
+  
   .offer-text {
     font-size: 11px;
   } 
@@ -215,7 +311,6 @@
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .banner-wrapper {
     height: 100px;
@@ -261,7 +356,7 @@
   }
 }
 
-/* Small Mobile */
+/* 小屏幕移动端 */
 @media (max-width: 460px) {
   .banner-wrapper {
     height: 90px;

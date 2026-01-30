@@ -72,7 +72,7 @@
                 :src="`/assets/images/thumbs/promotional-banner-img${n + promotionalBanners.length}.png`"
                 :alt="`Fallback Banner ${n}`"
                 class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover z-n1"
-              >
+              > 
               <div class="promotional-banner-item__content">
                 <h6 class="promotional-banner-item__title fw-bold mb-2 mb-md-3 mb-lg-4 text-base text-md-lg text-lg-2xl">
                   {{ getFallbackTitle(n + promotionalBanners.length) }}
@@ -99,13 +99,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 const config = useRuntimeConfig() 
-const API_URL = config.public.api.Media
+const API_URL = config.public.api.offers 
 interface BannerData {
   id: number
   title: string
   description: string
   image: string
-  category: string
+  category: string 
   isDeleted: boolean
   createdAt: string
   updatedAt: string
@@ -161,30 +161,44 @@ const fetchPromotionalBanners = async () => {
     loading.value = true
     error.value = null
 
-    const response = await fetch(API_URL)
+    const result: ApiResponse = await $fetch(API_URL, {
+      method: 'GET',
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`)
+      params: {
+        offerType: 'FLASH_SALE',
+        isActive: true
+      },
+
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
+      retry: 3,
+      retryDelay: 2000,
+    })
+
+    if (result?.data && Array.isArray(result.data)) {
+      promotionalBanners.value = result.data
+        .filter(  
+          banner =>
+            banner.category === 'HEROSECTION' && 
+            !banner.isDeleted
+        )
+        .sort((a, b) => a.id - b.id)
     }
 
-    const result: ApiResponse = await response.json()
+  } catch (err: any) {
+    error.value =
+      err?.data?.message ||
+      err?.message ||
+      'Failed to fetch banner data'
 
-    if (result.data && Array.isArray(result.data)) {
-      // Filter only HEROSECTION category banners
-      promotionalBanners.value = result.data.filter(banner =>
-        banner.category === 'HEROSECTION' && !banner.isDeleted
-      )
-
-      // Sort by ID if needed
-      promotionalBanners.value.sort((a, b) => a.id - b.id)
-    }
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to fetch banner data'
     console.error('Error fetching promotional banners:', err)
   } finally {
     loading.value = false
   }
 }
+
 
 // Helper function to check if description contains price
 const hasPrice = (description: string): boolean => {

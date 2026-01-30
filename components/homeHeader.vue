@@ -541,7 +541,7 @@
           {{ wishlistCount > 99 ? '99+' : wishlistCount }}
         </span>
       </div>
-      <span class="nav-label">{{ tab.label }}</span>
+      <span class="nav-label">{{ tab.label }}</span> 
     </NuxtLink>
   </nav>
 
@@ -554,7 +554,7 @@
           :key="tab.name"
           :to="tab.route"
           class="footer-item"
-          :class="{ 'active': activeTab === tab.name }"
+          :class="{ 'active': activeTab === tab.name }" 
           @click="setActiveTab(tab.name)"
         >
           <div class="footer-icon-wrapper">
@@ -573,13 +573,15 @@
       </div>
     </div>
   </footer>
-</template>
+</template> 
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from '#imports'
 const config = useRuntimeConfig() 
 const API_URL = config.public.api.MEDIA_API_URL
+const API_URL_CATEGORIES = config.public.api.categories
+
 const router = useRouter()
 const route = useRoute()
 
@@ -862,7 +864,7 @@ const performMobileSearch = debounce(async (searchTerm) => {
 
   try {
     const response = await fetch(
-      'https://kartmania-api.vibrantick.org/common/product/read',
+     API_URL_CATEGORIES ,
       { 
         signal: AbortSignal.timeout(3000)
       }
@@ -870,7 +872,7 @@ const performMobileSearch = debounce(async (searchTerm) => {
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     
-    const result = await response.json()
+    const result = await response.json() 
     const products = result.data || []
     
     const queryLower = searchTerm.toLowerCase()
@@ -1005,7 +1007,7 @@ const setupCartSystem = () => {
 const fetchCategories = async () => {
   try {
     const response = await fetch(
-      'https://kartmania-api.vibrantick.org/common/product-category/read',
+      'http://localhost:3004/common/product-category/read',
       { signal: AbortSignal.timeout(5000) }
     )
     
