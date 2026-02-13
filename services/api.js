@@ -1,7 +1,7 @@
 // API service functions
-const CATEGORY_API = 'https://kartmania-api.vibrantick.org/common/product-category/read'
-const COLORS_API = 'https://kartmania-api.vibrantick.org/common/color/read'
-const SIZES_API = 'https://kartmania-api.vibrantick.org/common/size/read'
+// const CATEGORY_API = 'https://kartmania-api.vibrantick.org/common/product-category/read'
+// const COLORS_API = 'https://kartmania-api.vibrantick.org/common/color/read'
+// const SIZES_API = 'https://kartmania-api.vibrantick.org/common/size/read'
 
 export const fetchCategories = async () => {
   try {

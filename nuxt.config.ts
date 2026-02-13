@@ -72,7 +72,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      api: { 
+      apiBase: process.env.NUXT_PUBLIC_API_BASE,
+      api: {
         media: process.env.VITE_API_MEDIA,
         categories: process.env.VITE_API_CATEGORIES,
         colors: process.env.VITE_API_COLORS,
@@ -81,7 +82,8 @@ export default defineNuxtConfig({
         graphql: process.env.VITE_API_GRAPHQL,
         blogs: process.env.VITE_API_BLOG,
         contact: process.env.VITE_API_CONATCT,
-        offers: process.env.VITE_API_OFFERS
+        offers: process.env.VITE_API_OFFERS,
+        apiBase: process.env.NUXT_PUBLIC_API_BASE
       }
     }
   },
@@ -95,7 +97,7 @@ export default defineNuxtConfig({
       description: 'Kartmania Ecommerce App',
       theme_color: '#ffffff',
       background_color: '#ffffff',
-      display: 'standalone', 
+      display: 'standalone',
       start_url: '/',
       icons: [
         { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },

@@ -8,7 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: () => import('@/pages/Home.vue')
+      component: () => import('@/pages/index.vue')
     },
     {
       path: '/product/:id',
@@ -29,12 +29,22 @@ const router = createRouter({
     {
       path: '/cart',
       name: 'Cart',
-      component: () => import('@/pages/Cart.vue')
+      component: () => import('@/pages/cart/Cart.vue')
     },
     {
       path: '/checkout',
       name: 'Checkout',
-      component: () => import('@/pages/Checkout.vue')
+      component: () => import('@/pages/cart/Checkout.vue')
+    },
+    {
+      path: '/wishlist',
+      name: 'Wishlist',
+      component: () => import("@/pages/account/Wishlist.vue")
+    },
+    {
+      path:'/profile',
+      name:'Profile',
+      component:() => import('@/pages/account/Profile.vue')
     }
   ]
 })

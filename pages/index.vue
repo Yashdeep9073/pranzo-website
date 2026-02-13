@@ -2,45 +2,48 @@
 import { defineAsyncComponent } from "vue"
 
 /* Light & critical components (direct load) */
-import BannerStrip from "~/components/BannerStrip.vue"
-import HomeBanner from "~/components/homeBanner.vue"
-import HomeFeature from "~/components/homeFeature.vue"
-import HomeFlashm from "~/components/homeFlashm.vue"
-import LazySection from "~/components/LazySection.vue"
+import BannerStrip from "~/components/ui/BannerStrip.vue"
+import HomeBanner from "~/components/home/HomeBanner.vue"
+import HomeFeature from "~/components/home/HomeFeature.vue"
+import HomeFlashm from "~/components/home/HomeFlashm.vue"
+import LazySection from "~/components/ui/LazySection.vue"
 
 /* Heavy components (ASYNC) */
 const HomePromotion = defineAsyncComponent(() => 
-  import("~/components/homePromotion.vue")
+  import("~/components/home/HomePromotion.vue")
 )
 const HomeFlash = defineAsyncComponent(() =>
-  import("~/components/homeFlash.vue")
+  import("~/components/home/HomeFlash.vue")
 )
 const HomeBrand = defineAsyncComponent(() =>
-  import("~/components/homeBrand.vue")
+  import("~/components/home/HomeBrand.vue")
 )
 const HomeCategory = defineAsyncComponent(() =>
-  import("~/components/homeCategory.vue")
+  import("~/components/home/HomeCategory.vue")
 )
 const HomeRecomend = defineAsyncComponent(() =>
-  import("~/components/homeRecomend.vue")
+  import("~/components/home/HomeRecomend.vue")
 )
 const HomeOffer = defineAsyncComponent(() =>
-  import("~/components/homeOffer.vue") 
+  import("~/components/home/HomeOffer.vue") 
 )
 const HomeHotdeal = defineAsyncComponent(() =>
-  import("~/components/homeHotdeal.vue") 
+  import("~/components/home/HomeHotdeal.vue") 
 )
 const HomeDiscount = defineAsyncComponent(() =>
-  import("~/components/homeDiscount.vue")
+  import("~/components/home/HomeDiscount.vue")
 )
 const HomeShortProduct = defineAsyncComponent(() =>   
-  import("~/components/homeShortProduct.vue")
+  import("~/components/home/HomeShortProduct.vue")
 )
 const HomeDailySell = defineAsyncComponent(() =>
-  import("~/components/homeDailySell.vue")
+  import("~/components/home/HomeDailySell.vue")
 )
 const ProductNews = defineAsyncComponent(() =>
-  import("~/components/productNews.vue")
+  import("~/components/product/ProductNews.vue")
+)
+const HomeOffersGrid = defineAsyncComponent(() =>
+  import("~/components/home/HomeOffersGrid.vue")
 )
 
 useHead({ title: "Home" })
@@ -58,6 +61,7 @@ useHead({ title: "Home" })
     <LazySection :component="HomeFlash" />
     <LazySection :component="HomeBrand" />
     <LazySection :component="HomeFlashm" /> 
+    <LazySection :component="HomeOffersGrid" />
     <LazySection :component="HomeCategory" /> 
     <LazySection :component="HomeRecomend" /> 
     <LazySection :component="HomeOffer" /> 
@@ -76,3 +80,4 @@ useHead({ title: "Home" })
   min-height: 100vh;
 }
 </style>
+
