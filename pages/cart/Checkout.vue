@@ -408,7 +408,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 // API endpoints
-const API_BASE = 'http://localhost:3004/common'
+const API_BASE = 'https://api.pranzo.in/common'
 const ORDER_CREATE_API = `${API_BASE}/order/create`
 const PAYMENT_CREATE_API = `${API_BASE}/payment/create`
 const PAYMENT_VERIFY_API = `${API_BASE}/payment/verify`

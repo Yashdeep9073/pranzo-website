@@ -111,7 +111,7 @@ export const useOffers = () => {
 
     try {
       // Use the direct endpoint you specified
-      let url = 'http://localhost:3004/common/offers/read'
+      let url = 'https://api.pranzo.in/common/offers/read'
       
       // Build query parameters
       const params: any = {}

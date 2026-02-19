@@ -359,7 +359,7 @@ const displayDeals = computed(() => {
       
       // If URL is relative, construct full URL
       if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
-        imageUrl = `http://localhost:3004${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
+        imageUrl = `https://api.pranzo.in${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
       }
       
       // Handle HOT_DEALS offers (displaying as "Deals Revealed")

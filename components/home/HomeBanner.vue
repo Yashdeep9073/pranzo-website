@@ -171,7 +171,7 @@ const fetchBanners = async () => {
         
         // If the URL is relative, construct full URL
         if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
-          imageUrl = `http://localhost:3004${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
+          imageUrl = `https://api.pranzo.in${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
         }
         
         return {

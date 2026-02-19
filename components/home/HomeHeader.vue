@@ -1634,7 +1634,7 @@ const setupCartSystem = () => {
 const fetchCategories = async () => {
   try {
     const response = await fetch(
-      'http://localhost:3004/common/product-category/read',
+      'https://api.pranzo.in/common/product-category/read',
       { signal: AbortSignal.timeout(5000) }
     )
     

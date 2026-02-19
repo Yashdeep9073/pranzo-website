@@ -1364,7 +1364,7 @@ const fetchProductStyleGroup = async (id) => {
     console.log('Fetching product style group with ID:', id)
 
     // Use the correct backend API endpoint from .env
-    const result = await $fetch(`http://localhost:3004/common/product/read/group/style/${id}`).catch(err => {
+    const result = await $fetch(`https://api.pranzo.in/common/product/read/group/style/${id}`).catch(err => {
       console.log('API call failed, using fallback data:', err)
       return null
     })
