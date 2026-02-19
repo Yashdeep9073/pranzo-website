@@ -32,6 +32,7 @@ export type OfferType =
     | 'FESTIVAL'
     | 'DEALS_REVEALED'
     | 'HOT_DEALS'
+    | 'DAILY_DEALS'
     | 'OTHER'
 
 // =======================

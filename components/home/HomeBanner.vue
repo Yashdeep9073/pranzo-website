@@ -42,12 +42,27 @@
         </div>
 
         <!-- Navigation Arrows -->
-        <button class="nav-btn nav-prev" @click="prevBanner" aria-label="Previous banner">
+        <button 
+          v-show="banners.length > 1"
+          class="nav-btn nav-prev" 
+          @click="prevBanner" 
+          aria-label="Previous banner"
+        >
           <span class="nav-icon">‹</span>
         </button>
-        <button class="nav-btn nav-next" @click="nextBanner" aria-label="Next banner">
+        <button 
+          v-show="banners.length > 1"
+          class="nav-btn nav-next" 
+          @click="nextBanner" 
+          aria-label="Next banner"
+        >
           <span class="nav-icon">›</span>
         </button>
+        
+        <!-- Debug info -->
+        <div v-if="false" class="debug-info" style="position: absolute; top: 10px; left: 10px; background: red; color: white; padding: 5px; z-index: 100;">
+          Banners: {{ banners.length }} | Current: {{ currentIndex }}
+        </div>
       </div>
     </div>
   </section>
@@ -55,10 +70,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { useRuntimeConfig } from '#imports'
-import { useMediaHook } from '~/composables/useMediaHook'
-const config = useRuntimeConfig()
-const API_URL_MEDIA = config.public.api.media
+import { useMediaApi } from '~/composables/api/useMediaApi'
 
 // Fallback banner data (ALWAYS available)
 const fallbackBanner = {
@@ -77,7 +89,8 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const autoTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
-// API Configuration
+// Initialize API hooks
+const { fetchMedia } = useMediaApi()
 
 // Handle image loading errors
 const handleImageError = (event: Event) => {
@@ -125,66 +138,61 @@ const stopAutoSlide = () => {
   }
 }
 
-// Fetch banners from API (non-blocking)
+// Fetch banners from API using new media hook
 const fetchBanners = async () => {
   loading.value = true
   
   try {
-    const response = await fetch(API_URL_MEDIA)
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    
-    const items = Array.isArray(data?.data) ? data.data : []
-    const heroItems = items.filter((item: any) => {
-      const category = normalizeCategory(item?.category)
-      const mediaCategory = normalizeCategory(item?.mediaCategory)
-      return category === 'HEROSECTION' || mediaCategory === 'HEROSECTION'
+    // Fetch media with slider category filter
+    const mediaResponse = await fetchMedia({
+      type: "image",
+      limit: 10,
+      sort: "createdAt:desc"
     })
-    const sortedHeroItems = heroItems.sort((a: any, b: any) => {
-      const aDate = a?.createdAt ? Date.parse(a.createdAt) : 0
-      const bDate = b?.createdAt ? Date.parse(b.createdAt) : 0
-      return bDate - aDate
-    })
-
-    if (sortedHeroItems.length > 0) {
-      const apiBanners = sortedHeroItems.map((item: any) => ({
-        id: item.id,
-        title: item.title || fallbackBanner.title,
-        description: item.description || fallbackBanner.description,
-        image: resolveImageUrl(item.image),
-        category: item.category || item.mediaCategory || fallbackBanner.category
-      }))
-      
-      
-      banners.value = apiBanners
-      currentIndex.value = 0
-      error.value = null
-    } else if (items.length > 0) {
-      const apiBanners = items.map((item: any) => ({
-        id: item.id,
-        title: item.title || fallbackBanner.title,
-        description: item.description || fallbackBanner.description,
-        image: resolveImageUrl(item.image),
-        category: item.category || item.mediaCategory || fallbackBanner.category
-      }))
     
-
+    const items = mediaResponse.data || []
+    
+    // Filter for SLIDER category media only
+    const sliderItems = items.filter((item: any) => {
+      const category = item?.category?.toLowerCase() || ''
+      const title = item?.title?.toLowerCase() || ''
+      
+      // Look for exact "slider" category match
+      return category === 'slider' || 
+             category === 'SLIDER' ||
+             title === 'slider' ||
+             title === 'SLIDER'
+    })
+    
+    if (sliderItems.length > 0) {
+      const apiBanners = sliderItems.map((item: any) => {
+        // Try different possible URL fields
+        let imageUrl = item.url || item.imageUrl || item.image || item.src || fallbackBanner.image
+        
+        // If the URL is relative, construct full URL
+        if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
+          imageUrl = `http://localhost:3004${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
+        }
+        
+        return {
+          id: item.id,
+          title: item.title || fallbackBanner.title,
+          description: item.description || item.alt || fallbackBanner.description,
+          image: imageUrl,
+          category: 'HEROSECTION'
+        }
+      })
+      
       banners.value = apiBanners
       currentIndex.value = 0
       error.value = null
     } else {
-      console.log('No HEROSECTION data from API, using fallback')
-      error.value = 'No HEROSECTION banner data found'
+      error.value = 'No slider category media found'
       banners.value = [{ ...fallbackBanner }]
       currentIndex.value = 0
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
-    console.log('API failed, using fallback:', errorMessage)
     error.value = errorMessage
     banners.value = [{ ...fallbackBanner }]
     currentIndex.value = 0
@@ -198,32 +206,19 @@ const fetchBanners = async () => {
 // Initialize - ALWAYS shows banner immediately
 onMounted(() => {
   // Show fallback immediately
-  console.log('Showing fallback banner immediately')
   banners.value = [{ ...fallbackBanner }]
   currentIndex.value = 0
   
-  // Try to fetch from API in background
+  // Try to fetch slider media from API in background
   fetchBanners()
   
   // Also try again after 3 seconds if failed
   setTimeout(() => {
     if (error.value) {
-      console.log('Retrying API fetch...')
+      console.log('🔄 Retrying slider media fetch...')
       fetchBanners()
     }
   }, 3000)
-})
-
-onMounted(() => {
-  // Refresh media banners using hook
-  const { banners: mediaBanners, refresh: refreshMedia } = useMediaHook()
-  watch(mediaBanners, (val) => {
-    if (val && val.length > 0) {
-      banners.value = val
-      error.value = null
-    }
-  })
-  refreshMedia()
 })
 
 onUnmounted(() => {
@@ -377,36 +372,46 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 6;
-  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 15;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .nav-btn:hover {
-  background: rgba(0, 0, 0, 0.65);
-  transform: translateY(-50%) scale(1.05);
+  background: rgba(255, 255, 255, 1);
+  border-color: #fff;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+.nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 .nav-prev {
-  left: 16px;
+  left: 30px;
 }
 
 .nav-next {
-  right: 16px;
+  right: 30px;
 }
 
 .nav-icon {
   font-size: 28px;
+  font-weight: bold;
   line-height: 1;
+  user-select: none;
+  pointer-events: none;
 }
 
 /* Error Indicator (small, non-blocking) */

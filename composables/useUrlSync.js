@@ -73,7 +73,7 @@ export function useUrlSync(state, route, router, fetchProductsWithFilters) {
       newFilters.maxPrice = parseInt(query.max_price) || defaultMaxPrice()
     }
 
-    console.log('Parsed filters from URL:', newFilters)
+    //console.log('Parsed filters from URL:', newFilters)
     return newFilters
   }
 
@@ -110,7 +110,7 @@ export function useUrlSync(state, route, router, fetchProductsWithFilters) {
     if (filters.maxPrice < defaultMaxPrice()) query.max_price = filters.maxPrice
     if (filters.page > 1) query.page = filters.page
 
-    console.log('Updating URL with query:', query)
+    //console.log('Updating URL with query:', query)
 
     // Mark that we're updating URL
     state.urlUpdateInProgress = true
@@ -188,7 +188,7 @@ export function useUrlSync(state, route, router, fetchProductsWithFilters) {
       // Get filters from URL
       const urlFilters = parseFiltersFromURL()
 
-      console.log('Syncing from URL with filters:', urlFilters)
+      //console.log('Syncing from URL with filters:', urlFilters)
 
       // Update filters in state
       state.filters = urlFilters

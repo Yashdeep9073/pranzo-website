@@ -10,9 +10,9 @@
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="alert alert-danger" role="alert"> 
+      <div v-else-if="error" class="alert alert-danger" role="alert">
         {{ error }}
-      </div> 
+      </div>
 
       <!-- Main Content -->
       <div v-else-if="mainProduct" class="row gy-4">
@@ -25,32 +25,15 @@
                 <div class="product-gallery-wrapper d-none d-xl-flex">
                   <!-- LEFT: VERTICAL THUMBNAILS (Desktop only) -->
                   <div class="thumbnail-container me-3">
-                    <Swiper
-                      direction="vertical"
-                      @swiper="setThumbsSwiper"
-                      :spaceBetween="12"
-                      :slidesPerView="4"
-                      :freeMode="true"
-                      :watchSlidesProgress="true"
-                      class="thumbnail-swiper h-100"
-                    >
-                      <SwiperSlide
-                        v-for="(thumb, index) in thumbnailImages"
-                        :key="index"
-                        @click="goToSlide(index)"
-                      >
-                        <div
-                          :class="[
-                            'thumbnail-item',
-                            activeThumb === index ? 'active-thumbnail' : ''
-                          ]"
-                        >
+                    <Swiper direction="vertical" @swiper="setThumbsSwiper" :spaceBetween="12" :slidesPerView="4"
+                      :freeMode="true" :watchSlidesProgress="true" class="thumbnail-swiper h-100">
+                      <SwiperSlide v-for="(thumb, index) in thumbnailImages" :key="index" @click="goToSlide(index)">
+                        <div :class="[
+                          'thumbnail-item',
+                          activeThumb === index ? 'active-thumbnail' : ''
+                        ]">
                           <div class="thumbnail-image-wrapper">
-                            <img
-                              :src="thumb"
-                              :alt="`Thumbnail ${index + 1}`"
-                              class="thumbnail-image"
-                            />
+                            <img :src="thumb" :alt="`Thumbnail ${index + 1}`" class="thumbnail-image" />
                           </div>
                         </div>
                       </SwiperSlide>
@@ -59,60 +42,30 @@
 
                   <!-- RIGHT: MAIN IMAGE -->
                   <div class="product-details__thumb-slider overflow-hidden flex-grow-1">
-                    <Swiper
-                      :modules="[Thumbs]"
-                      :thumbs="{ swiper: thumbsSwiper }"
-                      :spaceBetween="0"
-                      :slidesPerView="1"
-                      class="main-swiper h-100"
-                      @swiper="setMainSwiper"
-                      @slideChange="onSlideChange"
-                    >
-                      <SwiperSlide
-                        v-for="(image, index) in mainImages"
-                        :key="index"
-                        class="main-image-slide h-100"
-                      >
+                    <Swiper :modules="[Thumbs]" :thumbs="{ swiper: thumbsSwiper }" :spaceBetween="0" :slidesPerView="1"
+                      class="main-swiper h-100" @swiper="setMainSwiper" @slideChange="onSlideChange">
+                      <SwiperSlide v-for="(image, index) in mainImages" :key="index" class="main-image-slide h-100">
                         <div class="main-image-container h-100 d-flex align-items-center justify-content-center">
-                          <img
-                            :src="image"
-                            :alt="`Product image ${index + 1}`"
-                            class="main-product-image" 
-                          />
+                          <img :src="image" :alt="`Product image ${index + 1}`" class="main-product-image" />
                         </div>
-                        
+
                       </SwiperSlide>
                     </Swiper>
                   </div>
                 </div>
-                <!-- Mobile/Tablet: Horizontal thumbnails with dots --> 
+                <!-- Mobile/Tablet: Horizontal thumbnails with dots -->
                 <div class="d-xl-none">
                   <!-- Main Image with Dots -->
-                  <div class="mobile-main-slider"> 
-                    <Swiper
-                      :modules="[Pagination]"
-                      :spaceBetween="0"
-                      :slidesPerView="1"
-                      :pagination="{
-                        clickable: true,
-                        el: '.mobile-pagination',
-                        bulletClass: 'mobile-dot',
-                        bulletActiveClass: 'mobile-dot-active'
-                      }"
-                      @swiper="setMobileMainSwiper"
-                      @slideChange="onMobileSlideChange"
-                      class="mobile-main-swiper"
-                    >
-                      <SwiperSlide
-                        v-for="(image, index) in mainImages"
-                        :key="index"
-                      >
+                  <div class="mobile-main-slider">
+                    <Swiper :modules="[Pagination]" :spaceBetween="0" :slidesPerView="1" :pagination="{
+                      clickable: true,
+                      el: '.mobile-pagination',
+                      bulletClass: 'mobile-dot',
+                      bulletActiveClass: 'mobile-dot-active'
+                    }" @swiper="setMobileMainSwiper" @slideChange="onMobileSlideChange" class="mobile-main-swiper">
+                      <SwiperSlide v-for="(image, index) in mainImages" :key="index">
                         <div class="mobile-main-image-container">
-                          <img
-                            :src="image"
-                            :alt="`Product image ${index + 1}`"
-                            class="mobile-main-product-image"
-                          />
+                          <img :src="image" :alt="`Product image ${index + 1}`" class="mobile-main-product-image" />
                         </div>
                       </SwiperSlide>
                     </Swiper>
@@ -122,31 +75,16 @@
 
                   <!-- Horizontal Thumbnails Slider for Mobile -->
                   <div class="mobile-thumbnails-slider mt-4">
-                    <Swiper
-                      :spaceBetween="10"
-                      :slidesPerView="4"
-                      :freeMode="true"
-                      :watchSlidesProgress="true"
-                      class="mobile-thumbnail-swiper"
-                      @swiper="setMobileThumbsSwiper"
-                    >
-                      <SwiperSlide
-                        v-for="(thumb, index) in thumbnailImages"
-                        :key="index"
-                        @click="goToMobileSlide(index)"
-                      >
-                        <div
-                          :class="[
-                            'mobile-thumbnail-item',
-                            mobileActiveThumb === index ? 'mobile-active-thumbnail' : ''
-                          ]"
-                        >
+                    <Swiper :spaceBetween="10" :slidesPerView="4" :freeMode="true" :watchSlidesProgress="true"
+                      class="mobile-thumbnail-swiper" @swiper="setMobileThumbsSwiper">
+                      <SwiperSlide v-for="(thumb, index) in thumbnailImages" :key="index"
+                        @click="goToMobileSlide(index)">
+                        <div :class="[
+                          'mobile-thumbnail-item',
+                          mobileActiveThumb === index ? 'mobile-active-thumbnail' : ''
+                        ]">
                           <div class="mobile-thumbnail-image-wrapper">
-                            <img
-                              :src="thumb"
-                              :alt="`Thumbnail ${index + 1}`"
-                              class="mobile-thumbnail-image"
-                            />
+                            <img :src="thumb" :alt="`Thumbnail ${index + 1}`" class="mobile-thumbnail-image" />
                           </div>
                         </div>
                       </SwiperSlide>
@@ -203,7 +141,7 @@
                   </div>
                 </div>
 
-                <!-- Size Selection -->
+                <!-- Category-Specific Size Selection -->
                 <div v-if="availableSizes.length > 0" class="mt-24">
                   <div class="flex-between mb-8">
                     <span class="text-gray-900 d-block fw-semibold">Size:</span>
@@ -212,7 +150,73 @@
                       Size Guide <i class="ph ph-info text-xs"></i>
                     </button>
                   </div>
-                  <div class="flex-align flex-wrap gap-12">
+
+                  <!-- Clothing Sizes (S, M, L, XL, XXL) -->
+                  <div v-if="isClothingCategory" class="flex-align flex-wrap gap-12">
+                    <div v-for="size in getClothingSizes()" :key="size" @click="selectSize(size)" :class="[
+                      'size-option px-20 py-12 rounded-xl border overflow-hidden cursor-pointer transition-all duration-300 text-center min-w-60',
+                      selectedSize === size
+                        ? 'bg-main-600 text-white border-main-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                    ]">
+                      <span class="text-sm fw-medium">{{ size }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Shoe Sizes (5, 6, 7, 8, 9, 10, 11, 12) -->
+                  <div v-else-if="isShoesCategory" class="flex-align flex-wrap gap-12">
+                    <div v-for="size in getShoeSizes()" :key="size" @click="selectSize(size)" :class="[
+                      'size-option px-20 py-12 rounded-xl border overflow-hidden cursor-pointer transition-all duration-300 text-center min-w-60',
+                      selectedSize === size
+                        ? 'bg-main-600 text-white border-main-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                    ]">
+                      <span class="text-sm fw-medium">{{ size }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Electronics (Generic sizes or technical specs) -->
+                  <div v-else-if="isElectronicsCategory" class="space-y-16">
+                    <div class="flex-align flex-wrap gap-12">
+                      <div v-for="size in getElectronicsSizes()" :key="size" @click="selectSize(size)" :class="[
+                        'size-option px-20 py-12 rounded-xl border overflow-hidden cursor-pointer transition-all duration-300 text-center min-w-80',
+                        selectedSize === size
+                          ? 'bg-main-600 text-white border-main-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                      ]">
+                        <span class="text-sm fw-medium">{{ size }}</span>
+                      </div>
+                    </div>
+                    <!-- Additional technical specs for electronics -->
+                    <div class="mt-16 p-16 bg-gray-50 rounded-lg">
+                      <h6 class="text-sm font-semibold mb-8">Technical Specifications:</h6>
+                      <div class="grid grid-cols-2 gap-12 text-sm">
+                        <div v-if="selectedVariant?.attributes?.[0]?.extraAttributes?.storage"
+                          class="flex justify-between">
+                          <span class="text-gray-600">Storage:</span>
+                          <span class="font-medium">{{ selectedVariant.attributes[0].extraAttributes.storage }}</span>
+                        </div>
+                        <div v-if="selectedVariant?.attributes?.[0]?.extraAttributes?.ram" class="flex justify-between">
+                          <span class="text-gray-600">RAM:</span>
+                          <span class="font-medium">{{ selectedVariant.attributes[0].extraAttributes.ram }}</span>
+                        </div>
+                        <div v-if="selectedVariant?.attributes?.[0]?.extraAttributes?.screenSize"
+                          class="flex justify-between">
+                          <span class="text-gray-600">Screen:</span>
+                          <span class="font-medium">{{ selectedVariant.attributes[0].extraAttributes.screenSize
+                            }}</span>
+                        </div>
+                        <div v-if="selectedVariant?.attributes?.[0]?.extraAttributes?.color"
+                          class="flex justify-between">
+                          <span class="text-gray-600">Color:</span>
+                          <span class="font-medium">{{ selectedVariant.attributes[0].extraAttributes.color }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Default/Fallback for other categories -->
+                  <div v-else class="flex-align flex-wrap gap-12">
                     <div v-for="size in availableSizes" :key="size" @click="selectSize(size)" :class="[
                       'size-option px-20 py-12 rounded-xl border overflow-hidden cursor-pointer transition-all duration-300 text-center min-w-60',
                       selectedSize === size
@@ -346,308 +350,138 @@
                     ]" :disabled="(selectedVariant?.stock || mainProduct.stock) <= 0 || quantity <= 0">
                       <i class="ph ph-shopping-cart text-lg"></i>
                       {{ (selectedVariant?.stock || mainProduct.stock) <= 0 ? 'Out of Stock' : 'Add To Cart' }}
-                    </button>
+                        </button>
                   </div>
 
-                  <div class="flex-align gap-12">
-                    <button @click="toggleWishlist"
-                      :class="['w-52 h-52 flex-center rounded-circle text-xl transition-all duration-300',
-                        isInWishlist ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg' :
-                          'bg-gradient-to-br from-gray-50 to-white text-gray-600 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 hover:text-red-500 border border-gray-100 shadow-sm']">
-                      <i class="ph" :class="isInWishlist ? 'ph-heart-fill' : 'ph-heart'"></i>
-                    </button>
-                    <button @click="compareProduct"
-                      class="w-52 h-52 bg-gradient-to-br from-gray-50 to-white text-gray-600 text-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:text-blue-500 flex-center rounded-circle border border-gray-100 shadow-sm transition-all duration-300">
-                      <i class="ph ph-shuffle"></i>
-                    </button>
-                    <button @click="shareProduct"
-                      class="w-52 h-52 bg-gradient-to-br from-gray-50 to-white text-gray-600 text-xl hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-50 hover:text-green-500 flex-center rounded-circle border border-gray-100 shadow-sm transition-all duration-300">
-                      <i class="ph ph-share-network"></i>
-                    </button>
+                  <!-- Category-Specific Features -->
+                  <div class="mt-24">
+                    <!-- Clothing Features -->
+                    <div v-if="isClothingCategory" class="space-y-16">
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-fabric text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Premium fabric quality</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-washing-machine text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Machine washable</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-rainbow-cloud text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Color fast technology</span>
+                      </div>
+                    </div>
+
+                    <!-- Shoes Features -->
+                    <div v-else-if="isShoesCategory" class="space-y-16">
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-footprints text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Comfortable fit</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-breadcrumb text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Non-slip sole</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-wind text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Breathable material</span>
+                      </div>
+                    </div>
+
+                    <!-- Electronics Features -->
+                    <div v-else-if="isElectronicsCategory" class="space-y-16">
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-shield-check text-main-600 text-lg"></i>
+                        <span class="text-gray-700">1 Year Warranty</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-certificate text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Genuine Product</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-headset text-main-600 text-lg"></i>
+                        <span class="text-gray-700">24/7 Customer Support</span>
+                      </div>
+                    </div>
+
+                    <!-- Default Features for other categories -->
+                    <div v-else class="space-y-16">
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-check-circle text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Quality assured</span>
+                      </div>
+                      <div class="flex items-center gap-12 text-sm">
+                        <i class="ph ph-truck text-main-600 text-lg"></i>
+                        <span class="text-gray-700">Fast delivery</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Success Message -->
-                <div v-if="showSuccessMessage" class="mt-16">
-                  <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <div class="d-flex align-items-center gap-12">
-                      <i class="ph-fill ph-check-circle text-lg"></i>
-                      <span>{{ successMessage }}</span>
-                    </div>
-                    <button type="button" class="btn-close" @click="showSuccessMessage = false"></button>
-                  </div>
-                </div>
-
-                <span class="mt-32 pt-32 text-gray-700 border-top border-gray-100 d-block"></span>
-
-                <!-- Category Info -->
-                <div class="mt-24">
-                  <div class="flex-align gap-12 mb-16">
-                    <span class="text-gray-900 fw-semibold">Category:</span>
-                    <!-- Main Category -->
-                    <span class="badge bg-black text-white border border-black">
-                      {{ mainProduct.category?.name }}
-                    </span>
-                    <!-- Sub Category -->
-                    <span v-if="mainProduct.subCategory" class="badge bg-black text-white border border-black">
-                      {{ mainProduct.subCategory.name }}
-                    </span>
-                    <!-- Sub-Sub Category -->
-                    <span v-if="mainProduct.subSubCategory" class="badge bg-black text-white border border-black">
-                      {{ mainProduct.subSubCategory.name }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Manufacturer & Packer Info -->
-                <div v-if="mainProduct.manufacturerDetails || mainProduct.packerDetails" class="mt-24">
-                  <span class="text-gray-900 d-block mb-8 fw-semibold">Product Details:</span>
-                  <div class="text-sm text-gray-700 space-y-2">
-                    <div v-if="mainProduct.manufacturerDetails" class="flex items-start gap-2">
-                      <span class="text-gray-500 min-w-[120px]">Manufacturer:</span>
-                      <span>{{ mainProduct.manufacturerDetails }}</span>
-                    </div>
-                    <div v-if="mainProduct.packerDetails" class="flex items-start gap-2">
-                      <span class="text-gray-500 min-w-[120px]">Packer:</span>
-                      <span>{{ mainProduct.packerDetails }}</span>
-                    </div>
-                    <div v-if="mainProduct.origin" class="flex items-start gap-2">
-                      <span class="text-gray-500 min-w-[120px]">Origin:</span>
-                      <span>{{ mainProduct.origin }}</span>
-                    </div>
-                  </div>
+                <div class="flex-align gap-12">
+                  <button @click="toggleWishlist"
+                    :class="['w-52 h-52 flex-center rounded-circle text-xl transition-all duration-300',
+                      isInWishlist ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg' :
+                        'bg-gradient-to-br from-gray-50 to-white text-gray-600 hover:bg-gradient-to-br hover:from-red-50 hover:to-pink-50 hover:text-red-500 border border-gray-100 shadow-sm']">
+                    <i class="ph" :class="isInWishlist ? 'ph-heart-fill' : 'ph-heart'"></i>
+                  </button>
+                  <button @click="compareProduct"
+                    class="w-52 h-52 bg-gradient-to-br from-gray-50 to-white text-gray-600 text-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:text-blue-500 flex-center rounded-circle border border-gray-100 shadow-sm transition-all duration-300">
+                    <i class="ph ph-shuffle"></i>
+                  </button>
+                  <button @click="shareProduct"
+                    class="w-52 h-52 bg-gradient-to-br from-gray-50 to-white text-gray-600 text-xl hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-50 hover:text-green-500 flex-center rounded-circle border border-gray-100 shadow-sm transition-all duration-300">
+                    <i class="ph ph-share-network"></i>
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
+              <!-- Success Message -->
+              <div v-if="showSuccessMessage" class="mt-16">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <div class="d-flex align-items-center gap-12">
+                    <i class="ph-fill ph-check-circle text-lg"></i>
+                    <span>{{ successMessage }}</span>
+                  </div>
+                  <button type="button" class="btn-close" @click="showSuccessMessage = false"></button>
+                </div>
+              </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-3">
-          <div class="product-details__sidebar border border-gray-100 rounded-16 overflow-hidden shadow-sm">
-            <!-- Store Info -->
-            <div class="p-24 bg-yellow-400">
-              <div class="flex-between rounded-full p-8">
-                <div class="flex-align gap-8">
-                  <span class="w-44 h-44 bg-white rounded-full flex-center text-2xl text-main-600">
-                    <i class="ph ph-storefront"></i>
+              <span class="mt-32 pt-32 text-gray-700 border-top border-gray-100 d-block"></span>
+
+              <!-- Category Info -->
+              <div class="mt-24">
+                <div class="flex-align gap-12 mb-16">
+                  <span class="text-gray-900 fw-semibold">Category:</span>
+                  <!-- Main Category -->
+                  <span class="badge bg-black text-white border border-black">
+                    {{ mainProduct.category?.name }}
                   </span>
-                  <span class="text-white fw-semibold">by Marketpro</span>
-                </div>
-                <NuxtLink
-                  to="/shop"
-                  class="btn btn-white rounded-full text-uppercase fw-semibold transition-all duration-300"
-                >
-                  View Store
-                </NuxtLink>
-              </div>
-            </div>
-
-            <!-- Features Section -->
-            <div class="sidebar-features">
-              <!-- Fast Delivery -->
-              <div class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300">
-                <span class="w-44 h-44 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
-                  <i class="ph-fill ph-truck"></i>
-                </span>
-                <div class="">
-                  <h6 class="text-sm mb-8 fw-semibold text-gray-900">Fast Delivery</h6>
-                  <p class="text-gray-700 text-sm">Lightning-fast shipping, guaranteed.</p>
+                  <!-- Sub Category -->
+                  <span v-if="mainProduct.subCategory" class="badge bg-black text-white border border-black">
+                    {{ mainProduct.subCategory.name }}
+                  </span>
+                  <!-- Sub-Sub Category -->
+                  <span v-if="mainProduct.subSubCategory" class="badge bg-black text-white border border-black">
+                    {{ mainProduct.subSubCategory.name }}
+                  </span>
                 </div>
               </div>
 
-              <!-- Free Returns -->
-              <div class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300">
-                <span class="w-44 h-44 bg-gradient-to-br from-green-100 to-green-50 text-green-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
-                  <i class="ph-fill ph-arrow-u-up-left"></i>
-                </span>
-                <div class="">
-                  <h6 class="text-sm mb-8 fw-semibold text-gray-900">Free 90-day returns</h6>
-                  <p class="text-gray-700 text-sm">Shop risk-free with easy returns.</p>
-                </div>
-              </div>
-
-              <!-- Pickup Available -->
-              <div class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-300">
-                <span class="w-44 h-44 bg-gradient-to-br from-purple-100 to-purple-50 text-purple-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
-                  <i class="ph-fill ph-check-circle"></i>
-                </span>
-                <div class="">
-                  <h6 class="text-sm mb-8 fw-semibold text-gray-900">Pickup available at Shop location</h6>
-                  <p class="text-gray-700 text-sm">Usually ready in 24 hours</p>
-                </div>
-              </div>
-
-              <!-- Payment -->
-              <div class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50 transition-all duration-300">
-                <span class="w-44 h-44 bg-gradient-to-br from-yellow-100 to-yellow-50 text-yellow-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
-                  <i class="ph-fill ph-credit-card"></i>
-                </span>
-                <div class="">
-                  <h6 class="text-sm mb-8 fw-semibold text-gray-900">Payment</h6>
-                  <p class="text-gray-700 text-sm">Payment upon receipt of goods, Payment by card in the department, Google Pay, Online card.</p>
-                </div>
-              </div>
-
-              <!-- Warranty -->
-              <div class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300">
-                <span class="w-44 h-44 bg-gradient-to-br from-red-100 to-red-50 text-red-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
-                  <i class="ph-fill ph-check-circle"></i>
-                </span>
-                <div class="">
-                  <h6 class="text-sm mb-8 fw-semibold text-gray-900">Warranty</h6>
-                  <p class="text-gray-700 text-sm">The Consumer Protection Act does not provide for the return of this product of proper quality.</p>
-                </div>
-              </div>
-
-              <!-- Packaging -->
-              <div class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 transition-all duration-300">
-                <span class="w-44 h-44 bg-gradient-to-br from-indigo-100 to-indigo-50 text-indigo-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
-                  <i class="ph-fill ph-package"></i>
-                </span>
-                <div class="">
-                  <h6 class="text-sm mb-8 fw-semibold text-gray-900">Packaging</h6>
-                  <p class="text-gray-700 text-sm">Research & development value proposition graphical user interface investor.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Cart Summary (LIVE UPDATES) -->
-            <div class="p-24 border-t border-gray-100">
-              <div class="flex-between mb-16">
-                <h6 class="text-sm fw-semibold text-gray-900">Cart Summary</h6>
-                <button @click="refreshCartSummary" class="text-xs text-main-600 hover:text-main-800 transition-colors">
-                  <i class="ph ph-arrows-clockwise"></i> Refresh
-                </button>
-              </div>
-              
-              <div v-if="cartItems.length > 0" class="space-y-4">
-                <!-- Cart Items List -->
-                <div class="max-h-60 overflow-y-auto pr-2 space-y-3">
-                  <div v-for="item in cartItems" :key="item.id" 
-                       class="cart-item border border-gray-100 rounded-lg p-12 bg-white">
-                    <div class="flex items-start gap-12">
-                      <div class="flex-shrink-0">
-                        <div class="w-40 h-40 rounded-lg overflow-hidden">
-                          <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
-                        </div>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex-between items-start">
-                          <div>
-                            <p class="text-xs font-medium text-gray-800 truncate">{{ item.name }}</p>
-                            <div class="flex items-center gap-2 mt-1">
-                              <span v-if="item.color" class="text-xs text-gray-600">{{ item.color }}</span>
-                              <span v-if="item.size" class="text-xs text-gray-600">| {{ item.size }}</span>
-                            </div>
-                          </div>
-                          <button @click="removeFromCart(item.id)" 
-                                  class="text-gray-400 hover:text-red-500 transition-colors">
-                            <i class="ph ph-x text-sm"></i>
-                          </button>
-                        </div>
-                        
-                        <div class="flex-between items-center mt-8">
-                          <div class="flex items-center gap-2">
-                            <button @click="updateCartItemQuantity(item.id, -1)"
-                                    :disabled="item.quantity <= 1"
-                                    :class="['w-20 h-20 flex-center rounded-full text-xs transition-colors', 
-                                             item.quantity <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100']">
-                              <i class="ph ph-minus"></i>
-                            </button>
-                            <span class="text-sm font-medium w-24 text-center">{{ item.quantity }}</span>
-                            <button @click="updateCartItemQuantity(item.id, 1)"
-                                    :class="['w-20 h-20 flex-center rounded-full text-xs transition-colors', 
-                                             'text-gray-600 hover:bg-gray-100']">
-                              <i class="ph ph-plus"></i>
-                            </button>
-                          </div>
-                          <div class="text-right">
-                            <p class="text-xs font-semibold text-main-600">₹{{ (item.price * item.quantity).toFixed(2) }}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+              <!-- Manufacturer & Packer Info -->
+              <div v-if="mainProduct.manufacturerDetails || mainProduct.packerDetails" class="mt-24">
+                <span class="text-gray-900 d-block mb-8 fw-semibold">Product Details:</span>
+                <div class="text-sm text-gray-700 space-y-2">
+                  <div v-if="mainProduct.manufacturerDetails" class="flex items-start gap-2">
+                    <span class="text-gray-500 min-w-[120px]">Manufacturer:</span>
+                    <span>{{ mainProduct.manufacturerDetails }}</span>
                   </div>
-                </div>
-
-                <!-- Cart Totals -->
-                <div class="pt-16 border-t border-gray-100 space-y-3">
-                  <div class="flex-between">
-                    <span class="text-sm text-gray-600">Total Items:</span>
-                    <span class="text-sm font-semibold">{{ cartItemCount }}</span>
+                  <div v-if="mainProduct.packerDetails" class="flex items-start gap-2">
+                    <span class="text-gray-500 min-w-[120px]">Packer:</span>
+                    <span>{{ mainProduct.packerDetails }}</span>
                   </div>
-                  <div class="flex-between">
-                    <span class="text-sm text-gray-600">Subtotal:</span>
-                    <span class="text-sm font-semibold">₹{{ cartSubtotal.toFixed(2) }}</span>
-                  </div>
-                  <div class="flex-between">
-                    <span class="text-sm text-gray-600">Shipping:</span>
-                    <span class="text-sm font-semibold text-green-600">FREE</span>
-                  </div>
-                  <div class="flex-between pt-8 border-t border-gray-200">
-                    <span class="text-sm font-semibold text-gray-900">Total:</span>
-                    <span class="text-lg font-bold text-main-600">₹{{ cartTotalPrice.toFixed(2)}}</span>
-                  </div>
-                  
-                  <NuxtLink to="/cart/cart" class="btn btn-main w-100 mt-16">
-                    <i class="ph ph-shopping-cart me-2"></i> View Cart
-                  </NuxtLink>
-                  
-                  <NuxtLink to="/cart/checkout" class="btn btn-outline-main w-100">
-                    <i class="ph ph-credit-card me-2"></i> Checkout
-                  </NuxtLink>
-                </div>
-              </div>
-              
-              <div v-else class="text-center py-8">
-                <div class="mb-12">
-                  <i class="ph ph-shopping-cart text-3xl text-gray-300"></i>
-                </div>
-                <p class="text-sm text-gray-500 mb-4">Your cart is empty</p>
-                <p class="text-xs text-gray-400">Add items to your cart to see them here</p>
-              </div>
-            </div>
-
-            <!-- Variants Summary -->
-            <div v-if="variants.length > 0" class="p-24 border-t border-gray-100">
-              <h6 class="text-sm mb-16 fw-semibold text-gray-900">Available Variants</h6>
-              <div class="space-y-3 max-h-200 overflow-y-auto pr-2">
-                <div 
-                  v-for="variant in variants" 
-                  :key="variant.id"
-                  @click="selectVariant(variant)"
-                  :class="[
-                    'variant-item p-12 rounded-lg border cursor-pointer transition-all duration-300',
-                    selectedVariant?.id === variant.id 
-                      ? 'border-main-600 bg-main-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  ]"
-                >
-                  <div class="flex-between items-center">
-                    <div>
-                      <div class="flex-align gap-2 mb-2">
-                        <span class="text-xs text-gray-600">SKU:</span>
-                        <span class="text-xs font-medium">{{ variant.sku }}</span>
-                      </div>
-                      <div class="flex-align gap-2">
-                        <span class="text-xs text-gray-600">Color:</span>
-                        <span class="text-xs font-medium">{{ variant.color }}</span>
-                        <span class="text-xs text-gray-400 mx-2">•</span>
-                        <span class="text-xs text-gray-600">Size:</span>
-                        <span class="text-xs font-medium">{{ variant.size }}</span>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <div :class="[
-                        'text-xs font-medium',
-                        variant.stock > 10 ? 'text-green-600' : 
-                        variant.stock > 0 ? 'text-yellow-600' : 'text-red-600'
-                      ]">
-                        {{ variant.stock }}
-                      </div>
-                    </div>
+                  <div v-if="mainProduct.origin" class="flex items-start gap-2">
+                    <span class="text-gray-500 min-w-[120px]">Origin:</span>
+                    <span>{{ mainProduct.origin }}</span>
                   </div>
                 </div>
               </div>
@@ -656,354 +490,594 @@
         </div>
       </div>
 
-      <!-- Product Tabs Section -->
-      <div v-if="!loading && !error && mainProduct" class="pt-80">
-        <div class="product-dContent border border-gray-100 rounded-24 shadow-sm">
-          <div class="product-dContent__header border-bottom border-gray-100 flex-between flex-wrap gap-16 p-24">
-            <ul class="nav common-tab nav-pills mb-3" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button :class="['nav-link fw-semibold', activeTab === 'description' ? 'active' : '']"
-                  @click="activeTab = 'description'" type="button">
-                  Description
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button :class="['nav-link fw-semibold', activeTab === 'attributes' ? 'active' : '']"
-                  @click="activeTab = 'attributes'" type="button">
-                  Attributes
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button :class="['nav-link fw-semibold', activeTab === 'reviews' ? 'active' : '']"
-                  @click="activeTab = 'reviews'" type="button">
-                  Reviews ({{ mainProduct.reviews?.length || 0 }})
-                </button>
-              </li>
-            </ul>
-            <div
-              class="bg-gradient-to-r from-green-50 to-emerald-50 text-green-600 rounded-12 flex-align gap-8 hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-300 border border-green-200">
-              <img src="/assets/images/icon/satisfaction-icon.png" alt="Satisfaction Guaranteed" class="w-24 h-24">
-              100% Satisfaction Guaranteed
+
+      <!-- Sidebar -->
+      <div class="col-lg-3">
+        <div class="product-details__sidebar border border-gray-100 rounded-16 overflow-hidden shadow-sm">
+          <!-- Store Info -->
+          <div class="p-24 bg-yellow-400">
+            <div class="flex-between rounded-full p-8">
+              <div class="flex-align gap-8">
+                <span class="w-44 h-44 bg-white rounded-full flex-center text-2xl text-main-600">
+                  <i class="ph ph-storefront"></i>
+                </span>
+                <span class="text-white fw-semibold">by Marketpro</span>
+              </div>
+              <NuxtLink to="/shop"
+                class="btn btn-white rounded-full text-uppercase fw-semibold transition-all duration-300">
+                View Store
+              </NuxtLink>
             </div>
           </div>
 
-          <div class="product-dContent__box p-24">
-            <!-- Description Tab -->
-            <div v-if="activeTab === 'description'" class="tab-content">
-              <div class="mb-40">
-                <h6 class="mb-24 fw-bold">Product Description</h6>
-                <p class="text-gray-700">{{ mainProduct.description }}</p>
-
-                <div v-if="mainProduct.category" class="mt-32">
-                  <h6 class="mb-16 fw-semibold">Product Categories</h6>
-                  <div class="d-flex flex-wrap gap-12">
-                    <span class="badge bg-black text-white border border-black">
-                      {{ mainProduct.category.name }}
-                    </span>
-                    <span v-if="mainProduct.subCategory" class="badge bg-black text-white border border-black">
-                      {{ mainProduct.subCategory.name }}
-                    </span>
-                    <span v-if="mainProduct.subSubCategory" class="badge bg-black text-white border border-black">
-                      {{ mainProduct.subSubCategory.name }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Product Information -->
-                <div class="mt-40">
-                  <h6 class="mb-24 fw-bold">Product Information</h6>
-                  <ul class="mt-32">
-                    <li class="text-gray-400 mb-14 flex-align gap-14">
-                      <span
-                        class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 text-xs flex-center rounded-full shadow-sm">
-                        <i class="ph ph-check"></i>
-                      </span>
-                      <span class="text-heading fw-medium">
-                        SKU: <span class="text-gray-500">{{ selectedVariant?.sku || mainProduct.sku }}</span>
-                      </span>
-                    </li>
-                    <li class="text-gray-400 mb-14 flex-align gap-14">
-                      <span
-                        class="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 text-xs flex-center rounded-full shadow-sm">
-                        <i class="ph ph-check"></i>
-                      </span>
-                      <span class="text-heading fw-medium">
-                        Barcode: <span class="text-gray-500">{{ mainProduct.barcode || 'N/A' }}</span>
-                      </span>
-                    </li>
-                    <li class="text-gray-400 mb-14 flex-align gap-14">
-                      <span
-                        class="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 text-green-600 text-xs flex-center rounded-full shadow-sm">
-                        <i class="ph ph-check"></i>
-                      </span>
-                      <span class="text-heading fw-medium">
-                        Unit: <span class="text-gray-500">{{ mainProduct.unit?.name }} ({{ mainProduct.unit?.shortName
-                          }})</span>
-                      </span>
-                    </li>
-                    <li v-if="mainProduct.manufacturedDate" class="text-gray-400 mb-14 flex-align gap-14">
-                      <span
-                        class="w-20 h-20 bg-gradient-to-br from-yellow-50 to-yellow-100 text-yellow-600 text-xs flex-center rounded-full shadow-sm">
-                        <i class="ph ph-check"></i>
-                      </span>
-                      <span class="text-heading fw-medium">
-                        Manufactured: <span class="text-gray-500">{{ formatDate(mainProduct.manufacturedDate) }}</span>
-                      </span>
-                    </li>
-                    <li v-if="mainProduct.expiryDate" class="text-gray-400 mb-14 flex-align gap-14">
-                      <span
-                        class="w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 text-red-600 text-xs flex-center rounded-full shadow-sm">
-                        <i class="ph ph-check"></i>
-                      </span>
-                      <span class="text-heading fw-medium">
-                        Expiry: <span class="text-gray-500">{{ formatDate(mainProduct.expiryDate) }}</span>
-                      </span>
-                    </li>
-                    <li v-if="mainProduct.origin" class="text-gray-400 mb-14 flex-align gap-14">
-                      <span
-                        class="w-20 h-20 bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 text-xs flex-center rounded-full shadow-sm">
-                        <i class="ph ph-check"></i>
-                      </span>
-                      <span class="text-heading fw-medium">
-                        Origin: <span class="text-gray-500">{{ mainProduct.origin }}</span>
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <!-- Manufacturer Details -->
-                <div v-if="mainProduct.manufacturerDetails || mainProduct.packerDetails" class="mt-40">
-                  <h6 class="mb-24 fw-bold">Manufacturing & Packaging Details</h6>
-                  <div class="space-y-4">
-                    <div v-if="mainProduct.manufacturerDetails" class="bg-gray-50 rounded-lg p-4">
-                      <h6 class="text-sm font-semibold text-gray-700 mb-2">Manufacturer Details:</h6>
-                      <p class="text-gray-600 text-sm">{{ mainProduct.manufacturerDetails }}</p>
-                    </div>
-                    <div v-if="mainProduct.packerDetails" class="bg-gray-50 rounded-lg p-4">
-                      <h6 class="text-sm font-semibold text-gray-700 mb-2">Packer Details:</h6>
-                      <p class="text-gray-600 text-sm">{{ mainProduct.packerDetails }}</p>
-                    </div>
-                  </div>
-                </div>
+          <!-- Features Section -->
+          <div class="sidebar-features">
+            <!-- Fast Delivery -->
+            <div
+              class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300">
+              <span
+                class="w-44 h-44 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
+                <i class="ph-fill ph-truck"></i>
+              </span>
+              <div class="">
+                <h6 class="text-sm mb-8 fw-semibold text-gray-900">Fast Delivery</h6>
+                <p class="text-gray-700 text-sm">Lightning-fast shipping, guaranteed.</p>
               </div>
             </div>
 
-            <!-- Attributes Tab -->
-            <div v-else-if="activeTab === 'attributes'" class="tab-content">
-              <div class="mb-40">
-                <h6 class="mb-24 fw-bold">Product Attributes</h6>
+            <!-- Free Returns -->
+            <div
+              class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300">
+              <span
+                class="w-44 h-44 bg-gradient-to-br from-green-100 to-green-50 text-green-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
+                <i class="ph-fill ph-arrow-u-up-left"></i>
+              </span>
+              <div class="">
+                <h6 class="text-sm mb-8 fw-semibold text-gray-900">Free 90-day returns</h6>
+                <p class="text-gray-700 text-sm">Shop risk-free with easy returns.</p>
+              </div>
+            </div>
 
-                <div v-if="selectedVariant"
-                  class="mb-32 p-24 border border-gray-100 rounded-16 bg-gradient-to-r from-gray-50 to-white">
-                  <h6 class="text-md fw-semibold mb-16">Selected Variant</h6>
+            <!-- Pickup Available -->
+            <div
+              class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-300">
+              <span
+                class="w-44 h-44 bg-gradient-to-br from-purple-100 to-purple-50 text-purple-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
+                <i class="ph-fill ph-check-circle"></i>
+              </span>
+              <div class="">
+                <h6 class="text-sm mb-8 fw-semibold text-gray-900">Pickup available at Shop location</h6>
+                <p class="text-gray-700 text-sm">Usually ready in 24 hours</p>
+              </div>
+            </div>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-24">
-                    <!-- Basic Attributes -->
-                    <div class="space-y-3">
-                      <div class="flex items-center gap-3">
-                        <div class="w-20 h-20 rounded-lg overflow-hidden border border-gray-300">
-                          <img :src="getColorFirstImage(selectedVariant.color)" :alt="selectedVariant.color"
-                            class="w-full h-full object-cover" />
-                        </div>
-                        <div>
-                          <span class="text-gray-500 text-sm">Color:</span>
-                          <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.color }}</span>
-                        </div>
-                      </div>
+            <!-- Payment -->
+            <div
+              class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50 transition-all duration-300">
+              <span
+                class="w-44 h-44 bg-gradient-to-br from-yellow-100 to-yellow-50 text-yellow-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
+                <i class="ph-fill ph-credit-card"></i>
+              </span>
+              <div class="">
+                <h6 class="text-sm mb-8 fw-semibold text-gray-900">Payment</h6>
+                <p class="text-gray-700 text-sm">Payment upon receipt of goods, Payment by card in the department,
+                  Google Pay, Online card.</p>
+              </div>
+            </div>
 
-                      <div class="flex items-center gap-3">
-                        <span
-                          class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 rounded-full flex-center text-xs shadow-sm">
-                          <i class="ph ph-ruler"></i>
-                        </span>
-                        <div>
-                          <span class="text-gray-500 text-sm">Size:</span>
-                          <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.size }}</span>
-                        </div>
-                      </div>
+            <!-- Warranty -->
+            <div
+              class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 border-bottom border-gray-100 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300">
+              <span
+                class="w-44 h-44 bg-gradient-to-br from-red-100 to-red-50 text-red-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
+                <i class="ph-fill ph-check-circle"></i>
+              </span>
+              <div class="">
+                <h6 class="text-sm mb-8 fw-semibold text-gray-900">Warranty</h6>
+                <p class="text-gray-700 text-sm">The Consumer Protection Act does not provide for the return of this
+                  product of proper quality.</p>
+              </div>
+            </div>
 
-                      <div class="flex items-center gap-3">
-                        <span
-                          class="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 text-green-600 rounded-full flex-center text-xs shadow-sm">
-                          <i class="ph ph-fabric"></i>
-                        </span>
-                        <div>
-                          <span class="text-gray-500 text-sm">SKU:</span>
-                          <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.sku }}</span>
-                        </div>
-                      </div>
+            <!-- Packaging -->
+            <div
+              class="p-24 bg-gradient-to-r from-gray-50 to-white d-flex align-items-start gap-24 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-blue-50 transition-all duration-300">
+              <span
+                class="w-44 h-44 bg-gradient-to-br from-indigo-100 to-indigo-50 text-indigo-600 rounded-full flex-center text-2xl flex-shrink-0 shadow-sm">
+                <i class="ph-fill ph-package"></i>
+              </span>
+              <div class="">
+                <h6 class="text-sm mb-8 fw-semibold text-gray-900">Packaging</h6>
+                <p class="text-gray-700 text-sm">Research & development value proposition graphical user interface
+                  investor.</p>
+              </div>
+            </div>
+          </div>
 
-                      <div class="flex items-center gap-3">
-                        <span
-                          class="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 rounded-full flex-center text-xs shadow-sm">
-                          <i class="ph ph-package"></i>
-                        </span>
-                        <div>
-                          <span class="text-gray-500 text-sm">Stock:</span>
-                          <span :class="[
-                            'font-medium ml-2',
-                            selectedVariant.stock > 10 ? 'text-green-600' :
-                              selectedVariant.stock > 0 ? 'text-yellow-600' : 'text-red-600'
-                          ]">
-                            {{ selectedVariant.stock }}
-                          </span>
-                        </div>
+          <!-- Cart Summary (LIVE UPDATES) -->
+          <div class="p-24 border-t border-gray-100">
+            <div class="flex-between mb-16">
+              <h6 class="text-sm fw-semibold text-gray-900">Cart Summary</h6>
+              <button @click="refreshCartSummary" class="text-xs text-main-600 hover:text-main-800 transition-colors">
+                <i class="ph ph-arrows-clockwise"></i> Refresh
+              </button>
+            </div>
+
+            <div v-if="cartItems.length > 0" class="space-y-4">
+              <!-- Cart Items List -->
+              <div class="max-h-60 overflow-y-auto pr-2 space-y-3">
+                <div v-for="item in cartItems" :key="item.id"
+                  class="cart-item border border-gray-100 rounded-lg p-12 bg-white">
+                  <div class="flex items-start gap-12">
+                    <div class="flex-shrink-0">
+                      <div class="w-40 h-40 rounded-lg overflow-hidden">
+                        <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
                       </div>
                     </div>
-
-                    <!-- Price Information -->
-                    <div class="space-y-3">
-                      <h6 class="text-sm font-semibold text-gray-700 mb-8">Pricing</h6>
-
-                      <div class="bg-white p-3 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 text-xs">Price</span>
-                        <p class="text-gray-800 font-medium">₹{{ selectedVariant.price }}</p>
-                      </div>
-
-                      <div v-if="mainProduct.discountValue > 0" class="bg-white p-3 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 text-xs">Discount</span>
-                        <p class="text-green-600 font-medium">{{ mainProduct.discountValue }}% OFF</p>
-                      </div>
-
-                      <div class="bg-white p-3 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 text-xs">Discounted Price</span>
-                        <p class="text-main-600 font-medium">₹{{ calculateDiscountedPrice() }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- All Variants -->
-                <div v-if="variants.length > 0">
-                  <h6 class="text-md fw-semibold mb-16">All Variants</h6>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24">
-                    <div v-for="variant in variants" :key="variant.id"
-                      class="border border-gray-200 rounded-lg p-16 hover:border-gray-300 transition-colors">
-                      <div class="flex-between items-start mb-12">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex-between items-start">
                         <div>
-                          <span class="text-xs text-gray-500">SKU</span>
-                          <p class="text-sm font-medium">{{ variant.sku }}</p>
+                          <p class="text-xs font-medium text-gray-800 truncate">{{ item.name }}</p>
+                          <div class="flex items-center gap-2 mt-1">
+                            <span v-if="item.color" class="text-xs text-gray-600">{{ item.color }}</span>
+                            <span v-if="item.size" class="text-xs text-gray-600">| {{ item.size }}</span>
+                          </div>
+                        </div>
+                        <button @click="removeFromCart(item.id)"
+                          class="text-gray-400 hover:text-red-500 transition-colors">
+                          <i class="ph ph-x text-sm"></i>
+                        </button>
+                      </div>
+
+                      <div class="flex-between items-center mt-8">
+                        <div class="flex items-center gap-2">
+                          <button @click="updateCartItemQuantity(item.id, -1)" :disabled="item.quantity <= 1"
+                            :class="['w-20 h-20 flex-center rounded-full text-xs transition-colors',
+                              item.quantity <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100']">
+                            <i class="ph ph-minus"></i>
+                          </button>
+                          <span class="text-sm font-medium w-24 text-center">{{ item.quantity }}</span>
+                          <button @click="updateCartItemQuantity(item.id, 1)" :class="['w-20 h-20 flex-center rounded-full text-xs transition-colors',
+                            'text-gray-600 hover:bg-gray-100']">
+                            <i class="ph ph-plus"></i>
+                          </button>
                         </div>
                         <div class="text-right">
-                          <span class="text-xs text-gray-500">Stock</span>
-                          <p :class="[
-                            'text-sm font-medium',
-                            variant.stock > 10 ? 'text-green-600' :
-                              variant.stock > 0 ? 'text-yellow-600' : 'text-red-600'
-                          ]">
-                            {{ variant.stock }}
+                          <p class="text-xs font-semibold text-main-600">₹{{ (item.price * item.quantity).toFixed(2) }}
                           </p>
                         </div>
                       </div>
-                      <div class="flex-align gap-8">
-                        <span class="badge bg-blue-100 text-blue-800">{{ variant.color }}</span>
-                        <span class="badge bg-green-100 text-green-800">{{ variant.size }}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div v-else class="text-center py-40 border border-gray-100 rounded-12 bg-gray-50">
-                  <div class="mb-16">
-                    <i class="ph ph-list-checks text-4xl text-gray-400"></i>
-                  </div>
-                  <p class="text-gray-500 mb-8">No variants available for this product.</p>
+              <!-- Cart Totals -->
+              <div class="pt-16 border-t border-gray-100 space-y-3">
+                <div class="flex-between">
+                  <span class="text-sm text-gray-600">Total Items:</span>
+                  <span class="text-sm font-semibold">{{ cartItemCount }}</span>
                 </div>
+                <div class="flex-between">
+                  <span class="text-sm text-gray-600">Subtotal:</span>
+                  <span class="text-sm font-semibold">₹{{ cartSubtotal.toFixed(2) }}</span>
+                </div>
+                <div class="flex-between">
+                  <span class="text-sm text-gray-600">Shipping:</span>
+                  <span class="text-sm font-semibold text-green-600">FREE</span>
+                </div>
+                <div class="flex-between pt-8 border-t border-gray-200">
+                  <span class="text-sm font-semibold text-gray-900">Total:</span>
+                  <span class="text-lg font-bold text-main-600">₹{{ cartTotalPrice.toFixed(2) }}</span>
+                </div>
+
+                <NuxtLink to="/cart/cart" class="btn btn-main w-100 mt-16">
+                  <i class="ph ph-shopping-cart me-2"></i> View Cart
+                </NuxtLink>
+
+                <NuxtLink to="/cart/checkout" class="btn btn-outline-main w-100">
+                  <i class="ph ph-credit-card me-2"></i> Checkout
+                </NuxtLink>
               </div>
             </div>
 
-            <!-- Reviews Tab -->
-            <div v-else-if="activeTab === 'reviews'" class="tab-content">
-              <div class="row g-4">
-                <div class="col-lg-6">
-                  <h6 class="mb-24 fw-bold">Customer Reviews ({{ mainProduct.reviews?.length || 0 }})</h6>
+            <div v-else class="text-center py-8">
+              <div class="mb-12">
+                <i class="ph ph-shopping-cart text-3xl text-gray-300"></i>
+              </div>
+              <p class="text-sm text-gray-500 mb-4">Your cart is empty</p>
+              <p class="text-xs text-gray-400">Add items to your cart to see them here</p>
+            </div>
+          </div>
 
-                  <!-- Reviews List -->
-                  <div v-if="mainProduct.reviews && mainProduct.reviews.length > 0">
-                    <div v-for="(review, index) in mainProduct.reviews" :key="index"
-                      class="d-flex align-items-start gap-24 pb-44 border-bottom border-gray-100 mb-44">
-                      <img src="/assets/images/thumbs/comment-img1.png" alt=""
-                        class="w-52 h-52 object-fit-cover rounded-full flex-shrink-0 shadow-sm">
-                      <div class="flex-grow-1">
-                        <div class="flex-between align-items-start gap-8">
-                          <div class="">
-                            <h6 class="mb-12 text-md fw-semibold">Customer {{ index + 1 }}</h6>
-                            <div class="flex-align gap-8">
-                              <span v-for="star in 5" :key="star" class="text-xs fw-medium d-flex">
-                                <i class="ph"
-                                  :class="star <= review.rating ? 'ph-fill ph-star text-warning-600' : 'ph-star text-gray-300'"></i>
-                              </span>
-                            </div>
-                          </div>
-                          <span class="text-gray-800 text-xs">{{ formatDate(review.createdAt) }}</span>
-                        </div>
-                        <p class="text-gray-700 mt-16">{{ review.comment || 'No comment provided' }}</p>
-                        <div class="mt-16 flex-align gap-16">
-                          <span class="text-sm text-gray-500">
-                            <i class="ph ph-thumbs-up"></i>
-                            {{ review.helpfulVotes || 0 }} helpful
-                          </span>
-                        </div>
-                      </div>
+          <!-- Variants Summary -->
+          <div v-if="variants.length > 0" class="p-24 border-t border-gray-100">
+            <h6 class="text-sm mb-16 fw-semibold text-gray-900">Available Variants</h6>
+            <div class="space-y-3 max-h-200 overflow-y-auto pr-2">
+              <div v-for="variant in variants" :key="variant.id" @click="selectVariant(variant)" :class="[
+                'variant-item p-12 rounded-lg border cursor-pointer transition-all duration-300',
+                selectedVariant?.id === variant.id
+                  ? 'border-main-600 bg-main-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              ]">
+                <div class="flex-between items-center">
+                  <div>
+                    <div class="flex-align gap-2 mb-2">
+                      <span class="text-xs text-gray-600">SKU:</span>
+                      <span class="text-xs font-medium">{{ variant.sku }}</span>
+                    </div>
+                    <div class="flex-align gap-2">
+                      <span class="text-xs text-gray-600">Color:</span>
+                      <span class="text-xs font-medium">{{ variant.color }}</span>
+                      <span class="text-xs text-gray-400 mx-2">•</span>
+                      <span class="text-xs text-gray-600">Size:</span>
+                      <span class="text-xs font-medium">{{ variant.size }}</span>
                     </div>
                   </div>
-                  <div v-else class="text-center py-40 border border-gray-100 rounded-12 bg-gray-50">
-                    <div class="mb-16">
-                      <i class="ph ph-chat-circle-text text-4xl text-gray-400"></i>
-                    </div>
-                    <p class="text-gray-500 mb-8">No reviews yet.</p>
-                    <p class="text-gray-400 text-sm">Be the first to review this product!</p>
-                  </div>
-
-                  <!-- Review Form -->
-                  <div class="mt-56 border border-gray-100 rounded-12 p-24 bg-gradient-to-br from-gray-50 to-white">
-                    <div class="mb-24">
-                      <h6 class="mb-24 fw-bold">Write a Review</h6>
-                      <span class="text-heading mb-8 d-block fw-medium">What is it like to Product?</span>
-                      <div class="flex-align gap-8 mb-24">
-                        <span v-for="star in 5" :key="star" @click="setRating(star)" :class="['text-2xl cursor-pointer transition-transform hover:scale-110',
-                          star <= rating ? 'text-warning-500' : 'text-gray-300']">
-                          <i class="ph" :class="star <= rating ? 'ph-fill ph-star' : 'ph-star'"></i>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="mt-32">
-                      <form @submit.prevent="submitReview">
-                        <div class="mb-32">
-                          <label for="title" class="text-neutral-600 mb-8 d-block fw-medium">Review Title</label>
-                          <input type="text" v-model="reviewTitle"
-                            class="common-input rounded-8 w-100 p-12 border border-gray-200 focus:border-main-600 focus:ring-2 focus:ring-main-500/20 transition-all duration-300"
-                            id="title" placeholder="Great Products" required>
-                        </div>
-                        <div class="mb-32">
-                          <label for="desc" class="text-neutral-600 mb-8 d-block fw-medium">Review Content</label>
-                          <textarea v-model="reviewContent"
-                            class="common-input rounded-8 w-100 p-12 border border-gray-200 focus:border-main-600 focus:ring-2 focus:ring-main-500/20 transition-all duration-300"
-                            id="desc" rows="5" placeholder="Share your experience with this product..."
-                            required></textarea>
-                        </div>
-                        <button type="submit"
-                          class="btn btn-main rounded-full mt-48 px-32 py-12 fw-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                          Submit Review
-                        </button>
-                      </form>
+                  <div class="text-right">
+                    <div :class="[
+                      'text-xs font-medium',
+                      variant.stock > 10 ? 'text-green-600' :
+                        variant.stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                    ]">
+                      {{ variant.stock }}
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-6">
-                  <div class="ms-xxl-5">
-                    <h6 class="mb-24 fw-bold">Customer Feedback Summary</h6>
-                    <div class="border border-gray-100 rounded-12 p-24 bg-gradient-to-br from-gray-50 to-white">
-                      <div class="text-center mb-32">
-                        <div class="text-5xl fw-bold text-gray-900 mb-8">{{ calculateAverageRating() }}</div>
-                        <div class="flex-align justify-center gap-8 mb-8">
-                          <span v-for="star in 5" :key="star" class="text-xl">
-                            <i class="ph"
-                              :class="star <= Math.round(calculateAverageRating()) ? 'ph-fill ph-star text-warning-600' : 'ph-star text-gray-300'"></i>
-                          </span>
-                        </div>
-                        <p class="text-gray-600">Based on {{ mainProduct.reviews?.length || 0 }} reviews</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Tabs Section -->
+    <div v-if="!loading && !error && mainProduct" class="pt-80">
+      <div class="product-dContent border border-gray-100 rounded-24 shadow-sm">
+        <div class="product-dContent__header border-bottom border-gray-100 flex-between flex-wrap gap-16 p-24">
+          <ul class="nav common-tab nav-pills mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button :class="['nav-link fw-semibold', activeTab === 'description' ? 'active' : '']"
+                @click="activeTab = 'description'" type="button">
+                Description
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button :class="['nav-link fw-semibold', activeTab === 'attributes' ? 'active' : '']"
+                @click="activeTab = 'attributes'" type="button">
+                Attributes
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button :class="['nav-link fw-semibold', activeTab === 'reviews' ? 'active' : '']"
+                @click="activeTab = 'reviews'" type="button">
+                Reviews ({{ mainProduct.reviews?.length || 0 }})
+              </button>
+            </li>
+          </ul>
+          <div
+            class="bg-gradient-to-r from-green-50 to-emerald-50 text-green-600 rounded-12 flex-align gap-8 hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-300 border border-green-200">
+            <img src="/assets/images/icon/satisfaction-icon.png" alt="Satisfaction Guaranteed" class="w-24 h-24">
+            100% Satisfaction Guaranteed
+          </div>
+        </div>
+
+        <div class="product-dContent__box p-24">
+          <!-- Description Tab -->
+          <div v-if="activeTab === 'description'" class="tab-content">
+            <div class="mb-40">
+              <h6 class="mb-24 fw-bold">Product Description</h6>
+              <p class="text-gray-700">{{ mainProduct.description }}</p>
+
+              <div v-if="mainProduct.category" class="mt-32">
+                <h6 class="mb-16 fw-semibold">Product Categories</h6>
+                <div class="d-flex flex-wrap gap-12">
+                  <span class="badge bg-black text-white border border-black">
+                    {{ mainProduct.category.name }}
+                  </span>
+                  <span v-if="mainProduct.subCategory" class="badge bg-black text-white border border-black">
+                    {{ mainProduct.subCategory.name }}
+                  </span>
+                  <span v-if="mainProduct.subSubCategory" class="badge bg-black text-white border border-black">
+                    {{ mainProduct.subSubCategory.name }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Product Information -->
+              <div class="mt-40">
+                <h6 class="mb-24 fw-bold">Product Information</h6>
+                <ul class="mt-32">
+                  <li class="text-gray-400 mb-14 flex-align gap-14">
+                    <span
+                      class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 text-xs flex-center rounded-full shadow-sm">
+                      <i class="ph ph-check"></i>
+                    </span>
+                    <span class="text-heading fw-medium">
+                      SKU: <span class="text-gray-500">{{ selectedVariant?.sku || mainProduct.sku }}</span>
+                    </span>
+                  </li>
+                  <li class="text-gray-400 mb-14 flex-align gap-14">
+                    <span
+                      class="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 text-xs flex-center rounded-full shadow-sm">
+                      <i class="ph ph-check"></i>
+                    </span>
+                    <span class="text-heading fw-medium">
+                      Barcode: <span class="text-gray-500">{{ mainProduct.barcode || 'N/A' }}</span>
+                    </span>
+                  </li>
+                  <li class="text-gray-400 mb-14 flex-align gap-14">
+                    <span
+                      class="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 text-green-600 text-xs flex-center rounded-full shadow-sm">
+                      <i class="ph ph-check"></i>
+                    </span>
+                    <span class="text-heading fw-medium">
+                      Unit: <span class="text-gray-500">{{ mainProduct.unit?.name }} ({{ mainProduct.unit?.shortName
+                      }})</span>
+                    </span>
+                  </li>
+                  <li v-if="mainProduct.manufacturedDate" class="text-gray-400 mb-14 flex-align gap-14">
+                    <span
+                      class="w-20 h-20 bg-gradient-to-br from-yellow-50 to-yellow-100 text-yellow-600 text-xs flex-center rounded-full shadow-sm">
+                      <i class="ph ph-check"></i>
+                    </span>
+                    <span class="text-heading fw-medium">
+                      Manufactured: <span class="text-gray-500">{{ formatDate(mainProduct.manufacturedDate) }}</span>
+                    </span>
+                  </li>
+                  <li v-if="mainProduct.expiryDate" class="text-gray-400 mb-14 flex-align gap-14">
+                    <span
+                      class="w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 text-red-600 text-xs flex-center rounded-full shadow-sm">
+                      <i class="ph ph-check"></i>
+                    </span>
+                    <span class="text-heading fw-medium">
+                      Expiry: <span class="text-gray-500">{{ formatDate(mainProduct.expiryDate) }}</span>
+                    </span>
+                  </li>
+                  <li v-if="mainProduct.origin" class="text-gray-400 mb-14 flex-align gap-14">
+                    <span
+                      class="w-20 h-20 bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 text-xs flex-center rounded-full shadow-sm">
+                      <i class="ph ph-check"></i>
+                    </span>
+                    <span class="text-heading fw-medium">
+                      Origin: <span class="text-gray-500">{{ mainProduct.origin }}</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Manufacturer Details -->
+              <div v-if="mainProduct.manufacturerDetails || mainProduct.packerDetails" class="mt-40">
+                <h6 class="mb-24 fw-bold">Manufacturing & Packaging Details</h6>
+                <div class="space-y-4">
+                  <div v-if="mainProduct.manufacturerDetails" class="bg-gray-50 rounded-lg p-4">
+                    <h6 class="text-sm font-semibold text-gray-700 mb-2">Manufacturer Details:</h6>
+                    <p class="text-gray-600 text-sm">{{ mainProduct.manufacturerDetails }}</p>
+                  </div>
+                  <div v-if="mainProduct.packerDetails" class="bg-gray-50 rounded-lg p-4">
+                    <h6 class="text-sm font-semibold text-gray-700 mb-2">Packer Details:</h6>
+                    <p class="text-gray-600 text-sm">{{ mainProduct.packerDetails }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attributes Tab -->
+          <div v-else-if="activeTab === 'attributes'" class="tab-content">
+            <div class="mb-40">
+              <h6 class="mb-24 fw-bold">Product Attributes</h6>
+
+              <div v-if="selectedVariant"
+                class="mb-32 p-24 border border-gray-100 rounded-16 bg-gradient-to-r from-gray-50 to-white">
+                <h6 class="text-md fw-semibold mb-16">Selected Variant</h6>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-24">
+                  <!-- Basic Attributes -->
+                  <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-20 h-20 rounded-lg overflow-hidden border border-gray-300">
+                        <img :src="getColorFirstImage(selectedVariant.color)" :alt="selectedVariant.color"
+                          class="w-full h-full object-cover" />
                       </div>
+                      <div>
+                        <span class="text-gray-500 text-sm">Color:</span>
+                        <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.color }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 rounded-full flex-center text-xs shadow-sm">
+                        <i class="ph ph-ruler"></i>
+                      </span>
+                      <div>
+                        <span class="text-gray-500 text-sm">Size:</span>
+                        <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.size }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 text-green-600 rounded-full flex-center text-xs shadow-sm">
+                        <i class="ph ph-fabric"></i>
+                      </span>
+                      <div>
+                        <span class="text-gray-500 text-sm">SKU:</span>
+                        <span class="text-gray-800 font-medium ml-2">{{ selectedVariant.sku }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <span
+                        class="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600 rounded-full flex-center text-xs shadow-sm">
+                        <i class="ph ph-package"></i>
+                      </span>
+                      <div>
+                        <span class="text-gray-500 text-sm">Stock:</span>
+                        <span :class="[
+                          'font-medium ml-2',
+                          selectedVariant.stock > 10 ? 'text-green-600' :
+                            selectedVariant.stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                        ]">
+                          {{ selectedVariant.stock }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Price Information -->
+                  <div class="space-y-3">
+                    <h6 class="text-sm font-semibold text-gray-700 mb-8">Pricing</h6>
+
+                    <div class="bg-white p-3 rounded-lg border border-gray-100">
+                      <span class="text-gray-500 text-xs">Price</span>
+                      <p class="text-gray-800 font-medium">₹{{ selectedVariant.price }}</p>
+                    </div>
+
+                    <div v-if="mainProduct.discountValue > 0" class="bg-white p-3 rounded-lg border border-gray-100">
+                      <span class="text-gray-500 text-xs">Discount</span>
+                      <p class="text-green-600 font-medium">{{ mainProduct.discountValue }}% OFF</p>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border border-gray-100">
+                      <span class="text-gray-500 text-xs">Discounted Price</span>
+                      <p class="text-main-600 font-medium">₹{{ calculateDiscountedPrice() }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- All Variants -->
+              <div v-if="variants.length > 0">
+                <h6 class="text-md fw-semibold mb-16">All Variants</h6>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-24">
+                  <div v-for="variant in variants" :key="variant.id"
+                    class="border border-gray-200 rounded-lg p-16 hover:border-gray-300 transition-colors">
+                    <div class="flex-between items-start mb-12">
+                      <div>
+                        <span class="text-xs text-gray-500">SKU</span>
+                        <p class="text-sm font-medium">{{ variant.sku }}</p>
+                      </div>
+                      <div class="text-right">
+                        <span class="text-xs text-gray-500">Stock</span>
+                        <p :class="[
+                          'text-sm font-medium',
+                          variant.stock > 10 ? 'text-green-600' :
+                            variant.stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                        ]">
+                          {{ variant.stock }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex-align gap-8">
+                      <span class="badge bg-blue-100 text-blue-800">{{ variant.color }}</span>
+                      <span class="badge bg-green-100 text-green-800">{{ variant.size }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="text-center py-40 border border-gray-100 rounded-12 bg-gray-50">
+                <div class="mb-16">
+                  <i class="ph ph-list-checks text-4xl text-gray-400"></i>
+                </div>
+                <p class="text-gray-500 mb-8">No variants available for this product.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews Tab -->
+          <div v-else-if="activeTab === 'reviews'" class="tab-content">
+            <div class="row g-4">
+              <div class="col-lg-6">
+                <h6 class="mb-24 fw-bold">Customer Reviews ({{ mainProduct.reviews?.length || 0 }})</h6>
+
+                <!-- Reviews List -->
+                <div v-if="mainProduct.reviews && mainProduct.reviews.length > 0">
+                  <div v-for="(review, index) in mainProduct.reviews" :key="index"
+                    class="d-flex align-items-start gap-24 pb-44 border-bottom border-gray-100 mb-44">
+                    <img src="/assets/images/thumbs/comment-img1.png" alt=""
+                      class="w-52 h-52 object-fit-cover rounded-full flex-shrink-0 shadow-sm">
+                    <div class="flex-grow-1">
+                      <div class="flex-between align-items-start gap-8">
+                        <div class="">
+                          <h6 class="mb-12 text-md fw-semibold">Customer {{ index + 1 }}</h6>
+                          <div class="flex-align gap-8">
+                            <span v-for="star in 5" :key="star" class="text-xs fw-medium d-flex">
+                              <i class="ph"
+                                :class="star <= review.rating ? 'ph-fill ph-star text-warning-600' : 'ph-star text-gray-300'"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <span class="text-gray-800 text-xs">{{ formatDate(review.createdAt) }}</span>
+                      </div>
+                      <p class="text-gray-700 mt-16">{{ review.comment || 'No comment provided' }}</p>
+                      <div class="mt-16 flex-align gap-16">
+                        <span class="text-sm text-gray-500">
+                          <i class="ph ph-thumbs-up"></i>
+                          {{ review.helpfulVotes || 0 }} helpful
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="text-center py-40 border border-gray-100 rounded-12 bg-gray-50">
+                  <div class="mb-16">
+                    <i class="ph ph-chat-circle-text text-4xl text-gray-400"></i>
+                  </div>
+                  <p class="text-gray-500 mb-8">No reviews yet.</p>
+                  <p class="text-gray-400 text-sm">Be the first to review this product!</p>
+                </div>
+
+                <!-- Review Form -->
+                <div class="mt-56 border border-gray-100 rounded-12 p-24 bg-gradient-to-br from-gray-50 to-white">
+                  <div class="mb-24">
+                    <h6 class="mb-24 fw-bold">Write a Review</h6>
+                    <span class="text-heading mb-8 d-block fw-medium">What is it like to Product?</span>
+                    <div class="flex-align gap-8 mb-24">
+                      <span v-for="star in 5" :key="star" @click="setRating(star)" :class="['text-2xl cursor-pointer transition-transform hover:scale-110',
+                        star <= rating ? 'text-warning-500' : 'text-gray-300']">
+                        <i class="ph" :class="star <= rating ? 'ph-fill ph-star' : 'ph-star'"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mt-32">
+                    <form @submit.prevent="submitReview">
+                      <div class="mb-32">
+                        <label for="title" class="text-neutral-600 mb-8 d-block fw-medium">Review Title</label>
+                        <input type="text" v-model="reviewTitle"
+                          class="common-input rounded-8 w-100 p-12 border border-gray-200 focus:border-main-600 focus:ring-2 focus:ring-main-500/20 transition-all duration-300"
+                          id="title" placeholder="Great Products" required>
+                      </div>
+                      <div class="mb-32">
+                        <label for="desc" class="text-neutral-600 mb-8 d-block fw-medium">Review Content</label>
+                        <textarea v-model="reviewContent"
+                          class="common-input rounded-8 w-100 p-12 border border-gray-200 focus:border-main-600 focus:ring-2 focus:ring-main-500/20 transition-all duration-300"
+                          id="desc" rows="5" placeholder="Share your experience with this product..."
+                          required></textarea>
+                      </div>
+                      <button type="submit"
+                        class="btn btn-main rounded-full mt-48 px-32 py-12 fw-semibold shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        Submit Review
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="ms-xxl-5">
+                  <h6 class="mb-24 fw-bold">Customer Feedback Summary</h6>
+                  <div class="border border-gray-100 rounded-12 p-24 bg-gradient-to-br from-gray-50 to-white">
+                    <div class="text-center mb-32">
+                      <div class="text-5xl fw-bold text-gray-900 mb-8">{{ calculateAverageRating() }}</div>
+                      <div class="flex-align justify-center gap-8 mb-8">
+                        <span v-for="star in 5" :key="star" class="text-xl">
+                          <i class="ph"
+                            :class="star <= Math.round(calculateAverageRating()) ? 'ph-fill ph-star text-warning-600' : 'ph-star text-gray-300'"></i>
+                        </span>
+                      </div>
+                      <p class="text-gray-600">Based on {{ mainProduct.reviews?.length || 0 }} reviews</p>
                     </div>
                   </div>
                 </div>
@@ -1183,13 +1257,91 @@ const availableSizes = computed(() => {
   variants.value.forEach(variant => {
     if (variant.size) sizes.add(variant.size)
   })
-  
+
   if (sizes.size === 0) {
     return ['S', 'M', 'L', 'XL', 'XXL']
   }
-  
+
   return Array.from(sizes)
 })
+
+// Category detection computed properties
+const isClothingCategory = computed(() => {
+  const category = mainProduct.value?.category?.name?.toLowerCase() || ''
+  const subCategory = mainProduct.value?.subCategory?.name?.toLowerCase() || ''
+  const subSubCategory = mainProduct.value?.subSubCategory?.name?.toLowerCase() || ''
+
+  return category.includes('clothing') ||
+    category.includes('apparel') ||
+    category.includes('fashion') ||
+    subCategory.includes('shirt') ||
+    subCategory.includes('pants') ||
+    subCategory.includes('dress') ||
+    subSubCategory.includes('t-shirt') ||
+    subSubCategory.includes('jeans')
+})
+
+const isShoesCategory = computed(() => {
+  const category = mainProduct.value?.category?.name?.toLowerCase() || ''
+  const subCategory = mainProduct.value?.subCategory?.name?.toLowerCase() || ''
+  const subSubCategory = mainProduct.value?.subSubCategory?.name?.toLowerCase() || ''
+
+  return category.includes('shoes') ||
+    category.includes('footwear') ||
+    subCategory.includes('sneakers') ||
+    subCategory.includes('boots') ||
+    subCategory.includes('sandals') ||
+    subSubCategory.includes('running') ||
+    subSubCategory.includes('sports')
+})
+
+const isElectronicsCategory = computed(() => {
+  const category = mainProduct.value?.category?.name?.toLowerCase() || ''
+  const subCategory = mainProduct.value?.subCategory?.name?.toLowerCase() || ''
+  const subSubCategory = mainProduct.value?.subSubCategory?.name?.toLowerCase() || ''
+
+  return category.includes('electronics') ||
+    category.includes('computer') ||
+    category.includes('phone') ||
+    category.includes('gadget') ||
+    subCategory.includes('laptop') ||
+    subCategory.includes('smartphone') ||
+    subSubCategory.includes('accessories')
+})
+
+// Size helper methods
+const getClothingSizes = () => {
+  const standardSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
+  const availableSizesList = availableSizes.value
+
+  // Return standard sizes that are available in the product
+  return standardSizes.filter(size => availableSizesList.includes(size))
+}
+
+const getShoeSizes = () => {
+  const standardShoeSizes = ['5', '6', '7', '8', '9', '10', '11', '12', '13']
+  const availableSizesList = availableSizes.value
+
+  // Return standard shoe sizes that are available in the product
+  return standardShoeSizes.filter(size => availableSizesList.includes(size))
+}
+
+const getElectronicsSizes = () => {
+  const availableSizesList = availableSizes.value
+
+  // For electronics, sizes might be like "64GB", "128GB", "256GB" or "Small", "Medium", "Large"
+  return availableSizesList.sort((a, b) => {
+    // Try to sort by numeric value if possible
+    const aNum = parseInt(a.replace(/[^0-9]/g, ''))
+    const bNum = parseInt(b.replace(/[^0-9]/g, ''))
+
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return aNum - bNum
+    }
+
+    return a.localeCompare(b)
+  })
+}
 
 // Helper functions for dynamic product handling
 
@@ -2008,11 +2160,11 @@ if (typeof window !== 'undefined') {
   .mobile-main-swiper {
     height: 400px;
   }
-  
+
   .mobile-main-product-image {
     max-height: 400px;
   }
-  
+
   .mobile-thumbnail-swiper {
     height: 90px;
   }
@@ -2023,11 +2175,11 @@ if (typeof window !== 'undefined') {
   .mobile-main-swiper {
     height: 300px;
   }
-  
+
   .mobile-main-product-image {
     max-height: 300px;
   }
-  
+
   .mobile-thumbnail-swiper {
     height: 70px;
   }
@@ -2347,4 +2499,4 @@ if (typeof window !== 'undefined') {
 .ring-offset-2 {
   margin: 2px;
 }
-</style> 
+</style>

@@ -1162,7 +1162,7 @@ const addToCart = (product) => {
 }
 
 const quickView = (product) => {
-  console.log('Quick view:', getProductName(product))
+  //console.log('Quick view:', getProductName(product))
 }
 
 // URL Copy

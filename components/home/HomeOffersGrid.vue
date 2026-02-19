@@ -2,75 +2,34 @@
   <div v-if="!loading && activeOffers.length > 0" class="offers-by-type py-80">
     <div class="container container-lg">
       <!-- Flash Sale Section -->
-      <OfferTypeSection
-        v-if="offersByType['FLASH_SALE'] && offersByType['FLASH_SALE'].length > 0"
-        type="FLASH_SALE"
-        title="Flash Sale"
-        icon="lightning"
-        :offers="offersByType['FLASH_SALE']"
-        theme="danger"
-      />
+      <OfferTypeSection v-if="offersByType['FLASH_SALE'] && offersByType['FLASH_SALE'].length > 0" type="FLASH_SALE"
+        title="Flash Sale" icon="lightning" :offers="offersByType['FLASH_SALE']" theme="danger" />
 
       <!-- Deals Revealed Section -->
-      <OfferTypeSection
-        v-if="offersByType['DEALS_REVEALED'] && offersByType['DEALS_REVEALED'].length > 0"
-        type="DEALS_REVEALED"
-        title="Deals Revealed"
-        icon="gift"
-        :offers="offersByType['DEALS_REVEALED']"
-        theme="primary"
-      />
+      <OfferTypeSection v-if="offersByType['DEALS_REVEALED'] && offersByType['DEALS_REVEALED'].length > 0"
+        type="DEALS_REVEALED" title="Deals Revealed" icon="gift" :offers="offersByType['DEALS_REVEALED']"
+        theme="primary" />
 
       <!-- Festival Section -->
-      <OfferTypeSection
-        v-if="offersByType['FESTIVAL'] && offersByType['FESTIVAL'].length > 0"
-        type="FESTIVAL"
-        title="Festival Offers"
-        icon="confetti"
-        :offers="offersByType['FESTIVAL']"
-        theme="success"
-      />
+      <OfferTypeSection v-if="offersByType['FESTIVAL'] && offersByType['FESTIVAL'].length > 0" type="FESTIVAL"
+        title="Festival Offers" icon="confetti" :offers="offersByType['FESTIVAL']" theme="success" />
 
       <!-- Clearance Section -->
-      <OfferTypeSection
-        v-if="offersByType['CLEARANCE'] && offersByType['CLEARANCE'].length > 0"
-        type="CLEARANCE"
-        title="Clearance Sale"
-        icon="tag"
-        :offers="offersByType['CLEARANCE']"
-        theme="warning"
-      />
+      <OfferTypeSection v-if="offersByType['CLEARANCE'] && offersByType['CLEARANCE'].length > 0" type="CLEARANCE"
+        title="Clearance Sale" icon="tag" :offers="offersByType['CLEARANCE']" theme="warning" />
 
       <!-- Limited Offers Section -->
-      <OfferTypeSection
-        v-if="offersByType['LIMITED'] && offersByType['LIMITED'].length > 0"
-        type="LIMITED"
-        title="Limited Offers"
-        icon="hourglass"
-        :offers="offersByType['LIMITED']"
-        theme="info"
-      />
+      <OfferTypeSection v-if="offersByType['LIMITED'] && offersByType['LIMITED'].length > 0" type="LIMITED"
+        title="Limited Offers" icon="hourglass" :offers="offersByType['LIMITED']" theme="info" />
 
       <!-- Product Category Section -->
-      <OfferTypeSection
-        v-if="offersByType['PRODUCT_CATEGORY'] && offersByType['PRODUCT_CATEGORY'].length > 0"
-        type="PRODUCT_CATEGORY"
-        title="Category Specials"
-        icon="tag"
-        :offers="offersByType['PRODUCT_CATEGORY']"
-        theme="primary"
-      />
+      <OfferTypeSection v-if="offersByType['PRODUCT_CATEGORY'] && offersByType['PRODUCT_CATEGORY'].length > 0"
+        type="PRODUCT_CATEGORY" title="Category Specials" icon="tag" :offers="offersByType['PRODUCT_CATEGORY']"
+        theme="primary" />
 
       <!-- Other Offers Section -->
-      <OfferTypeSection
-        v-for="(offerList, type) in otherOffers"
-        :key="type"
-        :type="type"
-        :title="formatOfferType(type)"
-        icon="gift"
-        :offers="offerList"
-        theme="secondary"
-      />
+      <OfferTypeSection v-for="(offerList, type) in otherOffers" :key="type" :type="type" :title="formatOfferType(type)"
+        icon="gift" :offers="offerList" theme="secondary" />
     </div>
   </div>
 
@@ -90,38 +49,43 @@
   </div>
 </template>
 
+
+
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useDynamicOffers } from '~/composables/useDynamicOffers'
+import { computed } from 'vue'
+import { useOffersApi } from '@/composables/api/useOffersApi'
 import OfferTypeSection from './OfferTypeSection.vue'
 
-const { 
-  offers, 
-  loading, 
-  offersByType,
-  activeOffers
-} = useDynamicOffers()
+const { offers, loading, error, refresh } = useOffersApi({ isActive: true })
 
-// Debug: Log the data to understand what's happening
-watch([offers, offersByType, activeOffers], ([offersData, offersByTypeData, activeOffersData]) => {
-  console.log('🔍 [HomeOffersGrid] Debug Info:')
-  console.log('- Total offers:', offersData.length)
-  console.log('- Active offers:', activeOffersData.length)
-  console.log('- Offers by type:', offersByTypeData)
-  console.log('- Available types:', Object.keys(offersByTypeData))
-}, { immediate: true })
+// Computed properties
+const offersByType = computed(() => {
+  const grouped: { [key: string]: any[] } = {}
+  offers.value.forEach(offer => {
+    const type = offer.offerType || 'OTHER'
+    if (!grouped[type]) {
+      grouped[type] = []
+    }
+    grouped[type].push(offer)
+  })
+  return grouped
+})
+
+const activeOffers = computed(() => {
+  return offers.value.filter(offer => offer.isActive !== false)
+})
 
 // Get offers that are not in predefined types
 const otherOffers = computed(() => {
   const predefinedTypes = ['FLASH_SALE', 'DEALS_REVEALED', 'LIMITED', 'CATEGORY', 'CLEARANCE', 'FESTIVAL', 'SEASONAL', 'BANNER', 'PRODUCT', 'PRODUCT_CATEGORY']
   const result: { [key: string]: any[] } = {}
-
+  
   Object.entries(offersByType.value).forEach(([type, offerList]) => {
     if (!predefinedTypes.includes(type)) {
       result[type] = offerList
     }
   })
-
+  
   return result
 })
 
@@ -132,7 +96,6 @@ const formatOfferType = (type: string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
 }
-
 </script>
 
 <style scoped>
@@ -152,7 +115,8 @@ const formatOfferType = (type: string) => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

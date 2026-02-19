@@ -11,9 +11,9 @@
           <div class="col-lg-6">
             <div class="step-content">
               <div class="section-heading ms-auto text-end">
-                <h5>Over $200k in potential benefits</h5>
+                <h5>Over ₹200k in potential benefits</h5>
                 <span class="text-gray-600"
-                  >Ready to sell? Launch your brand today with a powerful for new sellers and over $200k in potential benefits</span
+                  >Ready to sell? Launch your brand today with a powerful for new sellers and over ₹200k in potential benefits</span
                 >
               </div>
               <div class="d-flex flex-column align-items-end gap-56">

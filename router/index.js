@@ -1,6 +1,5 @@
 // router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import ProductDetail from '@/pages/ProductDetail.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -13,17 +12,17 @@ const router = createRouter({
     {
       path: '/product/:id',
       name: 'ProductDetail',
-      component: ProductDetail,
+      component: () => import('@/pages/shop/shop-all/[slug].vue'),
       props: (route) => ({ 
-        id: route.params.id 
+        slug: route.params.id 
       })
     },
     {
       path: '/product/:id-:slug',
       name: 'ProductDetailWithSlug',
-      component: ProductDetail,
+      component: () => import('@/pages/shop/shop-all/[slug].vue'),
       props: (route) => ({ 
-        id: route.params.id 
+        slug: route.params.slug 
       })
     },
     {

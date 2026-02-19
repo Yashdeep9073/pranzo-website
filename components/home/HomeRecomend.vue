@@ -249,7 +249,7 @@ const isFallbackProduct = (product) => {
 
 // Handle image error with fallback
 const handleImageError = (event, index) => {
-  console.log('Image failed to load, using fallback:', event.target.src)
+  //console.log('Image failed to load, using fallback:', event.target.src)
   
   // Use different fallback based on index
   const fallbackImages = [
@@ -278,7 +278,7 @@ const getProductLink = (product) => {
 
 // Initialize
 onMounted(async () => {
-  console.log('Component mounted - Loading initial data')
+  //console.log('Component mounted - Loading initial data')
   
   isLoading.value = true
   

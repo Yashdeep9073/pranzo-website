@@ -99,7 +99,7 @@
           <div class="logo"> 
             <NuxtLink to="/" class="logo-link" aria-label="Market Pro Home">
               <img  
-                :src="logoImage || '/assets/images/logo/pfevicon.png'"
+                :src="logoImage || '/assets/images/logo/pranzo-weblogo.png'"
                 alt="Market Pro"
                 class="logo-img"
                 @error="handleLogoError"

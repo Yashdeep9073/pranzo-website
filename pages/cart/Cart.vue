@@ -370,14 +370,14 @@ function generateSlug(name) {
 // Cart Functions
 const loadCartFromStorage = () => {
   try {
-    console.log('Loading cart from localStorage...')
+    //console.log('Loading cart from localStorage...')
     const cartData = localStorage.getItem('shopping_cart')
     if (cartData) {
       const cart = JSON.parse(cartData)
-      console.log('Cart loaded:', cart)
+      //console.log('Cart loaded:', cart)
       cartItems.value = cart
     } else {
-      console.log('No cart found in localStorage')
+      //console.log('No cart found in localStorage')
       cartItems.value = []
     }
   } catch (error) {
@@ -391,7 +391,7 @@ const loadCartFromStorage = () => {
 const saveCartToStorage = () => {
   try {
     localStorage.setItem('shopping_cart', JSON.stringify(cartItems.value))
-    console.log('Cart saved to localStorage')
+    //console.log('Cart saved to localStorage')
   } catch (error) {
     console.error('Error saving cart to storage:', error)
   }
@@ -522,7 +522,7 @@ onMounted(() => {
   const encodedId = route.query.pid
   if (encodedId) {
     const productId = decodeId(encodedId)
-    console.log("Product ID from URL:", productId)
+    //console.log("Product ID from URL:", productId)
     
     // You could automatically add this product to cart here
     // or redirect to product page
@@ -532,7 +532,7 @@ onMounted(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('storage', (event) => {
       if (event.key === 'shopping_cart') {
-        console.log('Cart updated in another tab, reloading...')
+        //console.log('Cart updated in another tab, reloading...')
         loadCartFromStorage()
       }
     })

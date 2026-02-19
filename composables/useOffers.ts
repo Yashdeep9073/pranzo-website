@@ -28,7 +28,7 @@ export interface ProductItem {
 
 // Mock data for fallback when API is not available
 const getMockOffers = (): Offer[] => {
-  console.log('🔄 [Offers] USING MOCK DATA - API FAILED')
+  //console.log('🔄 [Offers] USING MOCK DATA - API FAILED')
   return [
     {
       id: 1,
@@ -119,27 +119,27 @@ export const useOffers = () => {
         params.offerType = productType
       }
 
-      console.log('🔍 [Offers] Fetching all offers from:', `${url}?${new URLSearchParams(params).toString()}`)
+      //console.log('🔍 [Offers] Fetching all offers from:', `${url}?${new URLSearchParams(params).toString()}`)
 
       const data = await $fetch<OffersApiResponse>(url, {
         query: params
       })
 
-      console.log('✅ [Offers] API Response received:', data)
+      //console.log('✅ [Offers] API Response received:', data)
 
       if (data && data.data && Array.isArray(data.data)) {
         offers.value = data.data.filter((offer: Offer) => offer.isActive)
-        console.log(`✅ [Offers] Fetched ${offers.value.length} active offers:`, offers.value)
+        //console.log(`✅ [Offers] Fetched ${offers.value.length} active offers:`, offers.value)
       } else {
         offers.value = []
-        console.log('⚠️ [Offers] No data found in response')
+        //console.log('⚠️ [Offers] No data found in response')
       }
     } catch (err: any) {
       console.error('❌ [Offers] Error fetching offers:', err)
       error.value = err.message
       
       // Fallback to mock data when API fails
-      console.log('🔄 [Offers] Using mock data as fallback')
+      //console.log('🔄 [Offers] Using mock data as fallback')
       offers.value = getMockOffers()
     } finally {
       loading.value = false
@@ -159,7 +159,7 @@ export const useOffers = () => {
     })
 
     if (Object.keys(grouped).length > 0) {
-      console.log('📊 [Offers] Grouped by type:', grouped)
+      //console.log('📊 [Offers] Grouped by type:', grouped)
     }
 
     return grouped

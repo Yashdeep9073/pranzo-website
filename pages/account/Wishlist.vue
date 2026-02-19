@@ -966,7 +966,7 @@ const clearWishlist = () => {
 
 // Lifecycle hooks
 onMounted(() => {
-  console.log('Wishlist items:', wishlistStore.items)
+  //console.log('Wishlist items:', wishlistStore.items)
 })
 </script>
 

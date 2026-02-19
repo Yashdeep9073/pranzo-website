@@ -50,7 +50,7 @@ export function updateCartAndNotify(action, productData) {
     }
   }
   
-  console.log(`Cart ${action} completed:`, cart.length, 'items')
+  //console.log(`Cart ${action} completed:`, cart.length, 'items')
   return cart
 }
 

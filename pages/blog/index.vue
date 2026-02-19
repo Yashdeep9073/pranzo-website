@@ -189,7 +189,7 @@ const searchQuery = ref('')
 const { data: blogPosts, pending, error, refresh: refreshBlogs } = await useAsyncData('blogs',
   async () => {
     try {
-      console.log('Fetching blogs from API...')
+      //console.log('Fetching blogs from API...')
       const response = await $fetch(API_URL)
 
       if (!response.data || !Array.isArray(response.data)) {
@@ -197,7 +197,7 @@ const { data: blogPosts, pending, error, refresh: refreshBlogs } = await useAsyn
         return []
       }
 
-      console.log(`Successfully fetched ${response.data.length} blogs`)
+      //console.log(`Successfully fetched ${response.data.length} blogs`)
 
       // Transform API data to match our template
       return response.data.map((blog, index) => {
@@ -318,7 +318,7 @@ const visiblePages = computed(() => {
 const handlePageChange = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
-    console.log('Page changed to:', page)
+    //console.log('Page changed to:', page)
 
     // Scroll to top on page change
     if (typeof window !== 'undefined') {
@@ -329,13 +329,13 @@ const handlePageChange = (page) => {
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    console.log('Searching for:', searchQuery.value.trim())
+    //console.log('Searching for:', searchQuery.value.trim())
     currentPage.value = 1 // Reset to first page on new search
   }
 }
 
 const handleImageError = (event) => {
-  console.log('Image failed to load, using default image')
+  //console.log('Image failed to load, using default image')
   event.target.src = DEFAULT_IMAGE
 }
 

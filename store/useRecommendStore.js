@@ -459,7 +459,7 @@ export const useRecommendStore = defineStore('recommend', () => {
 
       // Check if API endpoint is available
       if (!graphql) {
-        console.log('GraphQL endpoint not configured, using fallback products')
+        //console.log('GraphQL endpoint not configured, using fallback products')
         usingFallbackData.value = true
         useFallbackProducts(category, limit)
         isLoading.value = false
@@ -470,7 +470,7 @@ export const useRecommendStore = defineStore('recommend', () => {
       if (!forceRefresh) {
         const cached = getFromCache(cacheKey)
         if (cached) {
-          console.log(` Using cached data for: ${cacheKey}`)
+          //console.log(` Using cached data for: ${cacheKey}`)
           products.value = cached.products
           pagination.value = cached.pagination
           isLoading.value = false
@@ -478,7 +478,7 @@ export const useRecommendStore = defineStore('recommend', () => {
         }
       }
 
-      console.log(` Fetching products with filters:`, { page, limit, category, sortBy })
+      //console.log(` Fetching products with filters:`, { page, limit, category, sortBy })
 
       let response;
       try {
@@ -524,7 +524,7 @@ export const useRecommendStore = defineStore('recommend', () => {
           usingFallbackData.value = true
           useFallbackProducts(category, limit)
         } else {
-          console.log(` Products fetched for "${category || 'all'}": ${data.length} items`)
+          //console.log(` Products fetched for "${category || 'all'}": ${data.length} items`)
           
           // Reset fallback flag since API succeeded
           usingFallbackData.value = false
@@ -597,7 +597,7 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   // Enhanced fallback products function
   const useFallbackProducts = (category = null, limit = 10) => {
-    console.log(' Using fallback products for category:', category)
+    //console.log(' Using fallback products for category:', category)
     
     let filteredProducts = [...FALLBACK_PRODUCTS]
     
@@ -609,7 +609,7 @@ export const useRecommendStore = defineStore('recommend', () => {
       
       // If no products for category, show all
       if (filteredProducts.length === 0) {
-        console.log(`No fallback products for category "${category}", showing all`)
+        //console.log(`No fallback products for category "${category}", showing all`)
         filteredProducts = FALLBACK_PRODUCTS
       }
     }
@@ -626,7 +626,7 @@ export const useRecommendStore = defineStore('recommend', () => {
       perPage: limit
     }
     
-    console.log(`Showing ${filteredProducts.length} fallback products`)
+    //console.log(`Showing ${filteredProducts.length} fallback products`)
   }
 
   // Fetch categories with enhanced fallback
@@ -634,7 +634,7 @@ export const useRecommendStore = defineStore('recommend', () => {
     try {
       // Check if API endpoint is available
       if (!API_URL_CATEGORY) {
-        console.log('Categories API endpoint not configured, using fallback')
+        //console.log('Categories API endpoint not configured, using fallback')
         usingFallbackData.value = true
         useFallbackCategories()
         return categories.value
@@ -642,7 +642,7 @@ export const useRecommendStore = defineStore('recommend', () => {
 
       // Check cache first
       if (!forceRefresh && categoryCache.value && isCacheValid('categories')) {
-        console.log('Using cached categories')
+        //console.log('Using cached categories')
         categories.value = categoryCache.value
         usingFallbackData.value = false
         return categories.value
@@ -651,7 +651,7 @@ export const useRecommendStore = defineStore('recommend', () => {
       isLoading.value = true
       error.value = null
 
-      console.log('Fetching categories from API...', API_URL_CATEGORY)
+      //console.log('Fetching categories from API...', API_URL_CATEGORY)
       
       let response;
       try {
@@ -681,7 +681,7 @@ export const useRecommendStore = defineStore('recommend', () => {
           .filter(category => category.name && category.id)
           .sort((a, b) => b.productCount - a.productCount)
 
-        console.log('Processed categories:', allCategories.length)
+        //console.log('Processed categories:', allCategories.length)
         
         // Reset fallback flag
         usingFallbackData.value = false
@@ -690,7 +690,7 @@ export const useRecommendStore = defineStore('recommend', () => {
         categoryCache.value = allCategories
         lastFetchTime.value['categories'] = Date.now()
         
-        console.log(`Categories fetched: ${allCategories.length} items`)
+        //console.log(`Categories fetched: ${allCategories.length} items`)
       } else {
         console.warn('No valid categories data in response, using fallback')
         usingFallbackData.value = true
@@ -714,7 +714,7 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   // Use fallback categories
   const useFallbackCategories = () => {
-    console.log(' Using fallback categories')
+    //console.log(' Using fallback categories')
     categories.value = FALLBACK_CATEGORIES
     categoryCache.value = FALLBACK_CATEGORIES
     lastFetchTime.value['categories'] = Date.now()

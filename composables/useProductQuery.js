@@ -38,7 +38,7 @@ export function useProductQuery(state, config) {
 
   const fetchCategoriesWithNestedData = async () => {
     try {
-      console.log('Fetching categories with nested data...')
+      //console.log('Fetching categories with nested data...')
       
       const response = await fetch('https://kartmania-api.vibrantick.org/common/product-category/read')
       
@@ -47,7 +47,7 @@ export function useProductQuery(state, config) {
       }
       
       const data = await response.json()
-      console.log('Categories API Response:', data)
+      //console.log('Categories API Response:', data)
       
       if (data.data && Array.isArray(data.data)) {
         state.categories = data.data
@@ -85,8 +85,8 @@ export function useProductQuery(state, config) {
         $fetch(API_ENDPOINTS.brands)
       ])
 
-      console.log('Colors API Response:', colorsData)
-      console.log('Sizes API Response:', sizesData)
+      //console.log('Colors API Response:', colorsData)
+      //console.log('Sizes API Response:', sizesData)
 
       // Colors - Direct from API
       if (colorsData.colors && Array.isArray(colorsData.colors)) {
@@ -232,7 +232,7 @@ export function useProductQuery(state, config) {
       }
     `
 
-    console.log('GraphQL Query with filters:', {
+    //console.log('GraphQL Query with filters:', {
       color: filters.color || 'none',
       size: filters.size || 'none',
       category: filters.category || 'none',
@@ -265,7 +265,7 @@ export function useProductQuery(state, config) {
       // Build GraphQL query with all active filters
       const query = buildGraphQLQuery(mergedFilters)
 
-      console.log('Sending GraphQL query with filters:', mergedFilters)
+      //console.log('Sending GraphQL query with filters:', mergedFilters)
 
       // Use $fetch with proper configuration
       const response = await $fetch(API_ENDPOINTS.graphql, {
@@ -276,7 +276,7 @@ export function useProductQuery(state, config) {
         body: JSON.stringify({ query })
       })
 
-      console.log('GraphQL response received:', response)
+      //console.log('GraphQL response received:', response)
 
       if (response.data?.productFilter?.data) {
         const products = response.data.productFilter.data.map(product => {

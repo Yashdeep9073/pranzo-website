@@ -7,6 +7,11 @@
         <div class="deals-timer" v-if="bestOfferCountdown">
           <div class="timer-label">{{ bestOfferCountdown.isStarting ? 'Starts in' : 'Ends in' }}</div>
           <div class="timer-display">
+            <div class="time-unit" v-if="bestOfferCountdown.days > 0">
+              <span class="time-value">{{ String(bestOfferCountdown.days).padStart(2, '0') }}</span>
+              <span class="time-label">Days</span>
+            </div>
+            <div class="time-separator" v-if="bestOfferCountdown.days > 0">:</div>
             <div class="time-unit">
               <span class="time-value">{{ String(bestOfferCountdown.hours).padStart(2, '0') }}</span>
               <span class="time-label">Hrs</span>
@@ -58,15 +63,22 @@
                 class="deal-card"
               >
                 <div class="deal-image-container" :class="{ 'bank-card': deal.type === 'bank' }">
-                  <!-- Bank Card -->
+                  <!-- Bank Card with Background Image -->
                   <div v-if="deal.type === 'bank'" class="bank-offer-bg">
+                    <img 
+                      :src="deal.image" 
+                      :alt="deal.title"
+                      class="bank-background-image"
+                      loading="lazy"
+                      @error="handleImageError($event, index)"
+                    />
                     <div class="bank-offer-overlay">
                       <div class="bank-name">{{ deal.bankName || 'Bank Offer' }}</div>
                       <div class="bank-offer">{{ deal.offer || 'Special Discount' }}</div>
                     </div>
                   </div>
                   
-                  <!-- Image Card -->
+                  <!-- Regular Image Card -->
                   <img 
                     v-else
                     :src="deal.image" 
@@ -82,6 +94,7 @@
                   <!-- Top Text -->
                   <div class="deal-top-content">
                     <div class="deal-title">{{ deal.title }}</div>
+                    <div class="deal-description" v-if="deal.description">{{ deal.description }}</div>
                   </div>
                   
                   <!-- Bottom Content -->
@@ -117,9 +130,7 @@ import { Navigation, Mousewheel, FreeMode } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/mousewheel'
-import { useOffersHook } from '~/composables/useOffersHook'
-const { offers, loading, error, refresh } = useOffersHook()
-const { activeOffers, featuredOffers, getCountdown, formatDiscountText, getPrimaryImage } = useDynamicOffers()
+import { useOffersApi } from '@/composables/api/useOffersApi'
 
 const config = useRuntimeConfig()
 const API_URL_MEDIA = config.public.api.media
@@ -215,6 +226,67 @@ const showStaticFallback = ref(false)
 const swiper = ref<HTMLElement | null>(null)
 let swiperInstance: Swiper | null = null
 
+// API setup
+const { refresh: fetchOffers, offers: offersResponse } = useOffersApi({ 
+  isActive: true,
+  offerType: 'DEALS_REVEALED',
+  limit: 10
+})
+const offers = ref<any[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+// Helper functions
+const formatDiscountText = (offer: any) => {
+  if (offer.discountType === 'PERCENTAGE') {
+    return `${offer.discountValue}% OFF`
+  } else if (offer.discountType === 'FIXED') {
+    return `₹${offer.discountValue} OFF`
+  }
+  return 'SPECIAL'
+}
+
+const getCountdown = (offerId: number) => {
+  const offer = offers.value.find(o => o.id === offerId)
+  if (!offer || !offer.endDate) return null
+  
+  const now = new Date().getTime()
+  const endTime = new Date(offer.endDate).getTime()
+  const startTime = offer.startDate ? new Date(offer.startDate).getTime() : now
+  
+  const isStarting = startTime > now
+  const targetTime = isStarting ? startTime : endTime
+  const difference = targetTime - now
+  
+  if (difference <= 0) {
+    return { isExpired: true, days: 0, hours: 0, minutes: 0, seconds: 0, isStarting: false }
+  }
+  
+  const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((difference % (1000 * 60)) / 1000)
+  
+  return { isExpired: false, days, hours, minutes, seconds, isStarting }
+}
+
+const getPrimaryImage = (offer: any) => {
+  if (offer.images && offer.images.length > 0) {
+    const primary = offer.images.find((img: any) => img.isPrimary)
+    return primary?.imageUrl || offer.images[0]?.imageUrl
+  }
+  return null
+}
+
+// Computed properties
+const activeOffers = computed(() => {
+  return offers.value.filter(offer => offer.isActive)
+})
+
+const featuredOffers = computed(() => {
+  return offers.value.filter(offer => offer.isFeatured)
+})
+
 // Fetch offer data from API
 const fetchOfferData = async () => {
   try {
@@ -222,21 +294,23 @@ const fetchOfferData = async () => {
     error.value = null
     showStaticFallback.value = false
     
-    // Fetch flash sale offers specifically
-    await refresh()
+    // Fetch offers using the new API
+    await fetchOffers()
+    offers.value = offersResponse.value
+    
+    console.log('📊 API Response:', offers.value)
+    console.log('🔍 DEALS_REVEALED offers:', offers.value.filter(o => o.offerType === 'DEALS_REVEALED'))
     
     if (offers.value.length > 0) {
       showStaticFallback.value = false
-      console.log(`✅ [HomeOffer] Successfully loaded ${offers.value.length} offers`)
     } else {
       // No offers data, use fallback
       showStaticFallback.value = true
-      console.log('⚠️ [HomeOffer] No offers available, using static fallback')
     }
   } catch (err) {
-    console.warn('❌ [HomeOffer] API fetch failed, using static fallback:', err)
     showStaticFallback.value = true
     error.value = null // Don't show error to user
+    console.error('❌ API Error:', err)
   } finally {
     loading.value = false
   }
@@ -272,45 +346,35 @@ const maxDiscountPercentage = computed(() => {
 
 // Display deals (API or static fallback)
 const displayDeals = computed(() => {
-  // Show specific offer types instead of all offers
-  const targetTypes = ['DEALS_REVEALED']
-  const filteredOffers = offers.value.filter(offer => targetTypes.includes(offer.offerType))
+  // Only show DEALS_REVEALED offers
+  const filteredOffers = offers.value.filter(offer => offer.offerType === 'DEALS_REVEALED')
   
   if (!showStaticFallback.value && filteredOffers.length > 0) {
     // Use filtered API data if available
-    console.log('🎯 [HomeOffer] Filtered offers:', filteredOffers.length)
-    console.log('🎯 [HomeOffer] Filtered offers data:', filteredOffers)
     return filteredOffers.slice(0, 6).map(offer => {
       const primaryImage = offer.images?.find((img: any) => img.isPrimary)?.imageUrl || offer.images?.[0]?.imageUrl
       
-      // Handle different offer types
-      if (offer.offerType === 'DEALS_REVEALED') {
-        return {
-          id: offer.id,
-          title: offer.name || `Deal ${offer.id}`,
-          description: offer.description || 'Special offer',
-          image: primaryImage || staticDeals[offer.id % staticDeals.length]?.image || '/assets/images/recommended/default.jpg',
-          currentPrice: '',
-          originalPrice: '',
-          discount: '',
-          link: `/shop/shop-all/--1`,
-          type: 'bank',
-          bankName: offer.name || 'Bank Offer',
-          offer: offer.discountType === 'PERCENTAGE' ? `${offer.discountValue}% Instant Discount*` : `₹${offer.discountValue} Instant Discount*`,
-          priceText: 'No Cost EMI Available'
-        }
-      } else {
-        return {
-          id: offer.id,
-          title: offer.name || `Deal ${offer.id}`,
-          description: offer.description || 'Special offer',
-          image: primaryImage || staticDeals[offer.id % staticDeals.length]?.image || '/assets/images/recommended/default.jpg',
-          currentPrice: offer.discountType === 'PERCENTAGE' ? `${offer.discountValue}% off` : `₹${offer.discountValue} off`,
-          originalPrice: '',
-          discount: offer.discountType === 'PERCENTAGE' ? `${offer.discountValue}%` : `₹${offer.discountValue}`,
-          link: `/shop/shop-all/--1`,
-          type: 'product'
-        }
+      // Construct full URL for backend images
+      let imageUrl = primaryImage || staticDeals[offer.id % staticDeals.length]?.image || '/assets/images/recommended/default.jpg'
+      
+      // If URL is relative, construct full URL
+      if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
+        imageUrl = `http://localhost:3004${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
+      }
+      
+      // Handle HOT_DEALS offers (displaying as "Deals Revealed")
+      return {
+        id: offer.id,
+        title: offer.name || `Deal ${offer.id}`,
+        description: offer.description || 'Special offer',
+        image: imageUrl,
+        currentPrice: '',
+        originalPrice: '',
+        discount: '',
+        link: `/shop/shop-all/--1`,
+        type: 'bank',
+        bankName: offer.name || 'Bank Offer',
+        offer: offer.discountType === 'PERCENTAGE' ? `${offer.discountValue}% Instant Discount*` : `₹${offer.discountValue} Instant Discount*`,
       }
     })
   }
@@ -322,6 +386,7 @@ const displayDeals = computed(() => {
 // Handle image loading errors
 const handleImageError = (event: Event, index: number) => {
   const img = event.target as HTMLImageElement
+  
   // Use local fallback image
   const fallbackImages = [
     '/assets/images/recommended/headphone.jpg',
@@ -330,7 +395,8 @@ const handleImageError = (event: Event, index: number) => {
     '/assets/images/recommended/laptop.jpg',
     '/assets/images/recommended/electronics.jpg'
   ]
-  img.src = fallbackImages[index % fallbackImages.length] || '/assets/images/recommended/default.jpg'
+  const fallback = fallbackImages[index % fallbackImages.length] || '/assets/images/recommended/default.jpg'
+  img.src = fallback
 }
 
 // Initialize Swiper
@@ -493,6 +559,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
 .time-unit {
@@ -693,6 +760,19 @@ onUnmounted(() => {
   color: white;
   line-height: 1.3;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0 0 8px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.deal-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -757,6 +837,21 @@ onUnmounted(() => {
   background: linear-gradient(135deg, #007185, #0097a7);
 }
 
+.bank-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.deal-card:hover .bank-background-image {
+  transform: scale(1.05);
+}
+
 .bank-offer-overlay {
   position: absolute;
   top: 50%;
@@ -769,6 +864,9 @@ onUnmounted(() => {
   padding: 20px;
   width: 100%;
   text-align: center;
+  z-index: 2;
+  border-radius: 8px;
+  backdrop-filter: blur(2px);
 }
 
 .bank-name {
@@ -851,6 +949,10 @@ onUnmounted(() => {
   
   .deal-title {
     font-size: 16px;
+  }
+  
+  .deal-description {
+    font-size: 13px;
   }
   
   .current-price {

@@ -146,7 +146,7 @@ const fetchBrands = async () => {
     } else {
       // API returned empty data, use fallback
       brands.value = []
-      console.log('API returned empty data, using fallback brands')
+      //console.log('API returned empty data, using fallback brands')
     }
   } catch (err) {
     console.error('API failed, using fallback brands:', err.message)

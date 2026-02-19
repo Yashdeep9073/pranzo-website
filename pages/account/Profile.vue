@@ -409,7 +409,7 @@ const handleRegister = async () => {
       password: registerForm.password
     }
     
-    console.log('Sending registration data:', payload)
+    //console.log('Sending registration data:', payload)
     
     const response = await fetch(REGISTER_API, {
       method: 'POST',

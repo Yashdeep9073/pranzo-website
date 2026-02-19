@@ -1,4 +1,6 @@
+import { ref, watchEffect } from 'vue'
 import type { OffersApiResponse, Offer, OfferType } from '~/types/offers'
+import { useApiEndpoints } from "~/utlis/endpoints"
 
 export interface FetchOffersParams {
   offerType?: OfferType
@@ -8,31 +10,42 @@ export interface FetchOffersParams {
   limit?: number
 }
 
+export const useOffersApi = (params: FetchOffersParams = {}) => {
 
+  const api = useApiEndpoints()
 
-export const useOffersApi = () => {
-  const config = useRuntimeConfig()
+  const offers = ref<Offer[]>([])
+  const loading = ref(false)
+  const error = ref<unknown>(null)
 
-  const fetchOffers = async (params: FetchOffersParams = {}
-  ): Promise<Offer[]> => {
-    // Build query parameters
-    const queryParams = new URLSearchParams()
-    if (params.offerType) queryParams.append('offerType', params.offerType)
-    if (params.isFeatured !== undefined) queryParams.append('isFeatured', params.isFeatured.toString())
-    if (params.isActive !== undefined) queryParams.append('isActive', params.isActive.toString())
-    if (params.page) queryParams.append('page', params.page.toString())
-    if (params.limit) queryParams.append('limit', params.limit.toString())
+  const fetchOffers = async () => {
+    loading.value = true
+    error.value = null
 
-    const url = `http://localhost:3004/common/offers/read${queryParams.toString() ? '?' + queryParams.toString() : ''}`
-    
-    console.log('🔍 [OffersApi] Fetching from:', url)
+    try {
+      const url = api.offers.list(params)
 
-    const data = await $fetch<OffersApiResponse>(url)
+      const res = await $fetch<OffersApiResponse>(url)
 
-    console.log('✅ [OffersApi] API Response received:', data)
-
-    return data?.data ?? []
+      offers.value = res?.data ?? []
+    }
+    catch (e) {
+      error.value = e
+      offers.value = []
+      console.error("❌ Offers fetch failed:", e)
+    }
+    finally {
+      loading.value = false
+    }
   }
 
-  return { fetchOffers }
+  // auto run
+  watchEffect(fetchOffers)
+
+  return {
+    offers,
+    loading,
+    error,
+    refresh: fetchOffers
+  }
 }

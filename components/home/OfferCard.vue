@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useDynamicOffers } from '~/composables/useDynamicOffers'
+import { useOffersApi } from '@/composables/api/useOffersApi'
 import type { Offer } from '~/types/offers'
 
 interface Props {
@@ -79,8 +79,39 @@ const props = withDefaults(defineProps<Props>(), {
   theme: 'primary'
 })
 
-// Use dynamic offers hook for helper functions
-const { formatDiscountText, getCountdown } = useDynamicOffers()
+// Helper functions for offer formatting
+const formatDiscountText = (offer: Offer) => {
+  if (offer.discountType === 'PERCENTAGE') {
+    return `${offer.discountValue}% OFF`
+  } else if (offer.discountType === 'FIXED') {
+    return `₹${offer.discountValue} OFF`
+  }
+  return 'SPECIAL'
+}
+
+const getCountdown = (offerId: number) => {
+  // This is a simplified countdown - you might want to implement a more sophisticated version
+  const offer = props.offer
+  if (!offer.endDate) return null
+  
+  const now = new Date().getTime()
+  const endTime = new Date(offer.endDate).getTime()
+  const startTime = offer.startDate ? new Date(offer.startDate).getTime() : now
+  
+  const isStarting = startTime > now
+  const targetTime = isStarting ? startTime : endTime
+  const difference = targetTime - now
+  
+  if (difference <= 0) {
+    return { isExpired: true, days: 0, hours: 0, minutes: 0, isStarting: false }
+  }
+  
+  const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+  
+  return { isExpired: false, days, hours, minutes, isStarting }
+}
 
 const primaryImage = computed(() => {
   if (props.offer.images && props.offer.images.length > 0) {

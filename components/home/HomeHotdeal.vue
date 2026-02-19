@@ -1,787 +1,344 @@
 <template>
-  <section class="hot-deals pt-80 overflow-hidden">
+  <!-- hide entire block if no HOT_DEALS -->
+  <section v-if="showSection" class="hot-deals pt-80 overflow-hidden">
     <div class="container container-lg">
-      <div class="section-heading">
-        <div class="flex-between flex-wrap gap-8">
-          <h5 class="mb-0">Hot Deals Today</h5>
 
-          <div class="flex-align gap-16">
-            <NuxtLink to="/shop/shop-all" class="btn btn-main d-inline-flex align-items-center gap-2
-         px-4 py-2 rounded-pill text-sm fw-semibold shadow-sm">
-              View All Deals
-              <i class="ph ph-arrow-right"></i>
-            </NuxtLink>
-          </div>
-        </div>
-        
-        <!-- Countdown Timer (show for both API and static) -->
-        <div v-if="!loading" class="countdown">
-          <ul class="countdown-list d-flex align-items-center flex-wrap">
-            <li class="countdown-list__item text-heading text-sm fw-medium">
-              <span>{{ countdown.days }}</span>D
-            </li>
-            <li class="countdown-list__item text-heading text-sm fw-medium">
-              <span>{{ countdown.hours }}</span>H
-            </li>
-            <li class="countdown-list__item text-heading text-sm fw-medium">
-              <span>{{ countdown.minutes }}</span>M
-            </li>
-            <li class="countdown-list__item text-heading text-sm fw-medium">
-              <span>{{ countdown.seconds }}</span>S
-            </li>
-          </ul>
-        </div>
+      <!-- HEADER -->
+      <div class="section-heading flex-between mb-24">
+        <h5 class="mb-0">
+          {{ activeOffer?.name }}
+        </h5>
+
+        <!-- COUNTDOWN -->
+        <ul v-if="countdown" class="countdown-list d-flex gap-12">
+          <li><span>{{ countdown.days }}</span>D</li>
+          <li><span>{{ countdown.hours }}</span>H</li>
+          <li><span>{{ countdown.minutes }}</span>M</li>
+          <li><span>{{ countdown.seconds }}</span>S</li>
+        </ul>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="row g-12">
-        <div class="col-md-4">
-          <div class="hot-deals position-relative rounded-16 bg-main-600 overflow-hidden ps-40 pe-24 pt-80 pb-120 z-1 skeleton-loader">
-            <div class="skeleton-banner"></div>
-          </div>
-        </div>
-        <div class="col-md-8">
-          <div class="row g-12">
-            <div v-for="n in 4" :key="n" class="col-6 col-md-3">
-              <div class="product-card p-20 border border-gray-100 rounded-16 skeleton-loader">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-text mt-12"></div>
-                <div class="skeleton-text mt-8"></div>
-              </div>
+      <div class="equal-height-grid">
+
+        <!-- LEFT BANNER -->
+        <div class="banner-column">
+          <div class="deal-banner rounded-16 overflow-hidden position-relative h-100">
+            <div class="banner-image-wrapper h-100">
+              <img :src="activeOffer?.images?.[0]?.imageUrl || '/assets/images/thumbs/basket-img.png'" :alt="activeOffer?.name || 'Hot Deal'" class="banner-img w-100 h-100" />
+              <div class="banner-gradient-overlay"></div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div class="row g-12">
-        <!-- Left banner Card -->
-        <div class="col-md-4">
-          <div 
-            v-if="!showStatic && activeOffer" 
-            class="hot-deals position-relative rounded-16 overflow-hidden z-1 banner-container"
-            :style="getbannerStyle(activeOffer)"
-          >
-            <!-- Content Overlay -->
-            <div class="banner-content position-relative z-2 h-100 d-flex flex-column justify-content-between p-40">
-              <!-- Category Badge -->
-              <div>
-                <span class="text-primary-600 bg-yellow text-heading mt-6 py-4 px-12 rounded-4 text-sm fw-medium">
-                  {{ activeOffer.offerType || 'Special Offer' }}
-                </span>
-              </div>
-
-              <!-- Content -->
-              <div class="position-relative z-2">
-                <h5 class="text-white mb-8">{{ activeOffer.name || 'Deals of the day' }}</h5>
-                <p class="fw-semibold text-success-600 mb-16">
-                  {{ activeOffer.description || 'Save up to 50% off on your first order' }}
-                </p>
-                
-                <!-- Discount Badge -->
-                <div v-if="activeOffer.discountValue" class="badge bg-white text-main-600 py-8 px-16 rounded-pill fw-bold mb-16">
-                  {{ activeOffer.discountValue }}% OFF
-                </div>
-
-                <!-- Explore Button -->
-                <NuxtLink 
-                  :to="`/shop/shop-all`" 
-                  class="explore-shop-btn"
-                >
-                  Explore Offer
-                  <span class="icon">
-                    <i class="ph-bold ph-arrow-right"></i>
-                  </span>
-                </NuxtLink> 
-              </div>
-            </div>
-          </div>
-
-          <!-- Static banner Fallback -->
-          <div 
-            v-else 
-            class="hot-deals position-relative rounded-16 overflow-hidden z-1 banner-container"
-            style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);"
-          >
-            <!-- Background Image -->
-            <div class="banner-bg-image"></div>
             
-            <!-- Content Overlay -->
-            <div class="banner-content position-relative z-2 h-100 d-flex flex-column justify-content-between p-40">
-              <span class="text-primary-600 bg-yellow text-heading mt-6 py-4 px-12 rounded-4 text-sm fw-medium">
-                Medical equipment
-              </span>
-
-              <div class="position-relative z-2">
-                <NuxtLink to="/shop/shop-all" class="explore-shop-btn">
-                  Explore Shop
-                  <span class="icon">
-                    <i class="ph-bold ph-shopping-cart"></i>
-                  </span>
-                </NuxtLink>
-                <h5 class="text-white mb-8 mt-12">Deals of the day</h5>
-                <p class="fw-semibold text-success-600">Save up to 50% off on your first order</p>
-                <!-- Static Discount Badge -->
-                <div class="badge bg-white text-main-600 py-8 px-16 rounded-pill fw-bold mb-16">
-                  50% OFF
+            <div class="banner-content-wrapper">
+              <div class="banner-badge">
+                <i class="ph ph-fire"></i>
+                <span>Hot Deal</span>
+              </div>
+              
+              <div class="banner-text-content">
+                <h5 class="banner-heading mb-8">{{ activeOffer?.name || 'Hot Deal' }}</h5>
+                <p class="banner-desc mb-12">{{ activeOffer?.description || 'Special discount on selected items' }}</p>
+              </div>
+              
+              <div class="banner-discount-wrapper">
+                <div class="discount-badge">
+                  {{ activeOffer?.discountType === 'PERCENTAGE'
+                    ? activeOffer?.discountValue + '% OFF'
+                    : '₹' + activeOffer?.discountValue + ' OFF'
+                  }}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Product Slider with Swiper -->
-        <div class="col-md-8">
-          <div class="hot-deals-slider arrow-style-two">
-            <div ref="swiperContainer" class="swiper hot-deals-swiper">
-              <div class="swiper-wrapper">
-                <!-- Dynamic Products -->
-                <div 
-                  v-for="(productItem, index) in displayProducts" 
-                  :key="productItem.product?.id || `static-${index}`"
-                  class="swiper-slide"
-                >
-                  <div class="product-card border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2 overflow-hidden">
-                    <button @click="addToCart(productItem.product?.id || index)"
-                      class="product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 position-absolute inset-block-start-0 inset-inline-end-0 me-16 mt-16 z-10">
-                      Add <i class="ph ph-shopping-cart"></i>
-                    </button>
+        <!-- PRODUCTS -->
+        <div class="products-column">
+          <div class="products-container h-100">
+            <div class="row g-12 h-100">
 
-                    <NuxtLink 
-                      :to="getProductLink(productItem.product?.id || index)" 
-                      class="product-card__thumb block overflow-hidden rounded-t-16"
-                    >
-                      <div class="image-container">
-                        <img
-                          :src="getProductImage(productItem, index)"
-                          :alt="getProductName(productItem, index)"
-                          class="product-image w-100 h-100"
-                          @error="handleImageError($event, index)"
-                          loading="lazy"
-                        />
+              <div v-for="product in products" :key="product.id" class="col-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="product-card border rounded-16 overflow-hidden h-100">
+                  <div class="product-image-container">
+                    <NuxtLink :to="`/product/${product.id}`" class="product-link">
+                      <img :src="product.images?.[0]?.imageUrl || '/assets/images/thumbs/product-img26.png'" :alt="product.name" class="product-img w-100" />
+                      <div class="product-overlay">
+                        <button class="quick-view-btn">
+                          <i class="ph ph-eye"></i>
+                        </button>
                       </div>
                     </NuxtLink>
+                  </div>
+                  
+                  <div class="product-content p-16">
+                    <h6 class="mb-6 product-title">
+                      <NuxtLink :to="`/product/${product.id}`" class="product-name-link">
+                        {{ product.name }}
+                      </NuxtLink>
+                    </h6>
                     
-                    <div class="product-card__content p-20">
-                      <!-- Price + Rating -->
-                      <div class="product-card__price mb-8 d-flex align-items-center gap-8 no-wrap">
-                        <div class="price-group">
-                          <span class="text-heading text-md fw-semibold">
-                            ${{ getProductPrice(productItem, index) }}
-                            <span class="text-gray-500 fw-normal">/Qty</span>
-                          </span>
-                          <span 
-                            class="text-gray-400 text-md fw-semibold text-decoration-line-through"
-                          >
-                            ${{ showStatic ? staticProducts[index]?.originalPrice : (productItem.product?.price || '') }}
-                          </span>
-                        </div>
-
-                        <div class="rating-group">
-                          <span class="text-xs fw-bold text-gray-600">4.8</span>
-                          <span class="text-15 fw-bold text-warning-600">
-                            <i class="ph-fill ph-star"></i>
-                          </span>
-                          <span class="text-xs fw-bold text-gray-600">(17k)</span>
-                        </div>
+                    <div class="product-price-section">
+                      <div class="price-display fw-semibold text-main-600">
+                        ₹{{ product.price }}
                       </div>
-
-                      <!-- Product Title -->
-                      <h6 class="title text-lg fw-semibold mt-12 mb-20">
-                        <NuxtLink 
-                          :to="getProductLink(productItem.product?.id || index)" 
-                          class="link text-line-2"
-                        >
-                          {{ getProductName(productItem, index) }}
-                        </NuxtLink>
-                      </h6>
+                      <div class="product-rating">
+                        <div class="stars">
+                          <i class="ph ph-fill ph-star"></i>
+                          <i class="ph ph-fill ph-star"></i>
+                          <i class="ph ph-fill ph-star"></i>
+                          <i class="ph ph-fill ph-star"></i>
+                          <i class="ph ph-star"></i>
+                        </div>
+                        <span class="rating-number">4.5</span>
+                      </div>
                     </div>
+                    
+                    <button class="add-cart-btn">
+                      <i class="ph ph-shopping-cart"></i>
+                      Add to Cart
+                    </button>
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </section>
 </template>
 
+
+
+
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
+import { computed } from 'vue'
+import { useOffersApi } from '@/composables/api/useOffersApi'
+import { useProductsApi } from '@/composables/api/useProductsApi'
 
-// Type definitions (same as before)
-interface SwiperInstance {
-  slideNext: () => void
-  slidePrev: () => void
-  destroy: () => void
-  update: () => void
-}
+/* ---------------- FETCH HOT DEALS ---------------- */
 
-interface ProductImage {
-  id: number
-  productId: number
-  imageUrl: string
-  altText: string | null
-  isPrimary: boolean
-  createdAt: string
-}
-
-interface Product {
-  id: number
-  name: string
-  sku: string
-  price: string
-  images: ProductImage[]
-  groupId: number | null
-}
-
-interface ProductItem {
-  offerId: number
-  productId: number
-  createdAt: string
-  product: Product | null
-}
-
-interface OfferImage {
-  id: number
-  offerId: number
-  imageUrl: string
-  altText: string | null
-  isPrimary: boolean
-  createdAt: string
-}
-
-interface Offer {
-  id: number
-  name: string
-  slug: string
-  description: string
-  offerType: string
-  discountType: 'PERCENTAGE' | 'FIXED'
-  discountValue: number
-  startDate: string
-  endDate: string
-  isActive: boolean
-  isFeatured: boolean
-  priority: number
-  createdAt: string
-  updatedAt: string
-  isDeleted: boolean
-  products: ProductItem[]
-  images: OfferImage[]
-}
-
-// Static products for fallback (with original prices for strikethrough)
-const staticProducts = [
-  {
-    id: 1,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    price: "14.99",
-    originalPrice: "28.99",
-    image: "/assets/images/thumbs/product-img26.png",
-    discount: 48
-  },
-  {
-    id: 2,
-    name: "Fresh Organic Avocados",
-    price: "19.99",
-    originalPrice: "34.99",
-    image: "/assets/images/thumbs/product-img27.png",
-    discount: 43
-  },
-  {
-    id: 3,
-    name: "Organic Strawberries Pack",
-    price: "12.99",
-    originalPrice: "24.99",
-    image: "/assets/images/thumbs/product-img28.png",
-    discount: 48
-  },
-  {
-    id: 4,
-    name: "Fresh Spinach Leaves",
-    price: "9.99",
-    originalPrice: "18.99",
-    image: "/assets/images/thumbs/product-img29.png",
-    discount: 47
-  },
-  {
-    id: 5,
-    name: "Organic Carrots Bundle",
-    price: "7.99",
-    originalPrice: "14.99",
-    image: "/assets/images/thumbs/product-img30.png",
-    discount: 47
-  },
-  {
-    id: 6,
-    name: "Fresh Bell Peppers Mix",
-    price: "11.99",
-    originalPrice: "22.99",
-    image: "/assets/images/thumbs/product-img13.png",
-    discount: 48
-  },
-  {
-    id: 7,
-    name: "Organic Tomatoes Pack",
-    price: "8.99",
-    originalPrice: "16.99",
-    image: "/assets/images/thumbs/product-img3.png",
-    discount: 47
-  }
-]
-
-// Refs
-const swiperInstance = ref<SwiperInstance | null>(null)
-const swiperContainer = ref<HTMLElement | null>(null)
-const loading = ref(false)
-const showApiError = ref(false)
-const activeOffer = ref<Offer | null>(null)
-
-// Countdown timer
-const countdown = ref({
-  days: '00',
-  hours: '00',
-  minutes: '00',
-  seconds: '00'
+const { offers, loading: offersLoading, error } = useOffersApi({
+  offerType: "HOT_DEALS",
+  isActive: true,
+  limit: 10
 })
 
-// Store countdown interval
-let countdownInterval: NodeJS.Timeout | null = null
-
-// Computed property to determine if we should show static products
-const showStatic = computed(() => {
-  console.log('🔍 [HotDeals] showStatic check:', {
-    hasActiveOffer: !!activeOffer.value,
-    hasProducts: (activeOffer.value?.products?.length || 0) > 0,
-    hasApiError: showApiError.value,
-    offerType: activeOffer.value?.offerType
-  })
-  
-  // Show static only if no active offer OR API error
-  // For HOT_DEALS, don't require products to show dynamic content
-  return !activeOffer.value || showApiError.value
+/* (optional) you still asked 2 hooks — products not used for UI,
+   but you can keep it for later add-to-cart or caching */
+const { products } = useProductsApi({
+  limit: 20,
+  inStock: true,
+  hasDiscount: true
 })
 
-// Start countdown timer with backend end time
-const startCountdown = () => {
-  // Clear any existing interval
-  if (countdownInterval) {
-    clearInterval(countdownInterval)
-  }
+/* ---------------- GLOBAL STATE ---------------- */
 
-  // Get end time from active offer or use default
-  const endTime = activeOffer.value?.endDate
-  if (!endTime) {
-    console.log('⚠️ [HotDeals] No end time found in offer, using default countdown')
-    // Use default 24 hours from now
-    const defaultEnd = new Date()
-    defaultEnd.setHours(defaultEnd.getHours() + 24)
-    startCountdownWithEndTime(defaultEnd)
-    return
-  }
+const loading = computed(() => offersLoading.value)
 
-  console.log('✅ [HotDeals] Using offer end time:', endTime)
-  startCountdownWithEndTime(new Date(endTime))
-}
+/* ---------------- ACTIVE OFFER ---------------- */
 
-const startCountdownWithEndTime = (endTime: Date) => {
-  countdownInterval = setInterval(() => {
-    const now = new Date()
-    const timeDiff = endTime.getTime() - now.getTime()
+const activeOffer = computed(() => {
+  if (!offers.value?.length) return null
+  return offers.value.find(o => o.isActive) || offers.value[0]
+})
 
-    if (timeDiff <= 0) {
-      // Countdown finished
-      countdown.value = {
-        days: '00',
-        hours: '00',
-        minutes: '00',
-        seconds: '00'
-      }
-      if (countdownInterval) {
-        clearInterval(countdownInterval)
-        countdownInterval = null
-      }
-      console.log('⏰ [HotDeals] Countdown finished')
-      return
-    }
+/* ---------------- COUNTDOWN ---------------- */
 
-    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000)
+const countdown = computed(() => {
+  if (!activeOffer.value?.endDate) return null
 
-    countdown.value = {
-      days: days.toString().padStart(2, '0'),
-      hours: hours.toString().padStart(2, '0'),
-      minutes: minutes.toString().padStart(2, '0'),
-      seconds: seconds.toString().padStart(2, '0')
-    }
-  }, 1000)
-}
+  const diff = new Date(activeOffer.value.endDate).getTime() - Date.now()
+  if (diff <= 0) return null
 
-// banner style function
-const getbannerStyle = (offer: Offer) => {
-  const primaryImage = offer.images[0]?.imageUrl
-  if (primaryImage) {
-    return { 
-      backgroundImage: `url(${primaryImage})`,
-      backgroundSize: 'cover', 
-      backgroundPosition: 'center', 
-      backgroundRepeat: 'no-repeat', 
-      backgroundBlendMode: 'overlay',
-      minHeight: '400px'
-    } 
-  }
+  const d = Math.floor(diff / 86400000)
+  const h = Math.floor((diff % 86400000) / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+
   return {
-    background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
-    minHeight: '400px'
+    days: String(d).padStart(2, '0'),
+    hours: String(h).padStart(2, '0'),
+    minutes: String(m).padStart(2, '0'),
+    seconds: String(s).padStart(2, '0')
   }
-}
+})
 
-// Computed property to get display products
+/* ---------------- PRODUCTS FROM OFFER ---------------- */
+
 const displayProducts = computed(() => {
-  console.log('showStatic for hot deals:', showStatic.value)
-  
-  // If we should show static products
-  if (showStatic.value) {
-    console.log('Using static products for hot deals:', staticProducts.length)
-    return staticProducts.map((product, index) => ({
-      product: {
-        id: product.id,
-        name: product.name,
-        price: product.originalPrice, // Use original price as base for static
-        sku: `STATIC-${index + 1}`,
-        images: [{
-          id: 1000 + index,
-          productId: product.id,
-          imageUrl: product.image,
-          altText: product.name,
-          isPrimary: true,
-          createdAt: new Date().toISOString()
-        }],
-        groupId: null
+  if (!activeOffer.value) return []
+
+  // backend structure: offer.products[].product
+  return (activeOffer.value.products || [])
+    .filter((item: any) => item.product)
+    .map((item: any) => {
+      const p = item.product
+      return {
+        id: p.id,
+        name: p.name,
+        image: p.images?.[0]?.imageUrl,
+        price: p.price
       }
-    }))
-  }
-  
-  // Otherwise use API products
-  if (activeOffer.value?.products && activeOffer.value.products.length > 0) {
-    console.log('Using API products for hot deals:', activeOffer.value.products.length)
-    return activeOffer.value.products.slice(0, 7)
-  }
-  
-  // Fallback to static (shouldn't reach here due to showStatic check)
-  console.log('Fallback to static for hot deals')
-  return staticProducts.map((product, index) => ({
-    product: {
-      id: product.id,
-      name: product.name,
-      price: product.originalPrice,
-      sku: `STATIC-${index + 1}`,
-      images: [{
-        id: 1000 + index,
-        productId: product.id,
-        imageUrl: product.image,
-        altText: product.name,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      }],
-      groupId: null
-    }
-  }))
+    })
 })
 
-// Helper functions
-const getProductLink = (productId: number | string) => {
-  if (typeof productId === 'number' && productId > 0) {
-  return '/shop/shop-all/--1'
-  } 
-  return '/shop/shop-all/--1'
+/* ---------------- VISIBILITY ---------------- */
+
+const showSection = computed(() =>
+  !loading.value &&
+  !error.value &&
+  activeOffer.value &&
+  products.value.length > 0
+)
+
+const getProductImage = (product: any) => {
+  if (!product?.images?.length) return '/assets/images/thumbs/product-img26.png'
+
+  const primary = product.images.find((img: any) => img.isPrimary)
+  return (primary || product.images[0]).imageUrl
 }
 
-const getProductImage = (productItem: any, index: number) => {
-  // If we have product with images
-  if (productItem.product?.images && productItem.product.images.length > 0) {
-    return productItem.product.images[0]?.imageUrl
-  }
-  
-  // Fallback to static image
-  const staticIndex = index % staticProducts.length
-  return staticProducts[staticIndex]?.image || `/assets/images/thumbs/product-img${(index % 7) + 26}.png`
-}
-
-const getProductName = (productItem: any, index: number) => {
-  return productItem.product?.name || staticProducts[index]?.name || 'Product Name'
-}
-
-const getProductPrice = (productItem: any, index: number) => {
-  if (showStatic.value) {
-    // Return discounted price for static products
-    return staticProducts[index]?.price || '14.99'
-  }
-  
-  if (activeOffer.value && productItem.product?.price) {
-    return calculateDiscountedPrice(productItem.product.price)
-  }
-  
-  return staticProducts[index]?.price || '14.99'
-}
-
-const handleImageError = (event: Event, index: number) => {
-  const img = event.target as HTMLImageElement
-  const staticIndex = index % staticProducts.length
-  img.src = staticProducts[staticIndex]?.image || `/assets/images/thumbs/product-img${(index % 7) + 26}.png`
-}
-
-// Add to cart function
-const addToCart = (productId: number | string): void => {
-  console.log('Added to cart:', productId)
-  // Add your cart logic here
-}
-
-// Calculate discounted price
-const calculateDiscountedPrice = (price: string) => {
-  if (!activeOffer.value || !price) return price
-  
-  try {
-    const numericPrice = parseFloat(price)
-    
-    if (activeOffer.value.discountType === 'PERCENTAGE') {
-      const discountAmount = numericPrice * (activeOffer.value.discountValue / 100)
-      return (numericPrice - discountAmount).toFixed(2)
-    } else if (activeOffer.value.discountType === 'FIXED') {
-      return Math.max(0, numericPrice - activeOffer.value.discountValue).toFixed(2)
-    }
-    
-    return numericPrice.toFixed(2)
-  } catch {
-    return price
-  }
-}
-
-// Fetch offers from API
-const fetchOffers = async () => {
-  loading.value = true
-  showApiError.value = false
-  
-  try {
-    // Get config - with fallback
-    // Get config - with robust fallback
-    let API_URL = ''
-    const config = useRuntimeConfig()
-    // Prefer the explicit offers endpoint if defined
-    if (config.public.api && config.public.api.offers) {
-      API_URL = `${config.public.api.offers}?type=HOT_DEALS`
-    } else if (config.public.API_URL) {
-      API_URL = `${config.public.API_URL}/offers?type=HOT_DEALS`
-    } else {
-      // Default relative endpoint
-      API_URL = `/api/offers?type=HOT_DEALS`
-    }
-    console.log('Hot Deals API URL resolved to:', API_URL)
-
-    // Make API call with timeout
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
-    
-    console.log('Fetching HOT DEALS offers:', API_URL)
-    
-    const data: any = await $fetch(API_URL, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 8000,
-      retry: 2,
-    })
-    console.log('Hot Deals API Response:', data)
-    
-    // Check data structure
-    if (data.data) {
-      // Check if data is an array (list endpoint) or single object (detail endpoint)
-      if (Array.isArray(data.data)) {
-        // This is a list endpoint - find HOT_DEALS offers
-        console.log('🔍 [HotDeals] All offers received:', data.data.length)
-        console.log('🔍 [HotDeals] Sample offer structure:', JSON.stringify(data.data[0], null, 2))
-        
-        const hotDealsOffers = data.data.filter((offer: Offer) => {
-          console.log('🔍 [HotDeals] Checking offer:', {
-            id: offer.id,
-            name: offer.name,
-            offerType: offer.offerType,
-            isActive: offer.isActive
-          })
-          
-          const isHotDeal = offer.isActive && 
-            (offer.offerType === 'HOT_DEALS' || offer.offerType === 'HOT_DEAL')
-          
-          console.log('🔍 [HotDeals] Is HOT_DEAL?', isHotDeal)
-          return isHotDeal
-        })
-        
-        console.log('Found HOT_DEALS offers:', hotDealsOffers.length)
-        
-        // Sort by priority (highest first)
-        hotDealsOffers.sort((a: Offer, b: Offer) => b.priority - a.priority)
-        
-        if (hotDealsOffers.length > 0) {
-          activeOffer.value = hotDealsOffers[0]
-          console.log('Hot Deals selected offer:', activeOffer.value?.name)
-        } else {
-          console.log('No HOT_DEALS offers found - using static')
-          showApiError.value = true
-          activeOffer.value = null
-        }
-      } else {
-        // This is a single offer endpoint
-        const offer = data.data as Offer
-        if (offer.isActive && 
-            (offer.offerType === 'HOT_DEALS' || offer.offerType === 'HOT_DEAL')) {
-          activeOffer.value = offer
-          console.log('Hot Deals using single HOT_DEALS offer:', activeOffer.value.name)
-        } else {
-          console.log('Single offer not HOT_DEALS type - using static')
-          showApiError.value = true
-          activeOffer.value = null
-        }
-      }
-    } else {
-      console.log('No data in data for hot deals - using static')
-      showApiError.value = true
-      activeOffer.value = null
-    }
-    
-  } catch (err: any) {
-    console.error('❌ [HotDeals] API Error details:', {
-      error: err,
-      message: err?.message,
-      status: err?.status,
-      statusText: err?.statusText,
-      data: err?.data
-    })
-    showApiError.value = true
-    activeOffer.value = null
-  } finally {
-    loading.value = false
-    // Initialize or update swiper after data is loaded
-    nextTick(() => {
-      initOrUpdateSwiper()
-    })
-  }
-}
-
-// Initialize or update Swiper
-const initOrUpdateSwiper = async () => {
-  if (import.meta.client && swiperContainer.value && displayProducts.value.length > 0) {
-    try {
-      if (!swiperInstance.value) {
-        await initSwiper()
-      } else {
-        swiperInstance.value.update()
-      }
-    } catch (err) {
-      console.error('Hot Deals Swiper error:', err)
-    }
-  }
-}
-
-const initSwiper = async () => {
-  try {
-    const Swiper = await import('swiper')
-    const { Navigation, Autoplay } = await import('swiper/modules')
-
-    const slidesCount = displayProducts.value.length
-    const slidesPerView = Math.min(4, slidesCount)
-    
-    swiperInstance.value = new Swiper.default(swiperContainer.value!, {
-      modules: [Navigation, Autoplay],
-      loop: slidesCount > 1,
-      slidesPerView: slidesPerView,
-      spaceBetween: 12,
-      autoplay: {
-        delay: 4000,
-        disableOnInteraction: false,
-      },
-      navigation: {
-        nextEl: '.deals-next',
-        prevEl: '.deals-prev',
-      },
-      breakpoints: {
-        320: {
-          slidesPerView: Math.min(1.3, slidesCount),
-          spaceBetween: 10
-        },
-        576: {
-          slidesPerView: Math.min(2.5, slidesCount),
-          spaceBetween: 12
-        },
-        768: {
-          slidesPerView: Math.min(2.2, slidesCount),
-          spaceBetween: 12
-        },
-        1024: {
-          slidesPerView: Math.min(2.5, slidesCount),
-          spaceBetween: 12
-        },
-        1500: {
-          slidesPerView: Math.min(3.5, slidesCount),
-          spaceBetween: 12
-        }
-      }
-    }) as SwiperInstance
-
-    console.log('Hot Deals Swiper initialized with', slidesCount, 'slides')
-  } catch (error) {
-    console.error('Hot Deals Swiper loading error:', error)
-  }
-}
-
-onMounted(async () => {
-  console.log('HotDeals component mounted')
-  await fetchOffers()
-  startCountdown()
-})
-
-onUnmounted(() => {
-  if (swiperInstance.value) {
-    swiperInstance.value.destroy()
-    swiperInstance.value = null
-  }
-})
-
-const slideNext = (): void => {
-  if (swiperInstance.value) {
-    swiperInstance.value.slideNext()
-  }
-}
-
-const slidePrev = (): void => {
-  if (swiperInstance.value) {
-    swiperInstance.value.slidePrev()
-  }
-}
-
-// Watch for offer changes to restart countdown
-watch(activeOffer, (newOffer, oldOffer) => {
-  if (newOffer && newOffer !== oldOffer) {
-    console.log('🔄 [HotDeals] New offer selected, restarting countdown:', newOffer.name)
-    startCountdown()
-  }
-}, { immediate: false })
-
-// Log computed properties for debugging
-watch(displayProducts, (newVal) => {
-  console.log('Hot Deals Products updated:', newVal.length)
-}, { immediate: true })
-
-watch(showStatic, (newVal) => {
-  console.log('Show Static for hot deals:', newVal)
-}, { immediate: true })
 </script>
 
+
 <style scoped>
+/* Banner Media Container */
+.banner-media-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.banner-media-image {
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-container:hover .banner-media-image {
+  transform: scale(1.05);
+}
+
+/* Banner Content Styling */
+.banner-content {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+  backdrop-filter: blur(2px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  min-height: 400px;
+}
+
+/* Category Badge */
+.banner-category {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 4;
+}
+
+.text-primary-600.bg-yellow {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1e293b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
+/* Main Content Area */
+.banner-main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  flex: 1;
+  margin: 0 auto;
+  max-width: 70%;
+}
+
+.banner-main-content h5 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
+}
+
+.banner-main-content p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+}
+
+/* Discount Badge */
+.badge.bg-white.text-main-600 {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  color: #1e293b;
+  font-weight: 700;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  margin-bottom: 1rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Explore Button */
+.explore-shop-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+}
+
+.explore-shop-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.explore-shop-btn .icon {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.explore-shop-btn:hover .icon {
+  transform: translateX(3px);
+}
+
 /* Hot Deals Section */
 .hot-deals {
   background: #f8fafc;
@@ -793,13 +350,155 @@ watch(showStatic, (newVal) => {
   color: #1e293b;
 }
 
-/* banner Container */
-.banner-container {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
+/* Equal Height Grid */
+.equal-height-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  align-items: start;
   min-height: 400px;
-  background: linear-gradient(135deg, #b2aff3 0%, #3b82f6 100%);
+}
+
+.banner-column,
+.products-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Deal Banner Styles */
+.deal-banner {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.deal-banner:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+.banner-image-wrapper {
+  position: relative;
+  height: 100%;
+  flex: 1;
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  min-height: 200px;
+}
+
+.deal-banner:hover .banner-img {
+  transform: scale(1.05);
+}
+
+.banner-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%);
+  z-index: 1;
+}
+
+.banner-content-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  width: fit-content;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.banner-badge i {
+  font-size: 0.9rem;
+}
+
+.banner-text-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 90%;
+}
+
+.banner-heading {
+  color: white;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1.3;
+}
+
+.banner-desc {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.5;
+}
+
+.banner-discount-wrapper {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.discount-badge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  animation: bounce 2s infinite;
+}
+
+/* Banner Animations */
+@keyframes glow {
+  from {
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+  }
+  to {
+    box-shadow: 0 4px 24px rgba(245, 158, 11, 0.6);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
 }
 
 /* banner Background Image */
@@ -809,7 +508,8 @@ watch(showStatic, (newVal) => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 30%; /* Half area cover */
+  height: 30%;
+  /* Half area cover */
   background-size: contain;
   background-position: bottom right;
   background-repeat: no-repeat;
@@ -818,7 +518,8 @@ watch(showStatic, (newVal) => {
 
 /* For API images */
 .banner-container[style*="background-image"]::before {
-  display: none; /* Hide if we have dynamic background */
+  display: none;
+  /* Hide if we have dynamic background */
 }
 
 .banner-bg-image {
@@ -841,7 +542,18 @@ watch(showStatic, (newVal) => {
   height: 100%;
 }
 
-/* Product Card Styles */ 
+/* Products Container */
+.products-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.products-container .row {
+  flex: 1;
+  align-content: flex-start;
+}
+
+/* Product Card Styles */
 .product-card {
   background: white;
   transition: all 0.3s ease;
@@ -849,12 +561,168 @@ watch(showStatic, (newVal) => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%; 
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.product-image-container {
+  position: relative;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.product-link {
+  display: block;
+  position: relative;
+}
+
+.product-img {
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.08);
+}
+
+.product-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+  opacity: 1;
+}
+
+.quick-view-btn {
+  background: white;
+  color: #1e293b;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quick-view-btn:hover {
+  background: #3b82f6;
+  color: white;
+  transform: scale(1.1);
+}
+
+.product-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.product-title {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.product-name-link {
+  color: #1e293b;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-name-link:hover {
+  color: #3b82f6;
+}
+
+.product-price-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.price-display {
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.stars {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.stars i {
+  font-size: 0.75rem;
+  color: #fbbf24;
+}
+
+.rating-number {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.add-cart-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  font-size: 0.9rem;
+}
+
+.add-cart-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.add-cart-btn i {
+  font-size: 1rem;
 }
 
 .product-card__cart {
@@ -879,7 +747,8 @@ watch(showStatic, (newVal) => {
 .image-container {
   position: relative;
   width: 100%;
-  padding-top: 75%; /* 4:3 aspect ratio */
+  padding-top: 75%;
+  /* 4:3 aspect ratio */
   overflow: hidden;
 }
 
@@ -1057,6 +926,7 @@ watch(showStatic, (newVal) => {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -1079,13 +949,36 @@ watch(showStatic, (newVal) => {
   .product-card__content {
     padding: 16px !important;
   }
-  
-  .image-container {
-    padding-top: 100%; /* Square aspect ratio on mobile */
+
+  .product-img {
+    height: 150px;
   }
 
-  .banner-container {
-    min-height: 300px !important;
+  .product-content {
+    padding: 1rem !important;
+  }
+
+  .price-display {
+    font-size: 1.1rem;
+  }
+
+  .image-container {
+    padding-top: 100%;
+    /* Square aspect ratio on mobile */
+  }
+
+  .equal-height-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    min-height: 300px;
+  }
+
+  .banner-content-wrapper {
+    padding: 1rem;
+  }
+
+  .banner-text-content {
+    max-width: 95%;
   }
 
   .banner-content {
@@ -1100,41 +993,76 @@ watch(showStatic, (newVal) => {
 }
 
 @media (max-width: 475px) {
-  .banner-container {
-    min-height: 250px !important;
+  .equal-height-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    min-height: 250px;
   }
-  
+
+  .banner-content-wrapper {
+    padding: 0.75rem;
+  }
+
+  .banner-badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+
+  .discount-badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
   .explore-shop-btn {
     top: 39%;
     right: 0;
     padding: 3px;
     font-size: 0.75rem;
   }
-  
+
   .product-card__content {
     padding: 12px !important;
   }
-  
+
+  .product-img {
+    height: 120px;
+  }
+
+  .product-content {
+    padding: 0.75rem !important;
+  }
+
+  .quick-view-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .add-cart-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
   .title {
     font-size: 0.9rem !important;
   }
-  
+
   .product-card__price {
     font-size: 0.85rem !important;
   }
-  
+
   .deals-prev,
   .deals-next {
     width: 36px;
     height: 36px;
     font-size: 0.875rem;
   }
-  
+
   .product-card__cart {
     padding: 8px 16px !important;
     font-size: 0.875rem;
   }
-  
+
   .countdown-list__item {
     padding: 2px 4px;
     font-size: 0.75rem;

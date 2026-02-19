@@ -1,5 +1,5 @@
 import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
-import { useDynamicOffers } from './useDynamicOffers'
+import { useOffersApi } from '@/composables/api/useOffersApi'
 
 export interface FlashSaleProduct {
   id: number
@@ -15,16 +15,67 @@ export interface FlashSaleProduct {
 }
 
 export const useHomeFlash = () => {
-  // Use the dynamic offers composable
-  const { 
-    offers, 
-    loading, 
-    flashSaleOffers,
-    bestFlashSaleOffer,
-    getCountdown,
-    formatDiscountText,
-    getPrimaryImage
-  } = useDynamicOffers()
+  // Use the offers API
+  const { fetchOffers } = useOffersApi()
+  
+  // Reactive state
+  const offers = ref<any[]>([])
+  const loading = ref(true)
+  
+  // Helper functions
+  const formatDiscountText = (offer: any) => {
+    if (offer.discountType === 'PERCENTAGE') {
+      return `${offer.discountValue}% OFF`
+    } else if (offer.discountType === 'FIXED') {
+      return `₹${offer.discountValue} OFF`
+    }
+    return 'SPECIAL'
+  }
+  
+  const getCountdown = (offerId: number) => {
+    const offer = offers.value.find(o => o.id === offerId)
+    if (!offer || !offer.endDate) return null
+    
+    const now = new Date().getTime()
+    const endTime = new Date(offer.endDate).getTime()
+    const startTime = offer.startDate ? new Date(offer.startDate).getTime() : now
+    
+    const isStarting = startTime > now
+    const targetTime = isStarting ? startTime : endTime
+    const difference = targetTime - now
+    
+    if (difference <= 0) {
+      return { isExpired: true, days: 0, hours: 0, minutes: 0, seconds: 0, isStarting: false }
+    }
+    
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000)
+    
+    return { isExpired: false, days, hours, minutes, seconds, isStarting }
+  }
+  
+  const getPrimaryImage = (offer: any) => {
+    if (offer.images && offer.images.length > 0) {
+      const primary = offer.images.find((img: any) => img.isPrimary)
+      return primary?.imageUrl || offer.images[0]?.imageUrl
+    }
+    return null
+  }
+  
+  // Computed properties
+  const flashSaleOffers = computed(() => {
+    return offers.value.filter(offer => offer.offerType === 'FLASH_SALE' && offer.isActive)
+  })
+  
+  const bestFlashSaleOffer = computed(() => {
+    const activeFlashSales = flashSaleOffers.value
+    if (activeFlashSales.length === 0) return null
+    
+    // Return the offer with highest priority or first one
+    return activeFlashSales.sort((a, b) => (b.priority || 0) - (a.priority || 0))[0]
+  })
 
   // Refs
   const swiperInstance = ref<any>(null)
@@ -192,7 +243,7 @@ export const useHomeFlash = () => {
         
         on: {
           init: function() {
-            console.log('Swiper initialized successfully')
+            //console.log('Swiper initialized successfully')
           }
         }
       })
@@ -214,20 +265,40 @@ export const useHomeFlash = () => {
   watch(() => activeOffer.value, (newOffer) => {
     if (newOffer && swiperContainer.value) {
       nextTick(() => {
-        console.log('⚡ [HomeFlash] Reinitializing swiper with new offer')
+        //console.log('⚡ [HomeFlash] Reinitializing swiper with new offer')
         initSwiper()
       })
     }
   }, { immediate: false })
 
+  // Fetch data function
+  const fetchFlashSaleData = async () => {
+    try {
+      loading.value = true
+      const fetchedOffers = await fetchOffers({ 
+        offerType: 'FLASH_SALE',
+        isActive: true 
+      })
+      offers.value = fetchedOffers
+    } catch (error) {
+      console.error('Error fetching flash sale offers:', error)
+      offers.value = []
+    } finally {
+      loading.value = false
+    }
+  }
+  
   // Lifecycle
   onMounted(async () => {
-    console.log('⚡ [HomeFlash] Component mounted')
+    //console.log('⚡ [HomeFlash] Component mounted')
+    
+    // Fetch flash sale data
+    await fetchFlashSaleData()
     
     // Small delay to ensure data is ready
     setTimeout(() => {
       nextTick(() => {
-        console.log('⚡ [HomeFlash] Initializing swiper with', displayProducts.value.length, 'products')
+        //console.log('⚡ [HomeFlash] Initializing swiper with', displayProducts.value.length, 'products')
         initSwiper()
       })
     }, 100)
@@ -275,7 +346,7 @@ export const useHomeFlash = () => {
   }
 
   const addToCart = (product: FlashSaleProduct) => {
-    console.log('Added to cart:', product.name)
+    //console.log('Added to cart:', product.name)
     // Add to cart logic here
   }
 
@@ -301,7 +372,7 @@ export const useHomeFlash = () => {
     handleImageError,
     addToCart,
     
-    // From useDynamicOffers
+    // Helper functions
     getCountdown,
     formatDiscountText
   }

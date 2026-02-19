@@ -205,22 +205,22 @@ const fetchPromotionalBanners = async () => {
       retry: 2,
     })
 
-    console.log('🔍 [HomePromotion] Raw API response:', result)
-    console.log('🔍 [HomePromotion] API URL:', API_URL)
-    console.log('🔍 [HomePromotion] API data length:', result?.data?.length || 0)
+    //console.log('🔍 [HomePromotion] Raw API response:', result)
+    //console.log('🔍 [HomePromotion] API URL:', API_URL)
+    //console.log('🔍 [HomePromotion] API data length:', result?.data?.length || 0)
 
     if (result?.data && Array.isArray(result.data)) {
-      console.log('🔍 [HomePromotion] Raw API data:', result.data)
+      //console.log('🔍 [HomePromotion] Raw API data:', result.data)
       
       // Log the first offer structure in detail
       if (result.data.length > 0) {
-        console.log('🔍 [HomePromotion] First offer structure:', JSON.stringify(result.data[0], null, 2))
+        //console.log('🔍 [HomePromotion] First offer structure:', JSON.stringify(result.data[0], null, 2))
       }
       
       // TEMP: Bypass filtering to test display logic
       const validOffers = result.data
         .map((offer: any) => {
-          console.log('🔍 [HomePromotion] Processing offer for display:', offer)
+          //console.log('🔍 [HomePromotion] Processing offer for display:', offer)
           return {
             id: offer.id,
             title: offer.name || offer.title || `Special Offer ${offer.id}`,
@@ -244,23 +244,23 @@ const fetchPromotionalBanners = async () => {
         })
         .sort((a, b) => a.id - b.id)
 
-      console.log(`🔍 [HomePromotion] Filtered valid offers count: ${validOffers.length}`)
-      console.log(`🔍 [HomePromotion] showStaticFallback before: ${showStaticFallback.value}`)
-      console.log(`🔍 [HomePromotion] promotionalBanners length: ${promotionalBanners.value.length}`)
+      //console.log(`🔍 [HomePromotion] Filtered valid offers count: ${validOffers.length}`)
+      //console.log(`🔍 [HomePromotion] showStaticFallback before: ${showStaticFallback.value}`)
+      //console.log(`🔍 [HomePromotion] promotionalBanners length: ${promotionalBanners.value.length}`)
       
       if (validOffers.length > 0) {
         promotionalBanners.value = validOffers
         showStaticFallback.value = false
-        console.log(`✅ [HomePromotion] Loaded ${validOffers.length} offers`)
-        console.log(`🔍 [HomePromotion] showStaticFallback after: ${showStaticFallback.value}`)
+        //console.log(`✅ [HomePromotion] Loaded ${validOffers.length} offers`)
+        //console.log(`🔍 [HomePromotion] showStaticFallback after: ${showStaticFallback.value}`)
       } else {
         showStaticFallback.value = true
-        console.log('⚠️ [HomePromotion] No offers available, using static data')
-        console.log(`🔍 [HomePromotion] showStaticFallback after: ${showStaticFallback.value}`)
+        //console.log('⚠️ [HomePromotion] No offers available, using static data')
+        //console.log(`🔍 [HomePromotion] showStaticFallback after: ${showStaticFallback.value}`)
       }
     } else {
       showStaticFallback.value = true
-      console.log('⚠️ [HomePromotion] Invalid API response, using static data')
+      //console.log('⚠️ [HomePromotion] Invalid API response, using static data')
     }
   } catch (err: any) {
     console.error('❌ [HomePromotion] API fetch failed:', err)

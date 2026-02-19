@@ -1,111 +1,11 @@
-
-<!-- <script setup>
-import { useOffers } from '~/composables/useOffers'
-import { useOffersApi } from '~/composables/api/useOffersApi'
-
-const config = useRuntimeConfig()
-
-// Use the offers composable for better state management
-const { offers, loading, error, fetchAllOffers } = useOffers()
-const { fetchOffers } = useOffersApi()
-
-// Computed property for limited time offer
-const limitedTimeOffer = computed(() => {
-  if (!offers.value || offers.value.length === 0) return null
-  
-  // Find offers that are active, have images, and are either featured or have a specific type
-  const activeOffers = offers.value.filter(offer => 
-    offer.isActive && 
-    offer.images?.length > 0 &&
-    (offer.isFeatured || offer.offerType === 'LIMITED_TIME' || offer.offerType === 'FLASH_SALE')
-  )
-  
-  if (activeOffers.length === 0) {
-    // Fallback to any active offer with images
-    return offers.value.find(offer => offer.isActive && offer.images?.length > 0) || null
-  }
-  
-  // Sort by priority (highest first) and return the top one
-  return activeOffers.sort((a, b) => (b.priority || 0) - (a.priority || 0))[0]
-})
-
-// Fetch offers on component mount
-onMounted(async () => {
-  if (offers.value.length === 0) {
-    await fetchAllOffers()
-  }
-})
-
-const primaryImageUrl = computed(() => {
-  if (!limitedTimeOffer.value?.images?.length) {
-    return '/assets/images/buysection/t-shirt1.jpg'
-  }
-
-  const primary = limitedTimeOffer.value.images.find(img => img.isPrimary)
-  return primary?.imageUrl || limitedTimeOffer.value.images[0]?.imageUrl
-})
-
-const handleImageError = (e) => {
-  e.target.src = '/assets/images/buysection/t-shirt1.jpg'
-}
-
-// Format discount text for display
-const discountText = computed(() => {
-  if (!limitedTimeOffer.value) return '40% OFF'
-  
-  const { discountType, discountValue } = limitedTimeOffer.value
-  if (discountType === 'PERCENTAGE') {
-    return `${discountValue}% OFF`
-  } else if (discountType === 'FIXED') {
-    return `₹${discountValue} OFF`
-  }
-  return 'SPECIAL OFFER'
-})
-
-// Format offer name for display
-const offerDisplayName = computed(() => {
-  if (!limitedTimeOffer.value) return 'Limited Time Deal'
-  
-  const offerTypes = {
-    'LIMITED_TIME': 'Limited Time',
-    'FLASH_SALE': 'Flash Sale',
-    'BANK': 'Bank Offer',
-    'PRODUCT': 'Special Deal'
-  }
-  
-  return offerTypes[limitedTimeOffer.value.offerType] || limitedTimeOffer.value.name || 'Special Deal'
-})
-</script> -->
-
-
 <script setup lang="ts">
 import { useOffersApi } from '~/composables/api/useOffersApi'
 import type { Offer } from '~/types/offers'
 
-const { fetchOffers } = useOffersApi()
-
-const loading = ref(false)
-const error = ref<string | null>(null)
-const festivalOffers = ref<Offer[]>([])
-
-
- // Fetch ONLY FESTIVAL offers
-
-const fetchFestivalOffers = async () => {
-  loading.value = true
-  error.value = null
-
-  try {
-    festivalOffers.value = await fetchOffers({
-      offerType: 'FESTIVAL',
-      isActive: true
-    })
-  } catch (err: any) {
-    error.value = err.message ?? 'Failed to load festival offers'
-  } finally {
-    loading.value = false
-  }
-}
+const { offers: festivalOffers, loading, error, refresh } = useOffersApi({
+  offerType: 'FESTIVAL',
+  isActive: true
+})
 
 // Pick best festival offer
  
@@ -157,10 +57,7 @@ const handleImageError = (e: Event) => {
   ;(e.target as HTMLImageElement).src =
     '/assets/images/buysection/t-shirt1.jpg'
 }
-
-onMounted(fetchFestivalOffers)
 </script>
-
 
 <template>
   <div class="banner-wrapper" :class="{ loading }">
@@ -218,10 +115,6 @@ onMounted(fetchFestivalOffers)
     </div>
   </div>
 </template>
-
-
-
-
 
 <style scoped>
 .banner-wrapper {

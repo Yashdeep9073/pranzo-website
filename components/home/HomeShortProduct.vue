@@ -39,8 +39,8 @@
                         </NuxtLink>
                       </h6>
                       <div class="product-card__price flex-align gap-8">
-                        <span class="text-heading text-md fw-semibold d-block">${{ product.price }}</span>
-                        <span class="text-gray-400 text-md fw-semibold d-block">${{ product.originalPrice }}</span>
+                        <span class="text-heading text-md fw-semibold d-block">₹{{ product.price }}</span>
+                        <span class="text-gray-400 text-md fw-semibold d-block">₹{{ product.originalPrice }}</span>
                       </div>
                     </div>
                   </div>
@@ -87,8 +87,8 @@
                         </NuxtLink>
                       </h6>
                       <div class="product-card__price flex-align gap-8">
-                        <span class="text-heading text-md fw-semibold d-block">${{ product.price }}</span>
-                        <span class="text-gray-400 text-md fw-semibold d-block">${{ product.originalPrice }}</span>
+                        <span class="text-heading text-md fw-semibold d-block">₹{{ product.price }}</span>
+                        <span class="text-gray-400 text-md fw-semibold d-block">₹{{ product.originalPrice }}</span>
                       </div>
                     </div>
                   </div>
@@ -135,8 +135,8 @@
                         </NuxtLink>
                       </h6>
                       <div class="product-card__price flex-align gap-8">
-                        <span class="text-heading text-md fw-semibold d-block">${{ product.price }}</span>
-                        <span class="text-gray-400 text-md fw-semibold d-block">${{ product.originalPrice }}</span>
+                        <span class="text-heading text-md fw-semibold d-block">₹{{ product.price }}</span>
+                        <span class="text-gray-400 text-md fw-semibold d-block">₹{{ product.originalPrice }}</span>
                       </div>
                     </div>
                   </div>
@@ -152,7 +152,6 @@
             <button type="button" class="wishlist-btn-two" @click="toggleWishlist">
               <i class="ph-bold ph-heart"></i>
             </button>
-
             <div class="">
               <h6 class="position-relative mb-0 pb-12 d-inline-block">Deals of the week</h6>
               <div class="countdown mb-10">
@@ -175,7 +174,7 @@
             </div>
             
             <NuxtLink to="/shop/shop-all/--1" class="product-card__thumb flex-center overflow-hidden">
-              <img :src="weekDealProduct.image" :alt="weekDealProduct.name" loading="lazy">
+              <img :src="weekDealProduct.image" :alt="weekDealProduct.name" loading="lazy" class="week-deal-image">
             </NuxtLink>
             
             <div class="product-card__content w-100">
@@ -190,8 +189,8 @@
                 <span class="text-xs fw-medium text-heading">({{ weekDealProduct.reviews }})</span>
               </div>
               <div class="d-flex align-items-center gap-12 mt-6">
-                <h6 class="text-danger-600 mb-0 text-lg"> ${{ weekDealProduct.price }}</h6>
-                <h6 class="text-neutral-300 fw-medium mb-0 text-lg">${{ weekDealProduct.originalPrice }}</h6>
+                <h6 class="text-danger-600 mb-0 text-lg"> ₹{{ weekDealProduct.price }}</h6>
+                <h6 class="text-neutral-300 fw-medium mb-0 text-lg">₹{{ weekDealProduct.originalPrice }}</h6>
               </div>
               
               <h6 class="title text-md fw-semibold mt-10 mb-0">
@@ -210,7 +209,7 @@
               
               <div class="d-flex align-items-center gap-6 mt-6">
                 <span class="text-sm text-gray-500">available only:</span>
-                <h6 class="text-danger-600 mb-0 text-md fw-semibold">${{ weekDealProduct.price }}</h6>
+                <h6 class="text-danger-600 mb-0 text-md fw-semibold">₹{{ weekDealProduct.price }}</h6>
               </div>
               
               <button @click="addToCart(weekDealProduct)" class="product-card__cart btn bg-success-600 text-white hover-bg-success-700 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center">
@@ -225,30 +224,28 @@
 </template>
 
 <script setup>
-
-
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/autoplay'
-import { ref, onMounted, onUnmounted } from 'vue' 
+import { ref, onMounted, onUnmounted, computed } from 'vue' 
+import { useProductsApi } from '@/composables/api/useProductsApi'
+import { useOffersApi } from '@/composables/api/useOffersApi'
 
-// Wishlist state
-const isInWishlist = ref(false) 
+// Fetch products from backend
+const { products: apiProducts, loading, error, refresh } = useProductsApi({
+  limit: 10,
+  inStock: true
+})
 
-// Toggle wishlist
-const toggleWishlist = () => {
-  isInWishlist.value = !isInWishlist.value
-  console.log('Wishlist toggled:', isInWishlist.value)
-}
+// Fetch limited offers from backend
+const { offers: apiOffers, loading: offersLoading, error: offersError, refresh: refreshOffers } = useOffersApi({
+  offerType: 'DAILY_DEALS',
+  isActive: true,
+})
 
-// Add to cart function
-const addToCart = (product) => {
-  console.log('Added to cart:', product)
-}
-
-// Featured Products data
-const featuredProducts = [
+// Static fallback data
+const staticFeaturedProducts = [
   {
     id: 1,
     name: "Taylor Farms Broccoli Florets Vegetables",
@@ -305,8 +302,7 @@ const featuredProducts = [
   }
 ]
 
-// Top Selling Products data
-const topSellingProducts = [
+const staticTopSellingProducts = [
   {
     id: 1,
     name: "Taylor Farms Broccoli Florets Vegetables",
@@ -363,8 +359,7 @@ const topSellingProducts = [
   }
 ]
 
-// On-sale Products data
-const onSaleProducts = [
+const staticOnSaleProducts = [
   {
     id: 1,
     name: "Taylor Farms Broccoli Florets Vegetables",
@@ -421,16 +416,133 @@ const onSaleProducts = [
   }
 ]
 
-// Week Deal Product
-const weekDealProduct = {
-  id: 1,
-  name: "Perfectly Packed Meat Combos for Delicious and Flavorful Meals Every Day",
-  price: 60.99,
-  originalPrice: 79.99,
-  stock: 35
+// Computed properties with fallback logic
+const featuredProducts = computed(() => {
+  if (apiProducts.value.length > 0) {
+    return apiProducts.value.slice(0, 6).map(product => ({
+      id: product.id,
+      name: product.name,
+      rating: product.rating || 4.8,
+      reviews: product.reviews || '17k',
+      price: product.price,
+      originalPrice: product.originalPrice || product.price,
+      image: product.images?.[0]?.imageUrl || "/assets/images/thumbs/short-product-img1.png"
+    }))
+  }
+  return staticFeaturedProducts
+})
+
+const topSellingProducts = computed(() => {
+  if (apiProducts.value.length > 0) {
+    return apiProducts.value.slice(0, 6).map(product => ({
+      id: product.id,
+      name: product.name,
+      rating: product.rating || 4.8,
+      reviews: product.reviews || '17k',
+      price: product.price,
+      originalPrice: product.originalPrice || product.price,
+      image: product.images?.[0]?.imageUrl || "/assets/images/thumbs/short-product-img5.png"
+    }))
+  }
+  return staticTopSellingProducts
+})
+
+const onSaleProducts = computed(() => {
+  if (apiProducts.value.length > 0) {
+    return apiProducts.value.slice(0, 6).map(product => ({
+      id: product.id,
+      name: product.name,
+      rating: product.rating || 4.8,
+      reviews: product.reviews || '17k',
+      price: product.price,
+      originalPrice: product.originalPrice || product.price,
+      image: product.images?.[0]?.imageUrl || "/assets/images/thumbs/short-product-img9.png"
+    }))
+  }
+  return staticOnSaleProducts
+})
+
+// Wishlist state
+const isInWishlist = ref(false) 
+
+// Toggle wishlist
+const toggleWishlist = () => {
+  isInWishlist.value = !isInWishlist.value
 }
 
-// Week Deal Countdown
+// Add to cart function
+const addToCart = (product) => {
+  console.log('Added to cart:', product)
+}
+
+// Week Deal Product from Offers API
+const weekDealProduct = computed(() => {
+  if (apiOffers.value.length > 0) {
+    const dailyDealOffer = apiOffers.value[0] // Get first daily deal offer
+    console.log('🔍 [HomeShortProduct] Daily Deal offer found:', dailyDealOffer)
+    
+    // Check if offer has products
+    if (dailyDealOffer.products && dailyDealOffer.products.length > 0) {
+      const offerProduct = dailyDealOffer.products.find(p => p.product)?.product
+      
+      if (offerProduct) {
+        return {
+          id: offerProduct.id,
+          name: offerProduct.name,
+          price: offerProduct.price,
+          originalPrice: offerProduct.originalPrice || offerProduct.price,
+          stock: offerProduct.stock || 35,
+          image: offerProduct.images?.[0]?.imageUrl || "/assets/images/thumbs/week-deal-img.png",
+          startDate: dailyDealOffer.startDate,
+          endDate: dailyDealOffer.endDate
+        }
+      }
+    }
+    
+    // If no products, use the offer itself as the product
+    if (dailyDealOffer.products && dailyDealOffer.products.length === 0) {
+      return {
+        id: dailyDealOffer.id,
+        name: dailyDealOffer.name,
+        price: dailyDealOffer.discountValue || 99, // Use discount as price if no products
+        originalPrice: dailyDealOffer.discountValue ? dailyDealOffer.discountValue * 1.2 : 99, // Add 20% markup for original price
+        stock: 100, // Unlimited stock for offer itself
+        image: dailyDealOffer.images?.[0]?.imageUrl || "/assets/images/thumbs/week-deal-img.png",
+        startDate: dailyDealOffer.startDate,
+        endDate: dailyDealOffer.endDate
+      }
+    }
+    
+    // Try direct product structure (if products is not an array)
+    if (dailyDealOffer.product) {
+      return {
+        id: dailyDealOffer.product.id,
+        name: dailyDealOffer.product.name,
+        price: dailyDealOffer.product.price,
+        originalPrice: dailyDealOffer.product.originalPrice || dailyDealOffer.product.price,
+        stock: dailyDealOffer.product.stock || 35,
+        image: dailyDealOffer.product.images?.[0]?.imageUrl || "/assets/images/thumbs/week-deal-img.png",
+        startDate: dailyDealOffer.startDate,
+        endDate: dailyDealOffer.endDate
+      }
+    }
+  }
+  
+  // Fallback to static data
+  return {
+    id: 1,
+    name: "Perfectly Packed Meat Combos for Delicious and Flavorful Meals Every Day",
+    price: 60.99,
+    originalPrice: 79.99,
+    stock: 35,
+    image: "/assets/images/thumbs/week-deal-img.png",
+    startDate: null,
+    endDate: null
+  }
+})
+
+// Week Deal Countdown - Dynamic based on offer dates
+// Week Deal Countdown - Dynamic based on offer dates
 const weekDealCountdown = ref({
   days: '03',
   hours: '12',
@@ -438,12 +550,43 @@ const weekDealCountdown = ref({
   seconds: '30'
 })
 
-// Update countdown timers
-let countdownInterval
-
-onMounted(() => {
-  // Start countdown timer
-  countdownInterval = setInterval(() => {
+// Function to update countdown based on offer dates
+const updateCountdown = () => {
+  const offer = weekDealProduct.value
+  
+  // Check if offer has valid date fields
+  if (offer && offer.startDate && offer.endDate) {
+    const now = new Date().getTime()
+    const endTime = new Date(offer.endDate).getTime()
+    const diff = endTime - now
+    
+    if (diff > 0) {
+      const d = Math.floor(diff / 86400000)
+      const h = Math.floor((diff % 86400000) / 3600000)
+      const m = Math.floor((diff % 3600000) / 60000)
+      const s = Math.floor((diff % 60000) / 1000)
+      
+      console.log('🔍 [HomeShortProduct] Using DAILY_DEAL offer dates - Start:', offer.startDate, 'End:', offer.endDate, 'Countdown:', {d, h, m, s})
+      
+      weekDealCountdown.value = {
+        days: String(d).padStart(2, '0'),
+        hours: String(h).padStart(2, '0'),
+        minutes: String(m).padStart(2, '0'),
+        seconds: String(s).padStart(2, '0')
+      }
+    } else {
+      console.log('🔍 [HomeShortProduct] Daily Deal has expired')
+      weekDealCountdown.value = {
+        days: '00',
+        hours: '00',
+        minutes: '00',
+        seconds: '00'
+      }
+    }
+  } else {
+    // Fallback to hardcoded countdown if no dates available
+    console.log('🔍 [HomeShortProduct] No valid dates in Daily Deal, using fallback countdown')
+    
     let seconds = parseInt(weekDealCountdown.value.seconds)
     let minutes = parseInt(weekDealCountdown.value.minutes)
     let hours = parseInt(weekDealCountdown.value.hours)
@@ -476,7 +619,21 @@ onMounted(() => {
       minutes: minutes.toString().padStart(2, '0'),
       seconds: seconds.toString().padStart(2, '0')
     }
-  }, 1000)
+  }
+}
+
+// Update countdown timers
+let countdownInterval
+
+onMounted(() => {
+  // Debug countdown initialization
+  console.log('🔍 [HomeShortProduct] Daily Deal Countdown initialized:', weekDealCountdown.value)
+  
+  // Initial update
+  updateCountdown()
+  
+  // Start countdown timer
+  countdownInterval = setInterval(updateCountdown, 1000)
 })
 
 onUnmounted(() => {
@@ -507,5 +664,13 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Week deal image - make it larger */
+.week-deal-image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
 }
 </style>

@@ -19,7 +19,7 @@
 
 <script setup>
 const openMobileSearch = () => {
-  console.log('Open mobile search modal / page')
+  //console.log('Open mobile search modal / page')
   
 }
 </script>
