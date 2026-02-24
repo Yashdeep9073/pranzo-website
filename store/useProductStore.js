@@ -233,12 +233,9 @@ export const useProductStore = defineStore('productStore', () => {
   const API_URL_CATEGORIES = config.public.api?.categories || null
   
   const fetchCategoriesWithNestedData = async () => {
-    try {
-      console.log('Fetching categories with nested data...')
-      
+    try {      
       // If using fallback data, return fallback categories
       if (state.value.usingFallbackData || !API_URL_CATEGORIES) {
-        console.log('Using fallback categories data')
         state.value.categories = fallbackCategories
         state.value.categoryTree = buildCategoryTree(fallbackCategories)
         return {
@@ -254,8 +251,7 @@ export const useProductStore = defineStore('productStore', () => {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
-      const data = await response.json()
-      console.log('Categories API Response:', data)
+      const data = await response.json()      
       
       if (data.data && Array.isArray(data.data)) {
         state.value.categories = data.data
@@ -270,7 +266,6 @@ export const useProductStore = defineStore('productStore', () => {
           totalProductsCount: totalProducts
         }
       } else {
-        console.warn('No categories data found in response, using fallback')
         state.value.categories = fallbackCategories
         state.value.categoryTree = buildCategoryTree(fallbackCategories)
         return {
@@ -280,8 +275,6 @@ export const useProductStore = defineStore('productStore', () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching categories:', error)
-      console.log('Using fallback categories due to error')
       state.value.categories = fallbackCategories
       state.value.categoryTree = buildCategoryTree(fallbackCategories)
       return {

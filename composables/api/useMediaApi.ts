@@ -54,8 +54,6 @@ export const useMediaApi = () => {
 
     const url = api.media.list(Object.fromEntries(query))
 
-    console.log("🖼️ Fetching Media:", url)
-
     const data = await $fetch<MediaApiResponse>(url)
 
     return data

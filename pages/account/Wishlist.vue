@@ -211,10 +211,12 @@
               <div class="flex-align gap-16">
                 <button
                   type="button"
-                  class="text-lg text-gray-500 hover-text-danger-600 transition-colors"
+                  class="clear-wishlist-btn"
                   @click="clearWishlist"
                 >
-                  <i class="ph ph-trash me-2"></i> Clear Wishlist
+                  <i class="ph ph-trash me-2"></i> 
+                  <span>Clear Wishlist</span>
+                  <div class="clear-wishlist-underline"></div>
                 </button>
               </div>
             </div>
@@ -957,11 +959,31 @@ const removeFromWishlist = async (product) => {
 }
 
 const clearWishlist = () => {
-  const confirmClear = confirm('Are you sure you want to clear your entire wishlist?')
-  if (confirmClear) {
-    wishlistStore.clearAll()
-    alert('Wishlist cleared!')
-  }
+  Swal.fire({
+    title: 'Clear Wishlist?',
+    text: 'Are you sure you want to remove all items from your wishlist?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, clear it!',
+    cancelButtonText: 'Cancel',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      wishlistStore.clearAll()
+      
+      // Show success message
+      Swal.fire({
+        title: 'Wishlist Cleared!',
+        text: 'All items have been removed from your wishlist.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+        position: 'top-center'
+      })
+    }
+  })
 }
 
 // Lifecycle hooks
@@ -1273,6 +1295,65 @@ onMounted(() => {
   padding: 10px 18px;
   border-radius: 10px;
   font-weight: 500;
+}
+
+/* Enhanced Clear Wishlist Button */
+.clear-wishlist-btn {
+  position: relative;
+  background: transparent;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.clear-wishlist-btn:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+.clear-wishlist-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+}
+
+.clear-wishlist-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  transition: width 0.3s ease;
+}
+
+.clear-wishlist-btn:hover .clear-wishlist-underline {
+  width: 100%;
+}
+
+.clear-wishlist-btn i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.clear-wishlist-btn:hover i {
+  transform: scale(1.1);
+}
+
+.clear-wishlist-btn span {
+  position: relative;
+  z-index: 1;
 }
 
 /* Responsive Adjustments */

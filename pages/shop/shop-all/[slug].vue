@@ -1157,8 +1157,8 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from '#app'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Thumbs, Pagination } from 'swiper/modules'
-
-// Import Swiper styles
+import { useApiEndpoints } from '~/utlis/endpoints'
+import { useProductsApi } from '~/composables/api/useProductsApi'
 import 'swiper/css'
 import 'swiper/css/thumbs'
 import 'swiper/css/pagination'
@@ -1345,7 +1345,7 @@ const getElectronicsSizes = () => {
 
 // Helper functions for dynamic product handling
 
-// Fetch product style group (same as before)
+// Fetch product style group using products API hook
 const fetchProductStyleGroup = async (id) => {
   if (!id) {
     error.value = 'Invalid style group ID'
@@ -1362,33 +1362,41 @@ const fetchProductStyleGroup = async (id) => {
 
   try {
     console.log('Fetching product style group with ID:', id)
-
-    // Use the correct backend API endpoint from .env
-    const result = await $fetch(`https://api.pranzo.in/common/product/read/group/style/${id}`).catch(err => {
-      console.log('API call failed, using fallback data:', err)
-      return null
+    
+    // Use the products API hook
+    const { products, loading: apiLoading, error: apiError, refresh } = useProductsApi({
+      id: id, // Add id parameter to fetch specific product
+      limit: 1
     })
-
-    if (result && result.message === 'Product style group fetched successfully' && result.data) {
-      groupID.value = result.data.groupId
-      mainProduct.value = result.data.mainProduct
-      variants.value = result.data.variants || []
-
+    
+    // Call the fetch function
+    await refresh()
+    
+    // Wait for loading to complete
+    while (apiLoading.value) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+    
+    // Check if we got product data
+    if (products.value && products.value.length > 0) {
+      mainProduct.value = products.value[0]
+      variants.value = products.value
+      
       if (variants.value.length > 0) {
         selectedVariant.value = variants.value[0]
-        selectedColor.value = variants.value[0].color
-        selectedSize.value = variants.value[0].size
+        selectedColor.value = variants.value[0].color || 'Default'
+        selectedSize.value = variants.value[0].size || 'M'
       } else if (mainProduct.value) {
         selectedVariant.value = mainProduct.value
       }
 
-      console.log('Product style group loaded from API:', {
+      console.log('Product data loaded from API hook:', {
         mainProduct: mainProduct.value,
         variants: variants.value
       })
     } else {
       console.log('No product data found in API response')
-      error.value = 'Product not found'
+      error.value = apiError.value || 'Product not found'
     }
 
   } catch (err) {
@@ -1520,7 +1528,7 @@ const addToCart = () => {
     } else {
       const cartItem = {
         id: Date.now(),
-        productId: product.id || 'demo-' + Date.now(),
+        productId: product.id,
         variantId: selectedVariant.value?.id || null,
         name: mainProduct.value.name,
         groupId: groupID.value,
@@ -1590,62 +1598,8 @@ const removeFromCart = (itemId) => {
     console.error('Error removing item from cart:', error)
   }
 }
-// buy now
-// const buyNow = () => {
-//   const product = selectedVariant.value || mainProduct.value
-//   if (!product || product.stock <= 0 || quantity.value <= 0) {
-//     alert('Cannot proceed. Check quantity and stock availability.')
-//     return
-//   }
+ 
 
-//   try {
-//     const existingCart = localStorage.getItem('shopping_cart') 
-//     let cart = existingCart ? JSON.parse(existingCart) : []
-
-//     const existingIndex = cart.findIndex(item =>
-//       item.productId === product.id &&
-//       item.variantId === (selectedVariant.value?.id || null)
-//     )
-
-//     const discountedPrice = parseFloat(calculateDiscountedPrice())
-
-//     // Clear cart first (optional, based on your requirement)
-//     // cart = []
-
-//     if (existingIndex > -1) {
-//       cart[existingIndex].quantity += quantity.value
-//       cart[existingIndex].totalPrice = cart[existingIndex].price * cart[existingIndex].quantity
-//     } else {
-//       const cartItem = {
-//         id: Date.now(),
-//         productId: product.id || 'demo-' + Date.now(),
-//         variantId: selectedVariant.value?.id || null,
-//         name: mainProduct.value.name,
-//         groupId: groupID.value,
-//         color: selectedVariant.value?.color || null,
-//         size: selectedVariant.value?.size || null,
-//         sku: product.sku,
-//         price: discountedPrice,
-//         quantity: quantity.value,
-//         totalPrice: discountedPrice * quantity.value,
-//         image: mainImages.value[0],
-//         stock: product.stock,
-//         maxStock: product.stock
-//       }
-//       cart.push(cartItem)
-//     }
-
-//     // Save to cart
-//     saveCartToStorage(cart) 
-
-//     // Navigate to checkout
-//     navigateTo('/cart/checkout')
-
-//   } catch (error) {
-//     console.error('Error in buy now:', error)
-//     alert('Error processing buy now. Please try again.')
-//   }
-// } 
 const refreshCartSummary = () => {
   loadCartFromStorage()
 }

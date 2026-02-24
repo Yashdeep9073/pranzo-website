@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useProductsApi } from '~/composables/api/useProductsApi'
 
 export const useRecommendStore = defineStore('recommend', () => {
   const config = useRuntimeConfig()
@@ -448,131 +449,78 @@ export const useRecommendStore = defineStore('recommend', () => {
     }
   }
 
-  // Main fetch function with enhanced fallback
+  // Main fetch function using useProductsApi hook
   const fetchProducts = async (filters = {}, forceRefresh = false) => {
     try {
       isLoading.value = true
       error.value = null
 
       const { page = 1, limit = 10, category = null, sortBy = 'popularity' } = filters
-      const cacheKey = `products_${category || 'all'}_${sortBy}_${page}_${limit}`
-
-      // Check if API endpoint is available
-      if (!graphql) {
-        //console.log('GraphQL endpoint not configured, using fallback products')
-        usingFallbackData.value = true
-        useFallbackProducts(category, limit)
-        isLoading.value = false
-        return products.value
+      
+      // Convert category name to categoryId if needed
+      let categoryId = null
+      if (category && typeof category === 'string') {
+        // Find category by name from categories array
+        const foundCategory = categories.value.find(cat => 
+          cat.name?.toLowerCase() === category.toLowerCase()
+        )
+        categoryId = foundCategory?.id || null
+      } else if (category && typeof category === 'number') {
+        categoryId = category
       }
 
-      // Check cache if not forcing refresh
-      if (!forceRefresh) {
-        const cached = getFromCache(cacheKey)
-        if (cached) {
-          //console.log(` Using cached data for: ${cacheKey}`)
-          products.value = cached.products
-          pagination.value = cached.pagination
-          isLoading.value = false
-          return cached.products
-        }
+      // Use the products API hook
+      const { products: apiProducts, loading: apiLoading, error: apiError, refresh } = useProductsApi({
+        categoryId: categoryId,
+        limit: limit,
+        page: page,
+        sort: sortBy === 'popularity' ? 'popular' : sortBy
+      })
+      
+      // Call the fetch function
+      await refresh()
+      
+      // Wait for loading to complete
+      while (apiLoading.value) {
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
-
-      //console.log(` Fetching products with filters:`, { page, limit, category, sortBy })
-
-      let response;
-      try {
-        response = await fetch(graphql, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }, 
-          body: JSON.stringify({
-            query: PRODUCT_FILTER_QUERY,
-            variables: { 
-              page,
-              limit, 
-              category,
-              sortBy
-            } 
-          }),
-          timeout: 10000 // 10 second timeout
-        })
-      } catch (fetchError) {
-        console.error('Network error fetching products:', fetchError)
-        throw new Error('Network error: Unable to fetch products')
-      }
-    
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.errors) {
-        console.error('GraphQL errors:', result.errors)
-        throw new Error(result.errors[0]?.message || 'GraphQL error')
-      }
-
-      // Check if we got valid data
-      if (result.data?.productFilter?.data && Array.isArray(result.data.productFilter.data)) {
-        const { data, pagination: paginationData } = result.data.productFilter
+      
+      // Check if we got product data
+      if (apiProducts.value && apiProducts.value.length > 0) {
+        // Reset fallback flag since API succeeded
+        usingFallbackData.value = false
         
-        // Check if data is empty
-        if (data.length === 0) {
-          console.warn('API returned empty products array, using fallback')
-          usingFallbackData.value = true
-          useFallbackProducts(category, limit)
-        } else {
-          //console.log(` Products fetched for "${category || 'all'}": ${data.length} items`)
-          
-          // Reset fallback flag since API succeeded
-          usingFallbackData.value = false
-          
-          // Fix image URLs if needed
-          const processedData = data.map(product => {
-            // Fix image URLs
-            const fixImageUrl = (url) => {
-              if (url && !url.startsWith('http')) {
-                if (url.startsWith('/')) {
-                  return `https://kartmania-api.vibrantick.org${url}`
-                } else {
-                  return `https://kartmania-api.vibrantick.org/${url}`
-                }
-              }
-              return url
-            }
-
-            // Fix main product images
-            if (product.mainProduct?.images) {
-              product.mainProduct.images = product.mainProduct.images.map(img => ({
-                ...img,
-                imageUrl: fixImageUrl(img.imageUrl)
-              }))
-            }
-
-            // Fix variant images
-            if (product.variants) {
-              product.variants = product.variants.map(variant => ({
-                ...variant,
-                images: variant.images?.map(img => ({
-                  ...img,
-                  imageUrl: fixImageUrl(img.imageUrl)
-                })) || []
-              }))
-            }
-
-            return product
-          })
-          
-          products.value = processedData
-          pagination.value = paginationData
-          
-          // Save to cache
-          saveToCache(cacheKey, processedData, paginationData)
+        // Convert products to the expected format for the store
+        const convertedProducts = apiProducts.value.map(product => ({
+          groupId: product.id?.toString() || `group-${product.id}`,
+          name: product.name,
+          category: product.category,
+          mainProduct: {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            stock: product.stock,
+            popularity: product.popularity,
+            images: product.images || [],
+            description: product.description || '',
+            discountValue: 0, // Add if your API has discount info
+            reviews: [], // Add if your API has reviews
+            attributes: [] // Add if your API has attributes
+          },
+          variants: [] // Add if your API has variants
+        }))
+        
+        products.value = convertedProducts
+        pagination.value = {
+          currentPage: page,
+          lastPage: Math.ceil(convertedProducts.length / limit),
+          total: convertedProducts.length,
+          perPage: limit
         }
+        
+        console.log(`Products fetched for category "${category || 'all'}": ${convertedProducts.length} items`)
       } else {
-        console.warn('No valid productFilter data in response, using fallback')
+        console.warn('API returned empty products array, using fallback')
         usingFallbackData.value = true
         useFallbackProducts(category, limit)
       }
@@ -580,7 +528,7 @@ export const useRecommendStore = defineStore('recommend', () => {
       return products.value
     } catch (err) {
       error.value = err.message
-      console.error(' Error fetching products:', err)
+      console.error('Error fetching products:', err)
       
       // Set fallback flag
       usingFallbackData.value = true

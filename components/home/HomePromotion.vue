@@ -1,6 +1,6 @@
 <!-- components/PromotionalBanner.vue -->
 <template>
-  <section class="promotional-banner pb-40 pt-10 pt-md-60 pt-lg-80">
+  <section v-if="!loading && promotionalBanners.length > 0" class="promotional-banner pb-40 pt-10 pt-md-60 pt-lg-80">
     <div class="container container-lg px-3 px-md-4">
       <div v-if="loading && showStaticFallback === false" class="text-center py-60 py-md-80">
         <div class="spinner-border text-primary" role="status">
@@ -15,19 +15,10 @@
       </div>
 
       <div v-else class="row gy-3 gy-md-4">
-        <!-- Category Header -->
-        <div v-if="props.category" class="col-12 mb-4">
-          <h4 class="text-center mb-3 text-capitalize">
-            {{ props.category.replace('-', ' ') }} Offers
-          </h4>
-          <p class="text-center text-muted mb-4">
-            Special deals on {{ props.category.replace('-', ' ') }} products
-          </p>
-        </div>
         
         <!-- Dynamic Banners from API -->
         <div
-          v-for="(banner, index) in (showStaticFallback ? visibleStaticBanners : promotionalBanners)"
+          v-for="(banner, index) in promotionalBanners"
           :key="banner.id"
           :class="getColumnClasses(index)"
         >
@@ -52,7 +43,7 @@
 
               <div class="d-flex align-items-end gap-2 gap-md-4 gap-lg-8 mb-2 mb-md-3 mb-lg-4">
                 <span class="text-heading fst-italic text-xs text-md-sm text-lg-base">Starting at</span>
-                <h6 class="text-danger-600 mb-0 text-sm text-md-base text-lg-xl">{{ banner.price || '₹299' }}</h6>
+                <h6 class="text-danger-600 mb-0 text-sm text-md-base text-lg-xl">{{ banner.price }}</h6>
               </div>
   
               <NuxtLink :to="banner.slug ? `/shop/shop-all?offer=${banner.slug}` : (banner.category ? `/shop/shop-all?category=${banner.category}` : '/shop/shop-all')" class="btn btn-main d-inline-flex align-items-center rounded-pill gap-2 gap-md-4 gap-lg-8 mt-3 mt-md-4 mt-lg-6 px-3 px-md-4 py-2 py-md-2 py-lg-3 text-xs text-md-sm text-lg-base">
@@ -118,43 +109,9 @@ interface ApiResponse {
 
 // Reactive state
 const promotionalBanners = ref<OfferData[]>([])
-const loading = ref(false) // Start with false since we have static fallback
+const loading = ref(false)
 const error = ref<string | null>(null)
-const showStaticFallback = ref(false) // Control when to show static banners
-
-// Static banners data (always available)
-const staticBanners = ref<StaticBanner[]>([
-  {
-    id: 1,
-    title: 'Everyday Fresh Meat',
-    description: 'Fresh meat delivered daily',
-    image: '/assets/images/thumbs/promotional-banner-img1.png',
-    price: '₹ 299',
-    category: 'meat'
-  },
-  {
-    id: 2,
-    title: 'Daily Fresh Vegetables',
-    description: 'Organic vegetables at your doorstep',
-    image: '/assets/images/thumbs/promotional-banner-img2.png',
-    price: '₹ 149',
-    category: 'vegetables'
-  },
-  {
-    id: 3,
-    title: 'Everyday Fresh Milk',
-    description: 'Pure and fresh dairy products',
-    image: '/assets/images/thumbs/promotional-banner-img3.png',
-    price: '₹ 49'
-  },
-  {
-    id: 4,
-    title: 'Everyday Fresh Fruits',
-    description: 'Seasonal fruits from local farms',
-    image: '/assets/images/thumbs/promotional-banner-img4.png',
-    price: '₹ 199'
-  }
-])
+const showStaticFallback = ref(false)
 
 // Responsive breakpoints
 const screenWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
@@ -163,11 +120,6 @@ const screenWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024
 const requiredBanners = computed(() => {
   if (screenWidth.value < 768) return 2 // Mobile: 2 banners
   return 4 // Tablet/Desktop: 4 banners
-})
-
-// Get visible static banners based on screen size
-const visibleStaticBanners = computed(() => {
-  return staticBanners.value.slice(0, requiredBanners.value)
 })
 
 // Update screen width on resize
@@ -223,11 +175,11 @@ const fetchPromotionalBanners = async () => {
           //console.log('🔍 [HomePromotion] Processing offer for display:', offer)
           return {
             id: offer.id,
-            title: offer.name || offer.title || `Special Offer ${offer.id}`,
+            title: offer.name || offer.title || '',
             description: offer.description || '',
-            image: offer.image || (offer.images?.[0]?.imageUrl) || '/assets/images/thumbs/promotional-banner-img1.png',
+            image: offer.image || (offer.images?.[0]?.imageUrl) || '',
             category: offer.offerType?.toLowerCase() || 'general',
-            slug: offer.slug || `offer-${offer.id}`,
+            slug: offer.slug || '',
             discountType: offer.discountType,
             discountValue: offer.discountValue,
             startDate: offer.startDate,

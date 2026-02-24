@@ -45,7 +45,13 @@
               <NuxtLink to="/account/profile" class="text-heading hover-text-main-600">Affiliate Program</NuxtLink>
             </li>
             <li class="mb-16">
-              <NuxtLink to="/account/profile" class="text-heading hover-text-main-600">Privacy Policy</NuxtLink>
+              <NuxtLink to="/privacy" class="text-heading hover-text-main-600">Privacy Policy</NuxtLink>
+            </li>
+            <li class="mb-16">
+              <NuxtLink to="/terms" class="text-heading hover-text-main-600">Terms of Use</NuxtLink>
+            </li>
+            <li class="mb-16">
+              <NuxtLink to="/security" class="text-heading hover-text-main-600">Security</NuxtLink>
             </li>
             <li class="mb-16">
               <NuxtLink to="/account/profile" class="text-heading hover-text-main-600">Our Suppliers</NuxtLink>
@@ -58,7 +64,6 @@
             </li>
           </ul>
         </div>
-
         <div class="footer-item" data-aos="fade-up" data-aos-duration="600">
           <h6 class="footer-item__title">Customer Support</h6>
           <ul class="footer-menu">
@@ -77,12 +82,17 @@
             <li class="mb-16">
               <NuxtLink to="/contact/contact" class="text-heading hover-text-main-600">Policies & Rules</NuxtLink>
             </li>
+            <li class="mb-16">
+              <NuxtLink to="/grievance-redressal" class="text-heading hover-text-main-600">Grievance Redressal</NuxtLink>
+            </li>
+            <li class="mb-16">
+              <NuxtLink to="/cancellation-returns" class="text-heading hover-text-main-600">Cancellation & Returns</NuxtLink>
+            </li>
             <li class="">
               <NuxtLink to="/shop/shop-all" class="text-heading hover-text-main-600">Online Shopping</NuxtLink>
             </li>
           </ul>
         </div>
-
         <div class="footer-item" data-aos="fade-up" data-aos-duration="800">
           <h6 class="footer-item__title">My Account</h6>
           <ul class="footer-menu">

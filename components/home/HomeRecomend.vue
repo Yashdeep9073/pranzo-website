@@ -2,7 +2,7 @@
   <section class="recommended-section">
     <div class="container">
       <div class="section-heading">
-        <h2>Recommended for you</h2>
+        <h2>{{ filteredProducts.length > 0 ? 'Recommended for you' : '' }}</h2>
         <div class="category-tabs-container">
           <!-- Left Scroll Button -->
           <button 
@@ -23,7 +23,7 @@
                 @click="loadProductsForCategory('all')"
                 :disabled="isLoading && activeTab !== 'all'"
               >
-                <span class="tab-label">All</span>
+                <span class="tab-label">All Products</span>
               </button>
                
               <!-- Categories from API or Fallback -->
@@ -63,116 +63,144 @@
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-container">
         <div class="loading-spinner"></div>
-        <p>Loading products...</p>
       </div>
       
-      <!-- Products Grid -->
-      <div v-else-if="filteredProducts.length > 0" class="products-grid">
-        <div      
-          v-for="(product, index) in filteredProducts"
-          :key="product.groupId || `product-${index}`"
-          class="product-card"
-          :class="{ 'fallback-product': isFallbackProduct(product) }"
-         > 
-          <!-- Product Badges -->
-          <div class="product-badges">
-            <span v-if="hasDiscount(product)" class="badge sale">SALE</span>
-            <!-- <span v-if="isBestSeller(product)" class="badge best">BEST</span> -->
-            <!-- <span v-if="getProductStock(product) === 0" class="badge out-of-stock">OUT</span> -->
-            <!-- <span v-if="isFallbackProduct(product)" class="badge fallback">DEMO</span> -->
-          </div> 
-          
-          <!-- Wishlist Button -->
-          <button 
-            class="wishlist-btn"
-            @click="addToWishlist(product)"
-            :disabled="isLoading || isFallbackProduct(product)"
-            :title="isFallbackProduct(product) ? 'Demo mode' : isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'"
-            :class="{ 
-              'in-wishlist': isInWishlist(product),
-              'fallback-disabled': isFallbackProduct(product)
-            }"
+      <!-- Products Swiper Carousel -->
+      <div v-else-if="filteredProducts.length > 0" class="products-swiper-container">
+        <Swiper
+          :modules="[Pagination]"
+          :slides-per-view="1"
+          :space-between="20"
+          :pagination="{ clickable: true }"
+          :breakpoints="{
+            400: { slidesPerView: 2, spaceBetween: 10 },
+            576: { slidesPerView: 3, spaceBetween: 12 },
+            768: { slidesPerView: 4, spaceBetween: 14 },
+            992: { slidesPerView: 5, spaceBetween: 16 },
+            1200: { slidesPerView: 6, spaceBetween: 16 },
+            1400: { slidesPerView: 7, spaceBetween: 16 },
+            1600: { slidesPerView: 8, spaceBetween: 16 }
+          }"
+          class="products-swiper"
+        >
+          <SwiperSlide 
+            v-for="(product, index) in filteredProducts"
+            :key="product.groupId || `product-${index}`"
           >
-            <i :class="['ph', isInWishlist(product) ? 'ph-heart-fill' : 'ph-heart']"></i>
-          </button>
-          
-          <!-- Product Image -->
-          <div class="product-image-wrapper" :class="{ 'out-of-stock': getProductStock(product) === 0 }">
-            <img 
-              :src="getProductImage(product, index)"
-              :alt="getProductName(product)"
-              class="product-image"
-              @error="handleImageError($event, index)"
-              loading="lazy"
-            />
-          </div>
-          
-          <!-- Product Content -->
-          <NuxtLink
-            :to="getProductLink(product)"
-            class="text-decoration-none text-reset d-block"
-          >
-            <div class="product-content">
+            <div 
+              class="product-card"
+              :class="{ 'fallback-product': isFallbackProduct(product) }"
+            > 
+              <!-- Product Badges -->
+              <div class="product-badges">
+                <span v-if="hasDiscount(product)" class="badge sale">SALE</span>
+              </div> 
               
-              <!-- Product Title -->
-              <h3 class="product-title">
-                {{ getProductName(product) }}
-              </h3>
+              <!-- Wishlist Button -->
+              <button 
+                class="wishlist-btn"
+                @click="addToWishlist(product)"
+                :disabled="isLoading || isFallbackProduct(product)"
+                :title="isFallbackProduct(product) ? 'Demo mode' : isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                :class="{ 
+                  'in-wishlist': isInWishlist(product),
+                  'fallback-disabled': isFallbackProduct(product)
+                }"
+              >
+                <i :class="['ph', isInWishlist(product) ? 'ph-heart-fill' : 'ph-heart']"></i>
+              </button>
               
-              <!-- Rating -->
-              <div class="rating-section">
-                <div class="stars">
-                  <span v-for="star in 5" :key="star">
-                    <i 
-                      :class="[
-                        'ph',
-                        star <= Math.round(getProductRating(product))
-                          ? 'ph-star-fill text-yellow-400'
-                          : 'ph-star text-gray-300'
-                      ]"
-                    ></i>
-                  </span>
+              <!-- Product Image -->
+              <div class="product-image-wrapper" :class="{ 'out-of-stock': getProductStock(product) === 0 }">
+                <img 
+                  :src="getProductImage(product, index)"
+                  :alt="getProductName(product)"
+                  class="product-image"
+                  @error="handleImageError($event, index)"
+                  loading="lazy"
+                />
+              </div>
+              
+              <!-- Product Content -->
+              <NuxtLink
+                :to="getProductLink(product)"
+                class="text-decoration-none text-reset d-block"
+              >
+                <div class="product-content">
+                  
+                  <!-- Product Title -->
+                  <h3 class="product-title">
+                    {{ getProductName(product) }}
+                  </h3>
+                  
+                  <!-- Rating -->
+                  <div class="rating-section">
+                    <div class="stars">
+                      <span v-for="star in 5" :key="star">
+                        <i 
+                          :class="[
+                            'ph',
+                            star <= Math.round(getProductRating(product))
+                              ? 'ph-star-fill text-yellow-400'
+                              : 'ph-star text-gray-300'
+                          ]"
+                        ></i>
+                      </span>
+                    </div>
+                    <span class="rating-value">
+                      {{ getProductRating(product).toFixed(1) }}
+                    </span>
+                    <span class="review-count">
+                      ({{ getReviewCount(product) }})
+                    </span>
+                  </div>
+                  
+                  <!-- Price -->
+                  <div class="price-section">
+                    <div class="price-wrapper">
+                      <span class="current-price">
+                        ₹{{ Math.floor(getDiscountedPrice(product)) }}
+                      </span>
+                      <span v-if="hasDiscount(product)" class="original-price">
+                         ₹{{ Math.floor(getOriginalPrice(product)) }}
+                      </span>
+                    </div>
+                    <span v-if="hasDiscount(product)" class="discount-percentage">
+                      {{ getDiscountPercentage(product) }}% off
+                    </span>
+                  </div>
+                  
+                  <!-- Stock Status -->
+                  <div class="stock-status">
+                    <span v-if="getProductStock(product) > 10" class="in-stock">
+                      Available
+                    </span>
+                    <span v-else-if="getProductStock(product) > 0" class="low-stock">
+                      {{ getProductStock(product) }} left
+                    </span>
+                    <span v-else class="out-of-stock">
+                      Out of stock
+                    </span>
+                  </div>
+
+                  <!-- Add to Cart Button -->
+                  <button 
+                    @click.stop="handleAddToCart(product)"
+                    :disabled="isFallbackProduct(product) || getProductStock(product) === 0 || isAddingToCart"
+                    class="add-to-cart-btn"
+                    :class="{ 'disabled': isFallbackProduct(product) || getProductStock(product) === 0 || isAddingToCart }"
+                  >
+                    <i v-if="!isAddingToCart" class="ph ph-shopping-cart"></i>
+                    <i v-else class="ph ph-spinner-gap animate-spin"></i>
+                    {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
+                  </button>
+
                 </div>
-                <span class="rating-value">
-                  {{ getProductRating(product).toFixed(1) }}
-                </span>
-                <span class="review-count">
-                  ({{ getReviewCount(product) }})
-                </span>
-              </div>
-              
-              <!-- Price -->
-              <div class="price-section">
-                <div class="price-wrapper">
-                  <span class="current-price">
-                    ₹{{ Math.floor(getDiscountedPrice(product)) }}
-                  </span>
-                  <span v-if="hasDiscount(product)" class="original-price">
-                     ₹{{ Math.floor(getOriginalPrice(product)) }}
-                  </span>
-                </div>
-                <span v-if="hasDiscount(product)" class="discount-percentage">
-                  {{ getDiscountPercentage(product) }}% off
-                </span>
-              </div>
-              
-              <!-- Stock Status -->
-              <div class="stock-status">
-                <span v-if="getProductStock(product) > 10" class="in-stock">
-                  In stock
-                </span>
-                <span v-else-if="getProductStock(product) > 0" class="low-stock">
-                  Only {{ getProductStock(product) }} left
-                </span>
-                <span v-else class="out-of-stock">
-                  Out of stock
-                </span>
-              </div>
+              </NuxtLink>
 
             </div>
-          </NuxtLink>
-
-        </div>
+          </SwiperSlide>
+        </Swiper>
       </div>
       
       <!-- Empty State -->
@@ -180,23 +208,13 @@
         <div class="empty-icon">
           <i class="ph ph-package text-5xl text-gray-400"></i>
         </div> 
-        <h3>No products found</h3>
-        <p v-if="activeTab !== 'all'">
-          No products available in {{ getActiveCategoryName() }} category yet.
-        </p>
-        <p v-else>
-          Try selecting a different category or check back later.
-        </p>
-        <button @click="useDemoProducts" class="demo-btn" v-if="errorMessage">
-          Try Demo Products
-        </button>
       </div>
       
       <!-- View More Button -->
       <div v-if="filteredProducts.length > 0 && pagination.total > pagination.perPage" class="view-more-container">
         <button @click="viewMoreProducts" class="view-more-btn" :disabled="isLoading">
           <i class="ph ph-arrow-down mr-2"></i>
-          View More Products
+          View More
         </button>
       </div>
       
@@ -214,10 +232,18 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRecommendStore } from '../../store/useRecommendStore'
 import { useWishlistStore } from '../../store/useWishlistStore'
 import { useToast } from "vue-toastification"
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination } from 'swiper/modules'
+import { useCart } from '~/composables/api/useCart'
+
+/* Import Swiper styles */
+import 'swiper/css'
+import 'swiper/css/pagination'
 
 const toast = useToast()
 const recommendStore = useRecommendStore()
 const wishlistStore = useWishlistStore()
+const { addToCart } = useCart()
 
 // State
 const activeTab = ref('all')
@@ -226,6 +252,7 @@ const errorMessage = ref('')
 const currentPage = ref(1)
 const productsPerPage = 10
 const isFallbackData = ref(false)
+const isAddingToCart = ref(false) // Prevent multiple clicks
 
 // Tab scrolling
 const tabsContainer = ref(null)
@@ -251,21 +278,10 @@ const isFallbackProduct = (product) => {
 const handleImageError = (event, index) => {
   //console.log('Image failed to load, using fallback:', event.target.src)
   
-  // Use different fallback based on index
-  const fallbackImages = [
-    '/assets/images/flashsale/camera.webp',
-    '/assets/images/flashsale/earbuds.jpg', 
-    '/assets/images/flashsale/jean.jpg',
-    '/assets/images/flashsale/jeans-and-tshirt.jpg',
-    '/assets/images/flashsale/mobile.jpg',
-    '/assets/images/flashsale/sandal-women.jpg',
-    '/assets/images/buysection/sneaker.jpg',
-    '/assets/images/buysection/women-kurti.jpg'
-  ]
-  
-  const fallbackIndex = index % fallbackImages.length
-  event.target.src = fallbackImages[fallbackIndex]
-  event.target.onerror = null // Prevent infinite loop
+  // Hide broken image
+  const img = event.target
+  img.style.display = 'none'
+  img.onerror = null // Prevent infinite loop
 }
 
 // Get product link
@@ -295,7 +311,7 @@ onMounted(async () => {
     activeTab.value = 'all'
     await recommendStore.fetchProducts({
       page: 1,
-      limit: productsPerPage,
+      limit: 10, // Limit to 10 products
       category: null, 
       sortBy: 'popularity'
     })
@@ -381,7 +397,7 @@ const loadProductsForCategory = async (categoryId) => {
     
     await recommendStore.fetchProducts({
       page: 1,
-      limit: productsPerPage,
+      limit: 10, // Limit to 10 products
       category: categoryName,
       sortBy: 'popularity'
     })
@@ -392,194 +408,6 @@ const loadProductsForCategory = async (categoryId) => {
   } finally {
     isLoading.value = false
   }
-}
-
-// Use demo products manually
-const useDemoProducts = async () => {
-  isLoading.value = true
-  isFallbackData.value = true
-  
-  // Force use fallback data
-  recommendStore.categories = [
-    { id: 'all', name: 'All', productCount: 6, hasProducts: true },
-    { id: '10', name: 'Electronics', productCount: 2, hasProducts: true },
-    { id: '7', name: 'Footwear', productCount: 1, hasProducts: true },
-    { id: '1', name: 'Fashion', productCount: 1, hasProducts: true },
-    { id: '5', name: 'Accessories', productCount: 1, hasProducts: true },
-    { id: '8', name: 'Personal Care', productCount: 1, hasProducts: true },
-    { id: '9', name: 'Home & Kitchen', productCount: 1, hasProducts: true },
-    { id: '11', name: 'Sports & Fitness', productCount: 1, hasProducts: true },
-    { id: '12', name: 'Books', productCount: 1, hasProducts: true },
-    { id: '13', name: 'Toys & Games', productCount: 1, hasProducts: true },
-    { id: '14', name: 'Beauty', productCount: 1, hasProducts: true },
-    { id: '15', name: 'Automotive', productCount: 1, hasProducts: true }
-  ]
-  
-  // Use fallback products
-  recommendStore.products = [
-    {
-      groupId: 'demo-1',
-      name: 'Wireless Headphones',
-      mainProduct: {
-        id: 'demo-1',
-        name: 'Wireless Headphones',
-        price: 2499,
-        discountValue: 15,
-        stock: 50,
-        popularity: 85
-      },
-      category: { name: 'Electronics', id: '10' }
-    },
-    {
-      groupId: 'demo-2',
-      name: 'Sports Sneakers',
-      mainProduct: {
-        id: 'demo-2',
-        name: 'Sports Sneakers',
-        price: 2999,
-        discountValue: 20,
-        stock: 30,
-        popularity: 90
-      },
-      category: { name: 'Footwear', id: '7' }
-    },
-    {
-      groupId: 'demo-3',
-      name: 'Casual T-Shirt',
-      mainProduct: {
-        id: 'demo-3',
-        name: 'Casual T-Shirt',
-        price: 799,
-        discountValue: 10,
-        stock: 100,
-        popularity: 75
-      },
-      category: { name: 'Fashion', id: '1' }
-    },
-    {
-      groupId: 'demo-4',
-      name: 'Smart Watch',
-      mainProduct: {
-        id: 'demo-4',
-        name: 'Smart Watch',
-        price: 5999,
-        discountValue: 25,
-        stock: 20,
-        popularity: 95
-      },
-      category: { name: 'Electronics', id: '10' }
-    },
-    {
-      groupId: 'demo-5',
-      name: 'Backpack',
-      mainProduct: {
-        id: 'demo-5',
-        name: 'Backpack',
-        price: 1299,
-        discountValue: 0,
-        stock: 40,
-        popularity: 65
-      },
-      category: { name: 'Accessories', id: '5' }
-    },
-    {
-      groupId: 'demo-6',
-      name: 'Perfume',
-      mainProduct: {
-        id: 'demo-6',
-        name: 'Perfume',
-        price: 1599,
-        discountValue: 30,
-        stock: 25,
-        popularity: 80
-      },
-      category: { name: 'Personal Care', id: '8' }
-    },
-    {
-      groupId: 'demo-7',
-      name: 'Bluetooth Speaker',
-      mainProduct: {
-        id: 'demo-7',
-        name: 'Bluetooth Speaker',
-        price: 1999,
-        discountValue: 20,
-        stock: 35,
-        popularity: 85
-      },
-      category: { name: 'Electronics', id: '10' }
-    },
-    {
-      groupId: 'demo-8',
-      name: 'Running Shoes',
-      mainProduct: {
-        id: 'demo-8',
-        name: 'Running Shoes',
-        price: 3499,
-        discountValue: 15,
-        stock: 25,
-        popularity: 88
-      },
-      category: { name: 'Footwear', id: '7' }
-    },
-    {
-      groupId: 'demo-9',
-      name: 'Sunglasses',
-      mainProduct: {
-        id: 'demo-9',
-        name: 'Sunglasses',
-        price: 1299,
-        discountValue: 30,
-        stock: 60,
-        popularity: 70
-      },
-      category: { name: 'Accessories', id: '5' }
-    },
-    {
-      groupId: 'demo-10',
-      name: 'Yoga Mat',
-      mainProduct: {
-        id: 'demo-10',
-        name: 'Yoga Mat',
-        price: 899,
-        discountValue: 10,
-        stock: 45,
-        popularity: 75
-      },
-      category: { name: 'Sports & Fitness', id: '11' }
-    }
-  ]
-  
-  recommendStore.pagination = {
-    currentPage: 1,
-    lastPage: 1,
-    total: 10,
-    perPage: 10
-  }
-  
-  isLoading.value = false
-  
-  // Check scroll buttons after adding more categories
-  nextTick(() => {
-    checkScrollButtons()
-  })
-  
-  toast.info('Showing demo products', {
-    position: 'top-center',
-    timeout: 2000
-  })
-}
-
-// Helper functions
-const getCategoryName = (categoryId) => {
-  if (categoryId === 'all') return null
-  const category = allCategories.value.find(cat => cat.id === categoryId)
-  return category?.name || null
-}
-
-const getActiveCategoryName = () => {
-  if (activeTab.value === 'all') return 'All'
-  const category = allCategories.value.find(cat => cat.id === activeTab.value)
-  return category?.name || 'Selected'
 }
 
 // View more products
@@ -655,6 +483,76 @@ const getReviewCount = (product) => recommendStore.getReviewCount?.(product) || 
 const hasDiscount = (product) => recommendStore.hasDiscount(product)
 const getDiscountPercentage = (product) => recommendStore.getDiscountPercentage(product)
 const isBestSeller = (product) => recommendStore.isBestSeller(product)
+
+// Helper function to get category name by ID
+const getCategoryName = (categoryId) => {
+  if (categoryId === 'all') return null
+  
+  const category = allCategories.value.find(cat => 
+    cat.id === categoryId || cat.id.toString() === categoryId.toString()
+  )
+  
+  return category?.name || null
+}
+
+// Cart functionality
+const handleAddToCart = (product) => {
+  console.log('handleAddToCart called with product:', product)
+  
+  // Prevent multiple clicks
+  if (isAddingToCart.value) {
+    console.log('Already adding to cart, preventing duplicate call')
+    return
+  }
+  
+  // Extract the actual product data from the nested structure
+  const actualProduct = product.mainProduct || product
+  
+  if (!actualProduct || !actualProduct.id) {
+    console.error('Invalid product:', actualProduct)
+    toast.error("Invalid product data", {
+      position: "top-center",
+      timeout: 2000,
+      hideProgressBar: true
+    })
+    return
+  }
+  
+  if (isFallbackProduct(product)) {
+    console.log('Product is fallback, skipping cart addition')
+    toast.info("Demo mode - Cannot add to cart", {
+      position: "top-center", 
+      timeout: 2000,
+      hideProgressBar: true
+    })
+    return
+  }
+  
+  // Set flag to prevent multiple clicks
+  isAddingToCart.value = true
+  
+  try {
+    console.log('Adding to cart:', actualProduct)
+    addToCart(actualProduct)
+    toast.success("Added to cart!", {
+      position: "top-center",
+      timeout: 1500,
+      hideProgressBar: true
+    })
+  } catch (error) {
+    console.error('Error adding to cart:', error)
+    toast.error("Failed to add to cart", {
+      position: "top-center",
+      timeout: 2000,
+      hideProgressBar: true
+    })
+  } finally {
+    // Reset flag after a short delay
+    setTimeout(() => {
+      isAddingToCart.value = false
+    }, 500)
+  }
+}
 
 // Add resize listener
 onMounted(() => {
@@ -757,6 +655,43 @@ onUnmounted(() => {
 
 .stock-status .out-of-stock {
   color: #dc2626;
+}
+
+/* ==================== ADD TO CART BUTTON ==================== */
+.add-to-cart-btn {
+  background: linear-gradient(135deg, #1b6db5 0%, #2a8ce6 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.add-to-cart-btn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #1558a8 0%, #1e7bc8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 109, 181, 0.3);
+}
+
+.add-to-cart-btn.disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.add-to-cart-btn i {
+  font-size: 1rem;
 }
 
 .review-count {
@@ -972,6 +907,39 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
+/* ==================== PRODUCTS SWIPER ==================== */
+.products-swiper-container {
+  padding: 20px 0;
+}
+
+.products-swiper {
+  padding: 0 20px;
+}
+
+.products-swiper .swiper {
+  overflow: visible;
+}
+
+.products-swiper .swiper-slide {
+  height: auto;
+}
+
+/* Swiper Pagination */
+.products-swiper .swiper-pagination {
+  bottom: -30px;
+}
+
+.products-swiper .swiper-pagination-bullet {
+  background: #d1d5db;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.products-swiper .swiper-pagination-bullet-active {
+  background: #1b6db5;
+  transform: scale(1.2);
+}
+
 /* ==================== PRODUCTS GRID ==================== */
 .products-grid {
   display: grid;
@@ -1113,6 +1081,7 @@ onUnmounted(() => {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 40px;
@@ -1284,6 +1253,7 @@ onUnmounted(() => {
     line-height: 1.3;
     min-height: 32px;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .price-wrapper {
@@ -1372,6 +1342,7 @@ onUnmounted(() => {
     font-size: 0.7rem;
     min-height: 28px;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   
   .price-section {

@@ -1,23 +1,16 @@
 <template>
-  <section class="hero-banner">
-    <!-- Loading State -->
-    <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading banner...</p>
-    </div>
-
-    <!-- Main Banner (always shows, with fallback) -->
-    <div class="banner-main" :class="{ 'has-error': error }">
+  <section v-if="!loading && banners.length > 0" class="hero-banner">
+    <div class="banner-main">
       <div class="banner-slider">
         <div class="slide active">
           <!-- Background Image -->
           <Transition name="slide" mode="out-in">
             <img 
+              v-if="currentBanner"
               :key="currentBanner.image"
               :src="currentBanner.image" 
               :alt="currentBanner.title"
               class="banner-image"
-              @error="handleImageError"
             />
           </Transition>
           
@@ -26,19 +19,14 @@
           
           <!-- Content -->
           <Transition name="slide-content" mode="out-in">
-          <div class="content" :key="currentBanner.title">
+          <div v-if="currentBanner" class="content" :key="currentBanner.title">
             <span class="subtitle">{{ currentBanner.description }}</span>
             <h1 class="title">{{ currentBanner.title }}</h1>
             <NuxtLink to="/shop/shop-all">
-              <button class="shop-btn">Shop Now →</button>
+              <button class="shop-btn">Shop Now</button>
             </NuxtLink>
           </div>
           </Transition>
-          
-          <!-- Error Indicator (small, non-blocking) -->
-          <div v-if="error" class="error-indicator">
-            <!-- <small>⚠️ Using local image</small> -->
-          </div>
         </div>
 
         <!-- Navigation Arrows -->
@@ -48,7 +36,7 @@
           @click="prevBanner" 
           aria-label="Previous banner"
         >
-          <span class="nav-icon">‹</span>
+          <span class="nav-icon">←</span>
         </button>
         <button 
           v-show="banners.length > 1"
@@ -56,13 +44,8 @@
           @click="nextBanner" 
           aria-label="Next banner"
         >
-          <span class="nav-icon">›</span>
+          <span class="nav-icon">→</span>
         </button>
-        
-        <!-- Debug info -->
-        <div v-if="false" class="debug-info" style="position: absolute; top: 10px; left: 10px; background: red; color: white; padding: 5px; z-index: 100;">
-          Banners: {{ banners.length }} | Current: {{ currentIndex }}
-        </div>
       </div>
     </div>
   </section>
@@ -72,40 +55,22 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useMediaApi } from '~/composables/api/useMediaApi'
 
-// Fallback banner data (ALWAYS available)
-const fallbackBanner = {
-  id: 1,
-  title: 'LIVE MORE BUY MORE',
-  description: 'BUY SAFE SAVE MORE',
-  image: '/assets/images/festivel.jpg',
-  category: 'HEROSECTION'
-}
-
-// Banners list (starts with fallback)
-const banners = ref([{ ...fallbackBanner }])
+// Banners list (starts empty)
+const banners = ref<Array<{
+  id: number
+  title: string
+  description: string
+  image: string
+  category: string
+}>>([])
 const currentIndex = ref(0)
-const currentBanner = computed(() => banners.value[currentIndex.value] || fallbackBanner)
+const currentBanner = computed(() => banners.value[currentIndex.value] || null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const autoTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
 // Initialize API hooks
 const { fetchMedia } = useMediaApi()
-
-// Handle image loading errors
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.src = '/assets/images/nowcategory/festivel.jpg'
-  img.onerror = null // Prevent infinite loop
-}
-
-// Resolve image URLs from API (fallback to local)
-const resolveImageUrl = (image?: string) => {
-  if (!image) return fallbackBanner.image
-  if (image.startsWith('http')) return image
-  if (image.startsWith('/')) return image
-  return image
-}
 
 // Normalize category strings for matching
 const normalizeCategory = (value?: string) => {
@@ -167,7 +132,7 @@ const fetchBanners = async () => {
     if (sliderItems.length > 0) {
       const apiBanners = sliderItems.map((item: any) => {
         // Try different possible URL fields
-        let imageUrl = item.url || item.imageUrl || item.image || item.src || fallbackBanner.image
+        let imageUrl = item.url || item.imageUrl || item.image || item.src || ''
         
         // If the URL is relative, construct full URL
         if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
@@ -176,8 +141,8 @@ const fetchBanners = async () => {
         
         return {
           id: item.id,
-          title: item.title || fallbackBanner.title,
-          description: item.description || item.alt || fallbackBanner.description,
+          title: item.title || '',
+          description: item.description || item.alt || '',
           image: imageUrl,
           category: 'HEROSECTION'
         }
@@ -188,13 +153,13 @@ const fetchBanners = async () => {
       error.value = null
     } else {
       error.value = 'No slider category media found'
-      banners.value = [{ ...fallbackBanner }]
+      banners.value = []
       currentIndex.value = 0
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     error.value = errorMessage
-    banners.value = [{ ...fallbackBanner }]
+    banners.value = []
     currentIndex.value = 0
   } finally {
     loading.value = false
@@ -203,13 +168,9 @@ const fetchBanners = async () => {
   }
 }
 
-// Initialize - ALWAYS shows banner immediately
+// Initialize - fetch banners from API
 onMounted(() => {
-  // Show fallback immediately
-  banners.value = [{ ...fallbackBanner }]
-  currentIndex.value = 0
-  
-  // Try to fetch slider media from API in background
+  // Try to fetch slider media from API
   fetchBanners()
   
   // Also try again after 3 seconds if failed

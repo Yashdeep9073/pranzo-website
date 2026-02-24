@@ -116,13 +116,13 @@
 
 <script lang="ts">
 import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
-// import { useOffersApi } from '~/composables/api/useOffersApi'
-import { useOffers } from '~/composables/useOffers'
+import { useOffersApi } from '~/composables/api/useOffersApi'
+import { useCart } from '~/composables/api/useCart'
 
 export default {
   name: 'HomeFlash',
   setup() {
-    const { offers, loading, error, fetchAllOffers, getOffersByType } = useOffers()
+    const { offers, loading, error, refresh: fetchAllOffers } = useOffersApi()
     const activeOffer = computed(() => {
       if (!offers.value) return null
 
@@ -183,9 +183,7 @@ export default {
     // Fetch limited time offers on mount
     onMounted(async () => {
       try {
-        await fetchAllOffers('FLASH_SALE') // Fetch limited time offers
-        console.log('📊 [HomeFlash] Offers fetched:', offers.value?.length || 0)
-        console.log('📊 [HomeFlash] Display products:', displayProducts.value?.length || 0)
+        await fetchAllOffers() // Fetch all offers
       } catch (err) {
         console.error('❌ [HomeFlash] Failed to fetch offers:', err)
       }
@@ -222,7 +220,6 @@ export default {
             1200: { slidesPerView: 5, spaceBetween: 16 },
             1400: { slidesPerView: 5, spaceBetween: 16 },
           },
-          on: { init() { console.log('Swiper initialized successfully') } },
         })
       } catch (error) {
         console.error('Error initializing Swiper:', error)
@@ -250,12 +247,21 @@ export default {
       try { const date = new Date(dateString); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }
       catch { return 'Limited time' }
     }
-    const getProductImage = (product: any) => product.image || product.images?.[0]?.imageUrl || '/assets/images/buysection/default.jpg'
+    const getProductImage = (product: any) => product.image || product.images?.[0]?.imageUrl || '/assets/images/buysection/shirt.jpg'
     const calculateDiscountedPrice = (original: number, discount: number) => Math.round(original * (1 - discount / 100))
     const getRandomSoldPercentage = () => Math.floor(Math.random() * 30) + 70
     const getRandomAvailable = () => Math.floor(Math.random() * 20) + 5
-    const handleImageError = (event: any) => { event.target.src = '/assets/images/buysection/default.jpg' }
-    const addToCart = (product: any) => { console.log('Added to cart:', product.name) }
+    const handleImageError = (event: any) => { 
+  if (event.target.src !== '/assets/images/buysection/shirt.jpg') {
+    event.target.src = '/assets/images/buysection/shirt.jpg'
+  }
+  event.target.onerror = null // Prevent infinite loop
+}
+    const addToCart = (product: any) => { 
+      const { addToCart: cartAdd } = useCart()
+      cartAdd(product)
+      console.log('Product added to cart:', product.name)
+    }
     const formatDiscountText = (offer: any) => `${offer.discountValue}% OFF`
 
     return {

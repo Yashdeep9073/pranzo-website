@@ -20,6 +20,7 @@
         :space-between="spaceBetween"
         :free-mode="true"
         :breakpoints="breakpoints"
+        :loop="false"
         class="category-swiper"
       >
         <swiper-slide
@@ -92,14 +93,8 @@ const breakpoints = {
   }
 }
 
-const fallbackImage =
-  'https://via.placeholder.com/300x300?text=Category'
-
 const config = useRuntimeConfig()
-//console.log('🔍 [HomeCategory] Config loaded:', config.public)
-//console.log('🔍 [HomeCategory] apiCategories value:', config.public.apiCategories)
 const API_URL = config.public.apiCategories 
-//console.log('🔍 [HomeCategory] Final API_URL:', API_URL)
 
 const fetchCategories = async () => {
   try {

@@ -122,9 +122,9 @@
                     </td>
                     <td>
                       <div class="d-flex flex-column gap-4">
-                        <span class="text-lg h6 mb-0 fw-semibold">₹{{ item.price.toFixed(2) }}</span>
+                        <span class="text-lg h6 mb-0 fw-semibold">₹{{ parseFloat(item.price).toFixed(2) }}</span>
                         <span v-if="item.discounted" class="text-sm text-gray-500 text-decoration-line-through">
-                          ₹{{ item.originalPrice?.toFixed(2) || item.price.toFixed(2) }}
+                          ₹{{ item.originalPrice ? parseFloat(item.originalPrice).toFixed(2) : parseFloat(item.price).toFixed(2) }}
                         </span>
                       </div>
                     </td>
@@ -163,7 +163,7 @@
                     </td>
                     <td>
                       <span class="text-lg h6 mb-0 fw-semibold text-main-600">
-                        ₹{{ (item.price * item.quantity).toFixed(2) }}
+                        ₹{{ (parseFloat(item.price) * item.quantity).toFixed(2) }}
                       </span>
                     </td>
                   </tr>
@@ -198,10 +198,12 @@
                 </NuxtLink>
                 <button 
                   type="button" 
-                  class="text-lg text-gray-500 hover-text-main-600 transition-colors"
+                  class="clear-cart-btn text-lg hover-text-danger-600 transition-all duration-300 transform hover:scale-105"
                   @click="clearCart"
                 >
-                  <i class="ph ph-trash me-2"></i> Clear Cart
+                  <i class="ph ph-trash me-2"></i> 
+                  <span>Clear Cart</span>
+                  <div class="clear-cart-underline"></div>
                 </button>
               </div>
             </div>
@@ -334,7 +336,7 @@ const cartItemCount = computed(() => {
 })
 
 const subtotal = computed(() => {
-  return cartItems.value.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  return cartItems.value.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
 })
 
 const deliveryCharge = computed(() => {
@@ -457,10 +459,32 @@ const updateQuantity = (itemId, event) => {
 }
 
 const clearCart = () => {
-  if (confirm('Are you sure you want to clear your entire cart?')) {
-    cartItems.value = []
-    localStorage.removeItem('shopping_cart')
-  }
+  Swal.fire({
+    title: 'Clear Cart?',
+    text: 'Are you sure you want to remove all items from your cart?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, clear it!',
+    cancelButtonText: 'Cancel',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      cartItems.value = []
+      localStorage.removeItem('shopping_cart')
+      
+      // Show success message
+      Swal.fire({
+        title: 'Cart Cleared!',
+        text: 'All items have been removed from your cart.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+        position: 'top-center'
+      })
+    }
+  })
 }
 
 const applyCoupon = () => {
@@ -820,5 +844,63 @@ onUnmounted(() => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ==================== ENHANCED CLEAR CART BUTTON ==================== */
+.clear-cart-btn {
+  position: relative;
+  background: transparent;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.clear-cart-btn:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+.clear-cart-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+}
+
+.clear-cart-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  transition: width 0.3s ease;
+}
+
+.clear-cart-btn:hover .clear-cart-underline {
+  width: 100%;
+}
+
+.clear-cart-btn i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.clear-cart-btn:hover i {
+  transform: scale(1.1);
+}
+
+.clear-cart-btn span {
+  position: relative;
+  z-index: 1;
 }
 </style>

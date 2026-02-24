@@ -15,7 +15,7 @@
                 :autoplay="{ delay: 3000, disableOnInteraction: false }"
                 :slides-per-view="4"
                 :space-between="44"
-                :loop="true"
+                :loop="featuredProducts.length >= 4"
                 class="h-500"
               >
                 <SwiperSlide v-for="product in featuredProducts" :key="product.id">
@@ -63,7 +63,7 @@
                 :autoplay="{ delay: 3500, disableOnInteraction: false }"
                 :slides-per-view="4"
                 :space-between="44"
-                :loop="true"
+                :loop="topSellingProducts.length >= 4"
                 class="h-500"
               >
                 <SwiperSlide v-for="product in topSellingProducts" :key="product.id">
@@ -111,7 +111,7 @@
                 :autoplay="{ delay: 4000, disableOnInteraction: false }"
                 :slides-per-view="4"
                 :space-between="44"
-                :loop="true"
+                :loop="onSaleProducts.length >= 4"
                 class="h-500"
               >
                 <SwiperSlide v-for="product in onSaleProducts" :key="product.id">
@@ -228,9 +228,10 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/autoplay'
-import { ref, onMounted, onUnmounted, computed } from 'vue' 
-import { useProductsApi } from '@/composables/api/useProductsApi'
+import { ref, computed, onMounted } from 'vue'
 import { useOffersApi } from '@/composables/api/useOffersApi'
+import { useProductsApi } from '@/composables/api/useProductsApi'
+import { useCart } from '~/composables/api/useCart'
 
 // Fetch products from backend
 const { products: apiProducts, loading, error, refresh } = useProductsApi({
@@ -243,64 +244,6 @@ const { offers: apiOffers, loading: offersLoading, error: offersError, refresh: 
   offerType: 'DAILY_DEALS',
   isActive: true,
 })
-
-// Static fallback data
-const staticFeaturedProducts = [
-  {
-    id: 1,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img1.png"
-  },
-  {
-    id: 2,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img2.png"
-  },
-  {
-    id: 3,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img3.png"
-  },
-  {
-    id: 4,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img4.png"
-  },
-  {
-    id: 5,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img1.png"
-  },
-  {
-    id: 6,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img2.png"
-  }
-]
 
 const staticTopSellingProducts = [
   {
@@ -355,64 +298,7 @@ const staticTopSellingProducts = [
     reviews: '17k',
     price: '1500.00',
     originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img6.png"
-  }
-]
-
-const staticOnSaleProducts = [
-  {
-    id: 1,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img9.png"
-  },
-  {
-    id: 2,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img4.png"
-  },
-  {
-    id: 3,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img7.png"
-  },
-  {
-    id: 4,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img4.png"
-  },
-  {
-    id: 5,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img9.png"
-  },
-  {
-    id: 6,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img4.png"
+    image: "/assets/images/thumbs/short-product-img5.png"
   }
 ]
 
@@ -422,14 +308,14 @@ const featuredProducts = computed(() => {
     return apiProducts.value.slice(0, 6).map(product => ({
       id: product.id,
       name: product.name,
-      rating: product.rating || 4.8,
-      reviews: product.reviews || '17k',
+      rating: product.rating || 0,
+      reviews: product.reviews || '0',
       price: product.price,
       originalPrice: product.originalPrice || product.price,
-      image: product.images?.[0]?.imageUrl || "/assets/images/thumbs/short-product-img1.png"
+      image: product.images?.[0]?.imageUrl || ''
     }))
   }
-  return staticFeaturedProducts
+  return []
 })
 
 const topSellingProducts = computed(() => {
@@ -437,14 +323,14 @@ const topSellingProducts = computed(() => {
     return apiProducts.value.slice(0, 6).map(product => ({
       id: product.id,
       name: product.name,
-      rating: product.rating || 4.8,
-      reviews: product.reviews || '17k',
+      rating: product.rating || 0,
+      reviews: product.reviews || '0',
       price: product.price,
       originalPrice: product.originalPrice || product.price,
-      image: product.images?.[0]?.imageUrl || "/assets/images/thumbs/short-product-img5.png"
+      image: product.images?.[0]?.imageUrl || ''
     }))
   }
-  return staticTopSellingProducts
+  return []
 })
 
 const onSaleProducts = computed(() => {
@@ -452,14 +338,14 @@ const onSaleProducts = computed(() => {
     return apiProducts.value.slice(0, 6).map(product => ({
       id: product.id,
       name: product.name,
-      rating: product.rating || 4.8,
-      reviews: product.reviews || '17k',
+      rating: product.rating || 0,
+      reviews: product.reviews || '0',
       price: product.price,
       originalPrice: product.originalPrice || product.price,
-      image: product.images?.[0]?.imageUrl || "/assets/images/thumbs/short-product-img9.png"
+      image: product.images?.[0]?.imageUrl || ''
     }))
   }
-  return staticOnSaleProducts
+  return []
 })
 
 // Wishlist state
@@ -472,14 +358,15 @@ const toggleWishlist = () => {
 
 // Add to cart function
 const addToCart = (product) => {
-  console.log('Added to cart:', product)
+  const { addToCart: cartAdd } = useCart()
+  cartAdd(product)
+  console.log('Added to cart:', product.name)
 }
 
 // Week Deal Product from Offers API
 const weekDealProduct = computed(() => {
   if (apiOffers.value.length > 0) {
     const dailyDealOffer = apiOffers.value[0] // Get first daily deal offer
-    console.log('🔍 [HomeShortProduct] Daily Deal offer found:', dailyDealOffer)
     
     // Check if offer has products
     if (dailyDealOffer.products && dailyDealOffer.products.length > 0) {
@@ -566,8 +453,6 @@ const updateCountdown = () => {
       const m = Math.floor((diff % 3600000) / 60000)
       const s = Math.floor((diff % 60000) / 1000)
       
-      console.log('🔍 [HomeShortProduct] Using DAILY_DEAL offer dates - Start:', offer.startDate, 'End:', offer.endDate, 'Countdown:', {d, h, m, s})
-      
       weekDealCountdown.value = {
         days: String(d).padStart(2, '0'),
         hours: String(h).padStart(2, '0'),
@@ -575,7 +460,6 @@ const updateCountdown = () => {
         seconds: String(s).padStart(2, '0')
       }
     } else {
-      console.log('🔍 [HomeShortProduct] Daily Deal has expired')
       weekDealCountdown.value = {
         days: '00',
         hours: '00',
@@ -584,8 +468,6 @@ const updateCountdown = () => {
       }
     }
   } else {
-    // Fallback to hardcoded countdown if no dates available
-    console.log('🔍 [HomeShortProduct] No valid dates in Daily Deal, using fallback countdown')
     
     let seconds = parseInt(weekDealCountdown.value.seconds)
     let minutes = parseInt(weekDealCountdown.value.minutes)
@@ -625,10 +507,7 @@ const updateCountdown = () => {
 // Update countdown timers
 let countdownInterval
 
-onMounted(() => {
-  // Debug countdown initialization
-  console.log('🔍 [HomeShortProduct] Daily Deal Countdown initialized:', weekDealCountdown.value)
-  
+onMounted(() => {  
   // Initial update
   updateCountdown()
   

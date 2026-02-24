@@ -2,13 +2,11 @@
   <!-- hide entire block if no HOT_DEALS -->
   <section v-if="showSection" class="hot-deals pt-80 overflow-hidden">
     <div class="container container-lg">
-
       <!-- HEADER -->
       <div class="section-heading flex-between mb-24">
         <h5 class="mb-0">
           {{ activeOffer?.name }}
         </h5>
-
         <!-- COUNTDOWN -->
         <ul v-if="countdown" class="countdown-list d-flex gap-12">
           <li><span>{{ countdown.days }}</span>D</li>
@@ -17,28 +15,23 @@
           <li><span>{{ countdown.seconds }}</span>S</li>
         </ul>
       </div>
-
       <div class="equal-height-grid">
-
         <!-- LEFT BANNER -->
         <div class="banner-column">
           <div class="deal-banner rounded-16 overflow-hidden position-relative h-100">
             <div class="banner-image-wrapper h-100">
-              <img :src="activeOffer?.images?.[0]?.imageUrl || '/assets/images/thumbs/basket-img.png'" :alt="activeOffer?.name || 'Hot Deal'" class="banner-img w-100 h-100" />
+              <img :src="activeOffer?.images?.[0]?.imageUrl || '/assets/images/thumbs/basket-img.png'" :alt="activeOffer?.name" class="banner-img w-100 h-100" />
               <div class="banner-gradient-overlay"></div>
             </div>
-            
             <div class="banner-content-wrapper">
               <div class="banner-badge">
                 <i class="ph ph-fire"></i>
                 <span>Hot Deal</span>
               </div>
-              
               <div class="banner-text-content">
-                <h5 class="banner-heading mb-8">{{ activeOffer?.name || 'Hot Deal' }}</h5>
-                <p class="banner-desc mb-12">{{ activeOffer?.description || 'Special discount on selected items' }}</p>
-              </div>
-              
+                <h5 class="banner-heading mb-8">{{ activeOffer?.name }}</h5>
+                <p class="banner-desc mb-12">{{ activeOffer?.description }}</p>
+              </div>             
               <div class="banner-discount-wrapper">
                 <div class="discount-badge">
                   {{ activeOffer?.discountType === 'PERCENTAGE'
@@ -50,12 +43,10 @@
             </div>
           </div>
         </div>
-
         <!-- PRODUCTS -->
         <div class="products-column">
           <div class="products-container h-100">
             <div class="row g-12 h-100">
-
               <div v-for="product in products" :key="product.id" class="col-6 col-md-4 col-lg-4 col-xl-3">
                 <div class="product-card border rounded-16 overflow-hidden h-100">
                   <div class="product-image-container">
@@ -68,54 +59,37 @@
                       </div>
                     </NuxtLink>
                   </div>
-                  
                   <div class="product-content p-16">
                     <h6 class="mb-6 product-title">
                       <NuxtLink :to="`/product/${product.id}`" class="product-name-link">
                         {{ product.name }}
                       </NuxtLink>
-                    </h6>
-                    
+                    </h6>                  
                     <div class="product-price-section">
                       <div class="price-display fw-semibold text-main-600">
                         ₹{{ product.price }}
                       </div>
-                      <div class="product-rating">
-                        <div class="stars">
-                          <i class="ph ph-fill ph-star"></i>
-                          <i class="ph ph-fill ph-star"></i>
-                          <i class="ph ph-fill ph-star"></i>
-                          <i class="ph ph-fill ph-star"></i>
-                          <i class="ph ph-star"></i>
-                        </div>
-                        <span class="rating-number">4.5</span>
-                      </div>
                     </div>
-                    
-                    <button class="add-cart-btn">
+                    <button @click="handleAddToCart(product)" class="add-cart-btn">
                       <i class="ph ph-shopping-cart"></i>
                       Add to Cart
                     </button>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </section>
 </template>
 
-
-
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useOffersApi } from '@/composables/api/useOffersApi'
 import { useProductsApi } from '@/composables/api/useProductsApi'
+import { useCart } from '~/composables/api/useCart'
 
 /* ---------------- FETCH HOT DEALS ---------------- */
 
@@ -128,10 +102,17 @@ const { offers, loading: offersLoading, error } = useOffersApi({
 /* (optional) you still asked 2 hooks — products not used for UI,
    but you can keep it for later add-to-cart or caching */
 const { products } = useProductsApi({
-  limit: 20,
+  limit: 5,
   inStock: true,
   hasDiscount: true
 })
+
+/* ---------------- CART FUNCTIONALITY ---------------- */
+const { addToCart } = useCart()
+
+const handleAddToCart = (product: any) => {
+  addToCart(product)
+}
 
 /* ---------------- GLOBAL STATE ---------------- */
 

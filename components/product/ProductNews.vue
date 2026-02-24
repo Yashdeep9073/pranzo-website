@@ -68,7 +68,7 @@
   </section>
 </template>
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
 /* ---------------- STATE ---------------- */
 const email = ref('')
@@ -84,24 +84,10 @@ const suggestionsListRef = ref(null)
 const activeSuggestionIndex = ref(-1)
 
 /* ---------------- CONFIG ---------------- */
-const API_URL =
-  'https://kartmania-api.vibrantick.org/customer/news-letter/create'
+const API_URL = process.env.NUXT_PUBLIC_API_URL || '/api/newsletter'
 
-const domains = [
-  '@gmail.com',
-  '@yahoo.com',
-  '@outlook.com',
-  '@hotmail.com'
-]
-
-// email typo intelligence
-const typoMap = {
-  'gmial.com': 'gmail.com',
-  'gmai.com': 'gmail.com',
-  'gnail.com': 'gmail.com',
-  'gmail.co': 'gmail.com',
-  'yaho.com': 'yahoo.com'
-}
+const domains = ref([])
+const typoMap = ref({})
 
 /* ---------------- HELPERS ---------------- */
 
@@ -144,8 +130,8 @@ const detectCorrection = (value) => {
 
   const [name, domain] = value.split('@')
 
-  if (typoMap[domain]) {
-    correctionSuggestion.value = `${name}@${typoMap[domain]}`
+  if (typoMap.value[domain]) {
+    correctionSuggestion.value = `${name}@${typoMap.value[domain]}`
   }
 }
 
@@ -181,7 +167,7 @@ const handleInput = async () => {
   // AFTER @ → DOMAIN SUGGESTIONS
   const [name, domainPart] = value.split('@')
 
-  suggestions.value = domains
+  suggestions.value = domains.value
     .filter(d => d.includes(domainPart))
     .map(d => name + d)
 }

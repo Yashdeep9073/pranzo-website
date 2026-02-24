@@ -128,86 +128,7 @@ const swiperRef = ref(null)
 const isLoading = ref(true)
 const categories = ref([])
 
-// Feature items data - Fallback
-const fallbackCategories = [
-  {
-    id: 1,
-    title: 'T-shirts',
-    products: '125+ Products',
-    image: '/assets/images/mensection/t-shirt1.jpg',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 2,
-    title: 'Pixel',
-    products: '125+ Products',
-    image: '/assets/images/recommended/camera.webp',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 3,
-    title: 'Desserts',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img3.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 4,
-    title: 'Drinks & Juice',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img4.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 5,
-    title: 'Animals Food',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img5.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 6,
-    title: 'Fresh Fruits',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img6.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 7,
-    title: 'Yummy Candy',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img7.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 8,
-    title: 'Fish & Meats',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img2.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 9,
-    title: 'Dairy & Eggs',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img8.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 10,
-    title: 'Snacks',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img9.png',
-    link: '/shop/shop-all'
-  },
-  {
-    id: 11,
-    title: 'Frozen Foods',
-    products: '125+ Products',
-    image: '/assets/images/thumbs/feature-img10.png',
-    link: '/shop/shop-all'
-  }
-]
+
 
 // Responsive breakpoints - Same as original
 const breakpoints = {
@@ -258,25 +179,24 @@ const loadCategories = async () => {
       
     } else {
       // Use fallback categories if API fails
-      categories.value = fallbackCategories.map(item => ({
+      categories.value = productStore.categories.map(item => ({
         id: item.id,
-        name: item.title,
+        name: item.name || item.title,
         image: item.image,
-        productCount: parseInt(item.products) || 0,
-        link: item.link,
+        productCount: item._count?.products || parseInt(item.products) || 0,
+        link: item.link || '/shop/shop-all',
         fallbackImage: item.image
       }))
     }
     
   } catch (error) {
-    console.error('Error loading categories:', error)
     // Use fallback on error
-    categories.value = fallbackCategories.map(item => ({
+    categories.value = productStore.categories.map(item => ({
       id: item.id,
-      name: item.title,
+      name: item.name || item.title,
       image: item.image,
-      productCount: parseInt(item.products) || 0,
-      link: item.link,
+      productCount: item._count?.products || parseInt(item.products) || 0,
+      link: item.link || '/shop/shop-all',
       fallbackImage: item.image
     }))
   } finally {
@@ -320,29 +240,7 @@ const handleMobileImageError = (event) => {
   imgElement.classList.add('error-fallback')
 }
 
-// Get fallback image based on category name
-const getFallbackImage = (categoryName) => {
-  const categoryMap = {
-    'Mobile': '/assets/images/thumbs/feature-img1.png',
-    'Women': '/assets/images/thumbs/feature-img2.png',
-    'Men': '/assets/images/thumbs/feature-img3.png',
-    'Electronic': '/assets/images/thumbs/feature-img4.png',
-    'Skin care': '/assets/images/thumbs/feature-img5.png',
-    'Kitchen': '/assets/images/thumbs/feature-img6.png',
-    'Vegetables': '/assets/images/thumbs/feature-img1.png',
-    'Fish & Meats': '/assets/images/thumbs/feature-img2.png',
-    'Desserts': '/assets/images/thumbs/feature-img3.png',
-    'Drinks & Juice': '/assets/images/thumbs/feature-img4.png',
-    'Animals Food': '/assets/images/thumbs/feature-img5.png',
-    'Fresh Fruits': '/assets/images/thumbs/feature-img6.png',
-    'Yummy Candy': '/assets/images/thumbs/feature-img7.png',
-    'Dairy & Eggs': '/assets/images/thumbs/feature-img8.png',
-    'Snacks': '/assets/images/thumbs/feature-img9.png',
-    'Frozen Foods': '/assets/images/thumbs/feature-img10.png'
-  }
-  
-  return categoryMap[categoryName] || '/assets/images/thumbs/feature-img1.png'
-}
+
 
 // Handle window resize - Same as original
 const handleResize = () => {

@@ -72,26 +72,7 @@ const props = defineProps({
   // Features data
   features: {
     type: Array,
-    default: () => [
-      {
-        icon: 'ph ph-gift',
-        title: 'Free Shipping',
-        description: 'Explore insightful content that keeps you ahead of the curve and connected to the pulse of what\'s happening.',
-        link: '/shipping-info'
-      },
-      {
-        icon: 'ph ph-credit-card',
-        title: 'Flexible Payment',
-        description: 'Explore insightful content that keeps you ahead of the curve and connected to the pulse of what\'s happening.',
-        link: '/payment-options'
-      },
-      {
-        icon: 'ph ph-chats',
-        title: 'Online Support',
-        description: 'Explore insightful content that keeps you ahead of the curve and connected to the pulse of what\'s happening.',
-        link: '/support'
-      }
-    ]
+    default: () => []
   },
   
   // CTA Configuration

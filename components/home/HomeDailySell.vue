@@ -99,9 +99,6 @@
               <img :src="dailyDealsOffers[0].images?.[0]?.imageUrl || '/assets/images/bg/special-snacks.png'" alt="" class="position-absolute inset-block-start-0 inset-inline-start-0 z-n1 w-100 h-100 cover-img">
             </div>
             <div class="py-xl-4">
-              <div class="offer-card__logo mb-16 w-80 h-80 flex-center bg-white rounded-circle">
-                <img :src="dailyDealsOffers[0].images?.find(img => img.isPrimary)?.imageUrl || '/assets/images/thumbs/offer-logo.png'" alt="">
-              </div>
               <h5 class="mb-8">{{ dailyDealsOffers[0].name || 'Special Offer' }}</h5>
               <div class="flex-align gap-8">
                 <span class="text-sm fw-medium text-heading">{{ dailyDealsOffers[0].description || 'Limited time offer' }}</span>
@@ -143,6 +140,7 @@
 <script setup> 
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useProductsApi } from '@/composables/api/useProductsApi'
+import { useCart } from '~/composables/api/useCart'
 import { useOffersApi } from '@/composables/api/useOffersApi'
 
 // Fetch products with discounts for daily deals
@@ -159,70 +157,6 @@ const { offers: dailyDealsOffers, loading: offersLoading, error: offersError, re
   limit: 1
 })
 
-// Static fallback products
-const staticProducts = [
-  {
-    id: 1,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: 14.99,
-    originalPrice: 28.99,
-    discount: 50,
-    image: "/assets/images/thumbs/best-sell1.png",
-    store: "Lucky Supermarket",
-    sold: 18,
-    stock: 35,
-    startDate: null,
-    endDate: null
-  },
-  {
-    id: 2,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: 14.99,
-    originalPrice: 28.99,
-    discount: 50,
-    image: "/assets/images/thumbs/best-sell2.png",
-    store: "Lucky Supermarket",
-    sold: 18,
-    stock: 35,
-    startDate: null,
-    endDate: null
-  },
-  {
-    id: 3,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: 14.99,
-    originalPrice: 28.99,
-    discount: 50,
-    image: "/assets/images/thumbs/best-sell3.png",
-    store: "Lucky Supermarket",
-    sold: 18,
-    stock: 35,
-    startDate: null,
-    endDate: null
-  },
-  {
-    id: 4,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: 14.99,
-    originalPrice: 28.99,
-    discount: 50,
-    image: "/assets/images/thumbs/best-sell4.png",
-    store: "Lucky Supermarket",
-    sold: 18,
-    stock: 35,
-    startDate: null,
-    endDate: null
-  }
-]
-
 // Computed products with backend data integration
 const displayProducts = computed(() => {
   if (dailyProducts.value && dailyProducts.value.length > 0) {
@@ -238,7 +172,7 @@ const displayProducts = computed(() => {
         price: price,
         originalPrice: originalPrice,
         discount: Math.round(((originalPrice - price) / originalPrice) * 100),
-        image: product.images?.find(img => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || staticProducts[index]?.image || "/assets/images/thumbs/best-sell1.png",
+        image: product.images?.find(img => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || "/assets/images/thumbs/best-sell1.png",
         store: product.category?.name || "Lucky Supermarket",
         sold: Math.floor(Math.random() * 30) + 10, // Random sold count since not in Product type
         stock: Number(product.stock) || 35,
@@ -247,8 +181,7 @@ const displayProducts = computed(() => {
       }
     })
   }
-  
-  return staticProducts
+
 })
 
 // Countdown timers for each product (dynamic)
@@ -344,19 +277,24 @@ const getCountdown = (index) => {
 
 // Add to cart function
 const addToCart = (productId) => {
-  console.log('Added to cart:', productId)
+  const { addToCart: cartAdd } = useCart()
+  // Find the full product object
+  const product = displayProducts.value.find(p => p.id === productId)
+  if (product) {
+    cartAdd(product)
+    console.log('Added to cart:', product.name)
+  }
 }
 
 // Update all countdowns
 let timerInterval
 
 onMounted(() => {
-  console.log('🔍 [HomeDailySell] Daily Products loaded:', dailyProducts.value)
   
   timerInterval = setInterval(() => {
     const products = displayProducts.value
     
-    if (products.length > 0) {
+    if (products && products.length > 0) {
       // Update each countdown with backend dates or fallback
       countdowns.value = countdowns.value.map((countdown, index) => {
         const product = products[index]

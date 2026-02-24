@@ -8,7 +8,7 @@ export const useOffersStore = defineStore('offers', () => {
   const error = ref<string | null>(null)
   const loaded = ref(false) // 👈 prevents refetch
 
-  const { fetchOffers } = useOffersApi()
+  const { offers: apiOffers, loading: apiLoading, error: apiError, refresh: fetchOffers } = useOffersApi()
 
   const loadOffers = async () => {
     if (loaded.value) return // 🛑 singleton behavior
@@ -17,7 +17,8 @@ export const useOffersStore = defineStore('offers', () => {
     error.value = null
 
     try {
-      offers.value = await fetchOffers()
+      await fetchOffers()
+      offers.value = apiOffers.value
       loaded.value = true
     } catch (err: any) {
       error.value = err.message ?? 'Failed to load offers'

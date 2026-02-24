@@ -41,9 +41,23 @@ const router = createRouter({
       component: () => import("@/pages/account/Wishlist.vue")
     },
     {
-      path:'/profile',
-      name:'Profile',
-      component:() => import('@/pages/account/Profile.vue')
+      path: '/terms',
+      name: 'Terms',
+      component: () => import('@/pages/terms.vue')
+    },
+    {
+      path: '/shop',
+      redirect: '/shop/shop-all'
+    },
+    {
+      path: '/shop/:pathMatch(.*)*',
+      name: 'ShopPages',
+      component: () => import('@/pages/shop/shop-all/index.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('@/pages/index.vue')
     }
   ]
 })

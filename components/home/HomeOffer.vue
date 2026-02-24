@@ -1,9 +1,9 @@
 <template>
-  <section class="kart-deals-section">
+  <section v-if="!loading && displayDeals.length > 0" class="kart-deals-section">
     <!-- Header with Timer -->
     <div class="deals-header">
       <div class="header-main">
-        <h2 class="section-title">Deals Revealed</h2>
+        <h2 class="section-title">{{ activeOffers.length > 0 ? 'Deals Revealed' : '' }}</h2>
         <div class="deals-timer" v-if="bestOfferCountdown">
           <div class="timer-label">{{ bestOfferCountdown.isStarting ? 'Starts in' : 'Ends in' }}</div>
           <div class="timer-display">
@@ -31,7 +31,6 @@
       </div>
       <div class="header-subtitle">
         <span class="discount-badge">Up to {{ maxDiscountPercentage }}% off</span> 
-        <span class="subtitle-text">On bestsellers</span>
       </div>
     </div>
 
@@ -73,8 +72,8 @@
                       @error="handleImageError($event, index)"
                     />
                     <div class="bank-offer-overlay">
-                      <div class="bank-name">{{ deal.bankName || 'Bank Offer' }}</div>
-                      <div class="bank-offer">{{ deal.offer || 'Special Discount' }}</div>
+                      <div class="bank-name">{{ deal.bankName || '' }}</div>
+                      <div class="bank-offer">{{ deal.offer || '' }}</div>
                     </div>
                   </div>
                   
@@ -101,7 +100,7 @@
                   <div class="deal-bottom-content">
                     <div class="deal-price" :class="{ 'bank-price': deal.type === 'bank' }">
                       <template v-if="deal.type === 'bank'">
-                        <span class="bank-benefit">{{ (deal as any).priceText || 'Special Offer' }}</span>
+                        <span class="bank-benefit">{{ (deal as any).priceText || '' }}</span>
                       </template>
                       <template v-else>
                         <span class="current-price">{{ deal.currentPrice }}</span>
@@ -150,76 +149,6 @@ interface OfferData {
   offer?: string
   priceText?: string
 }
-
-// Static fallback deals (always available)
-const staticDeals = [
-  {
-    id: 11,
-    title: "Premium Headphones",
-    description: "Noise cancelling headphones with premium sound",
-    image: "/assets/images/recommended/headphones.webp",
-    currentPrice: "₹1,299",
-    originalPrice: "₹2,599",
-    discount: "50% off",
-    link: "/shop/shop-all/--1",
-    type: "product"
-  },
-  {  
-    
-    id: 12,
-    title: "shoes for style",
-    description: "Latest shoes for smart",
-    image: "/assets/images/recommended/shoe.webp",
-    currentPrice: "From ₹499",
-    originalPrice: "₹999",
-    discount: "50% off",
-    link: "/shop/shop-all/--1",
-    type: "product"
-  },
-  {
-    id: 13,
-    title: "Credit Card & EMI",
-    description: "Bank offers and EMI options",
-    bankName: "SBI Card",
-    offer: "10% Instant Discount*",
-    priceText: "No Cost EMI Available",
-    link: "/shop/shop-all/--1",
-    type: "bank"
-  },
-  {
-    id: 14,
-    title: "Latest Smartphones",
-    description: "Flagship smartphones with latest features",
-    image: "/assets/images/recommended/camera.webp",
-    currentPrice: "₹29,999",
-    originalPrice: "₹34,999",
-    discount: "14% off",
-    link: "/shop/shop-all/--1",
-    type: "product"
-  },
-  {
-    id: 15,
-    title: "Electronics",
-    description: "High performance laptops and computers",
-    image: "/assets/images/nowcategory/electronics1.jpg",
-    currentPrice: "From ₹19,999",
-    originalPrice: "₹24,999",
-    discount: "20% off",
-    link: "/shop/shop-all/--1",
-    type: "product"
-  },
-  {
-    id: 16,
-    title: "Fashion Collection",
-    description: "Wide range of electronic products",
-    image: "/assets/images/recommended/triple-jean.jpg",
-    currentPrice: "From ₹1,499",
-    originalPrice: "₹2,999",
-    discount: "50% off",
-    link: "/shop/shop-all/--1", 
-    type: "product"
-  }
-]
 
 // Reactive state
 const showStaticFallback = ref(false)
@@ -298,9 +227,6 @@ const fetchOfferData = async () => {
     await fetchOffers()
     offers.value = offersResponse.value
     
-    console.log('📊 API Response:', offers.value)
-    console.log('🔍 DEALS_REVEALED offers:', offers.value.filter(o => o.offerType === 'DEALS_REVEALED'))
-    
     if (offers.value.length > 0) {
       showStaticFallback.value = false
     } else {
@@ -310,7 +236,6 @@ const fetchOfferData = async () => {
   } catch (err) {
     showStaticFallback.value = true
     error.value = null // Don't show error to user
-    console.error('❌ API Error:', err)
   } finally {
     loading.value = false
   }
@@ -344,7 +269,7 @@ const maxDiscountPercentage = computed(() => {
   return Math.round(max)
 })
 
-// Display deals (API or static fallback)
+// Display deals (API only)
 const displayDeals = computed(() => {
   // Only show DEALS_REVEALED offers
   const filteredOffers = offers.value.filter(offer => offer.offerType === 'DEALS_REVEALED')
@@ -355,7 +280,7 @@ const displayDeals = computed(() => {
       const primaryImage = offer.images?.find((img: any) => img.isPrimary)?.imageUrl || offer.images?.[0]?.imageUrl
       
       // Construct full URL for backend images
-      let imageUrl = primaryImage || staticDeals[offer.id % staticDeals.length]?.image || '/assets/images/recommended/default.jpg'
+      let imageUrl = primaryImage || ''
       
       // If URL is relative, construct full URL
       if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
@@ -365,38 +290,30 @@ const displayDeals = computed(() => {
       // Handle HOT_DEALS offers (displaying as "Deals Revealed")
       return {
         id: offer.id,
-        title: offer.name || `Deal ${offer.id}`,
-        description: offer.description || 'Special offer',
+        title: offer.name || '',
+        description: offer.description || '',
         image: imageUrl,
         currentPrice: '',
         originalPrice: '',
         discount: '',
         link: `/shop/shop-all/--1`,
         type: 'bank',
-        bankName: offer.name || 'Bank Offer',
+        bankName: offer.name || '',
         offer: offer.discountType === 'PERCENTAGE' ? `${offer.discountValue}% Instant Discount*` : `₹${offer.discountValue} Instant Discount*`,
       }
     })
   }
   
-  // Use static fallback data
-  return staticDeals
+  // Return empty array if no API data
+  return []
 })
 
 // Handle image loading errors
 const handleImageError = (event: Event, index: number) => {
   const img = event.target as HTMLImageElement
   
-  // Use local fallback image
-  const fallbackImages = [
-    '/assets/images/recommended/headphone.jpg',
-    '/assets/images/recommended/watch.jpg',
-    '/assets/images/recommended/camera.webp',
-    '/assets/images/recommended/laptop.jpg',
-    '/assets/images/recommended/electronics.jpg'
-  ]
-  const fallback = fallbackImages[index % fallbackImages.length] || '/assets/images/recommended/default.jpg'
-  img.src = fallback
+  // Remove broken image
+  img.style.display = 'none'
 }
 
 // Initialize Swiper
