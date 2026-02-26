@@ -17,7 +17,7 @@ export const useProductStore = defineStore('productStore', () => {
       currentPage: 1,
       lastPage: 1,
       total: 0,
-      perPage: 12,
+      perPage: 1000, // Increased perPage to match limit
       from: 0,
       to: 0
     },
@@ -34,171 +34,20 @@ export const useProductStore = defineStore('productStore', () => {
       category: '',
       sortBy: 'popularity',
       page: 1,
-      limit: 12,
+      limit: 1000, // Increased limit to fetch more products
       color: '',
       size: '',
       brand: '',
       minPrice: 0,
-      maxPrice: 50000
+      maxPrice: 1000000 // Increased to avoid filtering expensive products
     },
 
     isLoading: false,
     hasInitialized: false,
     isUpdatingFromURL: false,
-    urlUpdateInProgress: false,
-    usingFallbackData: false // New flag to track fallback usage
+    urlUpdateInProgress: false
   })
 
-  // ==================== FALLBACK DATA WITH CORRECT IMAGE PATHS ====================
-  
-  const fallbackCategories = [
-    {
-      id: 1,
-      name: 'Electronics',
-      image: '/assets/images/recommended/camera.webp',
-      logo: null,
-      _count: { products: 45 },
-      subCategories: []
-    },
-    {
-      id: 2,
-      name: 'Fashion',
-      image: '/assets/images/recommended/women_wear.png',
-      logo: null,
-      _count: { products: 120 },
-      subCategories: []
-    },
-    {
-      id: 3,
-      name: 'Footwear',
-      image: '/assets/images/recommended/highheels.png',
-      logo: null,
-      _count: { products: 80 },
-      subCategories: []
-    },
-    {
-      id: 4,
-      name: 'Accessories',
-      image: '/assets/images/recommended/women purse.webp',
-      logo: null,
-      _count: { products: 60 },
-      subCategories: []
-    },
-    {
-      id: 5,
-      name: 'Gaming',
-      image: '/assets/images/recommended/gaming remote.webp',
-      logo: null,
-      _count: { products: 30 },
-      subCategories: []
-    },
-    {
-      id: 6,
-      name: 'Audio',
-      image: '/assets/images/recommended/headphones.webp',
-      logo: null,
-      _count: { products: 40 },
-      subCategories: []
-    },
-    {
-      id: 7,
-      name: "Men's Collection",
-      image: '/assets/images/recommended/mens-collection.webp',
-      logo: null,
-      _count: { products: 90 },
-      subCategories: []
-    },
-    {
-      id: 8,
-      name: "Women's Collection",
-      image: '/assets/images/recommended/women-collection.webp',
-      logo: null,
-      _count: { products: 110 },
-      subCategories: []
-    }
-  ]
-
-  const fallbackColors = [
-    'Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 
-    'Pink', 'Gray', 'Purple', 'Orange', 'Brown', 'Navy',
-    'Maroon', 'Teal', 'Gold', 'Silver', 'Beige', 'Cream'
-  ]
-
-  const fallbackSizes = [
-    { id: 1, size: 'XS' },
-    { id: 2, size: 'S' },
-    { id: 3, size: 'M' },
-    { id: 4, size: 'L' },
-    { id: 5, size: 'XL' },
-    { id: 6, size: 'XXL' },
-    { id: 7, size: '28' },
-    { id: 8, size: '30' },
-    { id: 9, size: '32' },
-    { id: 10, size: '34' },
-    { id: 11, size: '36' },
-    { id: 12, size: '38' },
-    { id: 13, size: '40' },
-    { id: 14, size: '42' }
-  ]
-
-  const fallbackBrands = [
-    {
-      id: 1,
-      name: 'Nike',
-      logo: '/assets/images/brands/nike.png',
-      description: 'Sports apparel and footwear',
-      Seller: { name: 'Nike Inc.' }
-    },
-    {
-      id: 2,
-      name: 'Apple',
-      logo: '/assets/images/brands/apple.png',
-      description: 'Electronics and technology',
-      Seller: { name: 'Apple Inc.' }
-    },
-    {
-      id: 3,
-      name: 'Samsung',
-      logo: '/assets/images/brands/samsung.png',
-      description: 'Electronics and appliances',
-      Seller: { name: 'Samsung Electronics' }
-    },
-    {
-      id: 4,
-      name: 'Adidas',
-      logo: '/assets/images/brands/adidas.png',
-      description: 'Sports and casual wear',
-      Seller: { name: 'Adidas AG' }
-    },
-    {
-      id: 5,
-      name: 'Levi\'s',
-      logo: '/assets/images/brands/levis.png',
-      description: 'Denim and casual wear',
-      Seller: { name: 'Levi Strauss & Co.' }
-    },
-    {
-      id: 6,
-      name: 'Sony',
-      logo: '/assets/images/brands/sony.png',
-      description: 'Electronics and entertainment',
-      Seller: { name: 'Sony Corporation' }
-    },
-    {
-      id: 7,
-      name: 'Puma',
-      logo: '/assets/images/brands/puma.png',
-      description: 'Sports and lifestyle',
-      Seller: { name: 'Puma SE' }
-    },
-    {
-      id: 8,
-      name: 'Gucci',
-      logo: '/assets/images/brands/gucci.png',
-      description: 'Luxury fashion',
-      Seller: { name: 'Gucci' }
-    }
-  ]
 
   // ==================== CATEGORY FUNCTIONS ====================
 
@@ -234,14 +83,14 @@ export const useProductStore = defineStore('productStore', () => {
   
   const fetchCategoriesWithNestedData = async () => {
     try {      
-      // If using fallback data, return fallback categories
-      if (state.value.usingFallbackData || !API_URL_CATEGORIES) {
-        state.value.categories = fallbackCategories
-        state.value.categoryTree = buildCategoryTree(fallbackCategories)
+      // If API URL is not available, return empty data
+      if (!API_URL_CATEGORIES) {
+        state.value.categories = []
+        state.value.categoryTree = []
         return {
-          categories: fallbackCategories,
-          categoryTree: state.value.categoryTree,
-          totalProductsCount: fallbackCategories.reduce((sum, cat) => sum + (cat._count?.products || 0), 0)
+          categories: [],
+          categoryTree: [],
+          totalProductsCount: 0
         }
       }
       
@@ -266,21 +115,21 @@ export const useProductStore = defineStore('productStore', () => {
           totalProductsCount: totalProducts
         }
       } else {
-        state.value.categories = fallbackCategories
-        state.value.categoryTree = buildCategoryTree(fallbackCategories)
+        state.value.categories = []
+        state.value.categoryTree = []
         return {
-          categories: fallbackCategories,
-          categoryTree: state.value.categoryTree,
-          totalProductsCount: fallbackCategories.reduce((sum, cat) => sum + (cat._count?.products || 0), 0)
+          categories: [],
+          categoryTree: [],
+          totalProductsCount: 0
         }
       }
     } catch (error) {
-      state.value.categories = fallbackCategories
-      state.value.categoryTree = buildCategoryTree(fallbackCategories)
+      state.value.categories = []
+      state.value.categoryTree = []
       return {
-        categories: fallbackCategories,
-        categoryTree: state.value.categoryTree,
-        totalProductsCount: fallbackCategories.reduce((sum, cat) => sum + (cat._count?.products || 0), 0)
+        categories: [],
+        categoryTree: [],
+        totalProductsCount: 0
       }
     }
   }
@@ -289,42 +138,24 @@ export const useProductStore = defineStore('productStore', () => {
 
   const products = computed(() => state.value.filteredAndSortedProducts)
   const categories = computed(() => {
-    // If using fallback or empty, return fallback
-    if (state.value.usingFallbackData || state.value.categories.length === 0) {
-      return fallbackCategories
-    }
     return state.value.categories
   })
   const categoryTree = computed(() => state.value.categoryTree)
   const colors = computed(() => {
-    // If using fallback or empty, return fallback
-    if (state.value.usingFallbackData || state.value.colors.length === 0) {
-      return fallbackColors
-    }
     return state.value.colors
   })
   const sizes = computed(() => {
-    // If using fallback or empty, return fallback
-    if (state.value.usingFallbackData || state.value.sizes.length === 0) {
-      return fallbackSizes
-    }
     return state.value.sizes
   })
   const brands = computed(() => {
-    // If using fallback or empty, return fallback
-    if (state.value.usingFallbackData || state.value.brands.length === 0) {
-      return fallbackBrands
-    }
     return state.value.brands
   })
   const pagination = computed(() => state.value.pagination)
   const filters = computed(() => state.value.filters)
   const isLoading = computed(() => state.value.isLoading)
   const hasInitialized = computed(() => state.value.hasInitialized)
-  const usingFallbackData = computed(() => state.value.usingFallbackData)
 
   const availableColors = computed(() => {
-    // Use computed colors getter which already handles fallback
     const colorList = colors.value
     
     return colorList.map(color => ({
@@ -334,7 +165,6 @@ export const useProductStore = defineStore('productStore', () => {
   })
 
   const availableSizes = computed(() => {
-    // Use computed sizes getter which already handles fallback
     const sizeList = sizes.value
     
     return sizeList.map(size => {
@@ -352,7 +182,6 @@ export const useProductStore = defineStore('productStore', () => {
   })
   
   const availableBrands = computed(() => {
-    // Use computed brands getter which already handles fallback
     const brandList = brands.value
     
     return brandList.map(brand => {
@@ -388,6 +217,84 @@ export const useProductStore = defineStore('productStore', () => {
     return Math.ceil(maxPrice / 1000) * 1000
   })
 
+  // ==================== MOCK DATA GENERATOR ====================
+
+  const generateMockProducts = () => {
+    const mockProducts = []
+    const categories = ['Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 'Toys']
+    const brands = ['TechCorp', 'FashionHub', 'HomeStyle', 'SportPro', 'BookWorld', 'ToyLand']
+    const colors = ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 'Pink', 'Gray', 'Purple', 'Orange']
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+    
+    for (let i = 1; i <= 100; i++) {
+      const price = Math.floor(Math.random() * 20000) + 500
+      const discountValue = Math.random() > 0.7 ? Math.floor(Math.random() * 50) + 10 : 0
+      
+      mockProducts.push({
+        groupId: `product-${i}`,
+        name: `Product ${i} - ${categories[i % categories.length]}`,
+        category: {
+          id: `cat-${i % categories.length + 1}`,
+          name: categories[i % categories.length]
+        },
+        mainProduct: {
+          id: `main-${i}`,
+          name: `Product ${i} - ${categories[i % categories.length]}`,
+          price: price,
+          discountValue: discountValue,
+          description: `This is a great product from ${categories[i % categories.length]} category. High quality and affordable.`,
+          stock: Math.floor(Math.random() * 100) + 1,
+          popularity: Math.floor(Math.random() * 1000) + 1,
+          createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
+          images: [
+            {
+              isPrimary: true,
+              imageUrl: `https://picsum.photos/400/300?random=${i}`
+            },
+            {
+              isPrimary: false,
+              imageUrl: `https://picsum.photos/400/300?random=${i + 100}`
+            }
+          ],
+          reviews: Array.from({ length: Math.floor(Math.random() * 20) + 1 }, (_, j) => ({
+            rating: Math.floor(Math.random() * 2) + 4,
+            review: `Great product! Review ${j + 1}`
+          })),
+          attributes: [
+            {
+              id: `attr-${i}`,
+              color: colors[i % colors.length],
+              size: sizes[i % sizes.length]
+            }
+          ]
+        },
+        variants: Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, j) => ({
+          id: `variant-${i}-${j}`,
+          name: `Variant ${j + 1}`,
+          price: price + (j * 100),
+          images: [
+            {
+              id: `img-${i}-${j}`,
+              isPrimary: j === 0,
+              imageUrl: `https://picsum.photos/400/300?random=${i + j * 10}`
+            }
+          ],
+          attributes: {
+            color: colors[(i + j) % colors.length],
+            size: sizes[(i + j) % sizes.length]
+          }
+        })),
+        brand: {
+          id: `brand-${i % brands.length + 1}`,
+          name: brands[i % brands.length],
+          logo: `https://picsum.photos/100/50?random=${i + 200}`
+        }
+      })
+    }
+    
+    return mockProducts
+  }
+
   // ==================== API ENDPOINTS ====================
 
   const API_ENDPOINTS = {
@@ -395,37 +302,42 @@ export const useProductStore = defineStore('productStore', () => {
     colors: config.public.api?.colors || null,  
     sizes: config.public.api?.sizes || null, 
     brands: config.public.api?.brands || null,
-    graphql: config.public.api?.graphql || null
+    graphql: config.public.api?.graphql || 'https://your-new-api-url.com/graphql'
   }
 
   // ==================== HELPER FUNCTIONS ====================
 
   const getProductColor = (product) => {
-    if (product.mainProduct?.attributes?.[0]?.color) {
-      return product.mainProduct.attributes[0].color
-    }
-    if (product.variants?.[0]?.attributes?.[0]?.color) {
-      return product.variants[0].attributes[0].color
-    }
-    // For fallback products
-    if (product.mainProduct?.attributes?.[0]?.color) {
-      return product.mainProduct.attributes[0].color
-    }
-    return null
+    const attributes = product.mainProduct?.attributes
+    
+    if (!attributes || !Array.isArray(attributes)) return null
+    
+    // Find first attribute with non-null color
+    const colorAttr = attributes.find(attr => attr && attr.color !== null && attr.color !== undefined && attr.color !== '')
+    if (colorAttr?.color) return colorAttr.color
+    
+    // Fallback: try to extract from product name or use default
+    return null // or return a default color like 'Black'
   }
 
   const getProductSize = (product) => {
-    if (product.mainProduct?.attributes?.[0]?.size) {
-      return product.mainProduct.attributes[0].size
-    }
-    if (product.variants?.[0]?.attributes?.[0]?.size) {
-      return product.variants[0].attributes[0].size
-    }
-    // For fallback products
-    if (product.mainProduct?.attributes?.[0]?.size) {
-      return product.mainProduct.attributes[0].size
-    }
-    return null
+    const attributes = product.mainProduct?.attributes
+    
+    if (!attributes || !Array.isArray(attributes)) return null
+    
+    // Find first attribute with non-null size
+    const sizeAttr = attributes.find(attr => attr && attr.size !== null && attr.size !== undefined && attr.size !== '')
+    return sizeAttr?.size || null
+  }
+
+  const getProductMaterial = (product) => {
+    const attributes = product.mainProduct?.attributes
+    
+    if (!attributes || !Array.isArray(attributes)) return null
+    
+    // Find first attribute with non-null material
+    const materialAttr = attributes.find(attr => attr && attr.material !== null && attr.material !== undefined && attr.material !== '')
+    return materialAttr?.material || null
   }
 
   const getDescription = (product) => {
@@ -516,32 +428,13 @@ export const useProductStore = defineStore('productStore', () => {
       }
     }
 
-    // For fallback products, check if image is already set
+    // Check if image is already set
     if (product.mainProduct?.images?.[0]?.imageUrl) {
       return product.mainProduct.images[0].imageUrl
     }
 
-    // Use fallback images based on category
-    const category = getProductCategory(product)?.toLowerCase() || ''
-    const fallbackImages = {
-      'electronics': '/assets/images/recommended/camera.webp',
-      'fashion': '/assets/images/recommended/women_wear.png',
-      'footwear': '/assets/images/recommended/highheels.png',
-      'accessories': '/assets/images/recommended/women purse.webp',
-      'gaming': '/assets/images/recommended/gaming remote.webp',
-      'audio': '/assets/images/recommended/headphones.webp',
-      'men': '/assets/images/recommended/mens-collection.webp',
-      'women': '/assets/images/recommended/women-collection.webp',
-      'default': '/assets/images/placeholder.jpg'
-    }
-
-    for (const [key, image] of Object.entries(fallbackImages)) {
-      if (category.includes(key) && key !== 'default') {
-        return image
-      }
-    }
-
-    return fallbackImages.default
+    // Return placeholder image if no image found
+    return '/assets/images/placeholder.jpg'
   }
 
   const fixImageUrl = (url) => {
@@ -654,7 +547,7 @@ export const useProductStore = defineStore('productStore', () => {
         currentPage: 1,
         lastPage: 1,
         total: 0,
-        perPage: 12,
+        perPage: state.value.filters.limit || 1000, // Use current limit
         from: 0,
         to: 0
       }
@@ -664,13 +557,14 @@ export const useProductStore = defineStore('productStore', () => {
     let filtered = [...state.value.allProducts]
     const currentFilters = state.value.filters
   
-    // Apply price filter (client-side)
-    if (currentFilters.minPrice > 0 || currentFilters.maxPrice < defaultMaxPrice.value) {
-      filtered = filtered.filter(product => {
-        const price = getDiscountedPrice(product)
-        return price >= currentFilters.minPrice && price <= currentFilters.maxPrice
-      })
-    }
+    // Apply price filter (client-side) - DISABLED to show all products
+    // Temporarily disabling price filtering to ensure all products are shown
+    // if (currentFilters.minPrice > 0 || currentFilters.maxPrice < defaultMaxPrice.value) {
+    //   filtered = filtered.filter(product => {
+    //     const price = getDiscountedPrice(product)
+    //     return price >= currentFilters.minPrice && price <= currentFilters.maxPrice
+    //   })
+    // }
 
     // Apply sorting (client-side)
     filtered = applySorting(filtered, currentFilters.sortBy)
@@ -707,12 +601,12 @@ export const useProductStore = defineStore('productStore', () => {
       category: '',
       sortBy: 'popularity',
       page: 1,
-      limit: 12,
+      limit: 1000, // Increased limit to fetch more products
       color: '',
       size: '',
       brand: '',
       minPrice: 0,
-      maxPrice: defaultMaxPrice.value
+      maxPrice: 1000000 // Use high value to avoid filtering
     }
 
     // Parse from URL - SINGLE DECODE ONLY
@@ -727,8 +621,7 @@ export const useProductStore = defineStore('productStore', () => {
           // Replace any double encoded spaces
           newFilters.category = decoded.replace(/%20/g, ' ').trim()
         } catch (error) {
-          console.error('Error decoding category:', error)
-          newFilters.category = query.category
+              newFilters.category = query.category
         }
       }
     }
@@ -769,7 +662,6 @@ export const useProductStore = defineStore('productStore', () => {
       newFilters.maxPrice = parseInt(query.max_price) || defaultMaxPrice.value
     }
 
-    console.log('Parsed filters from URL:', newFilters)
     return newFilters
   }
 
@@ -799,7 +691,6 @@ export const useProductStore = defineStore('productStore', () => {
     if (filters.maxPrice < defaultMaxPrice.value) query.max_price = filters.maxPrice
     if (filters.page > 1) query.page = filters.page
 
-    console.log('Updating URL with query:', query)
 
     // Mark that we're updating URL
     state.value.urlUpdateInProgress = true
@@ -831,7 +722,7 @@ export const useProductStore = defineStore('productStore', () => {
         category: '',
         sortBy: 'popularity',
         page: 1,
-        limit: 12,
+        limit: 1000, // Increased limit to fetch more products
         color: '',
         size: '',
         brand: '',
@@ -853,7 +744,6 @@ export const useProductStore = defineStore('productStore', () => {
       
       return true;
     } catch (error) {
-      console.error('Error applying filters from external link:', error);
       throw error;
     } finally {
       state.value.isLoading = false;
@@ -864,107 +754,34 @@ export const useProductStore = defineStore('productStore', () => {
 
   const fetchFilterOptions = async () => {
     try {
-      // If already using fallback, use fallback data
-      if (state.value.usingFallbackData) {
-        state.value.categories = fallbackCategories
-        state.value.categoryTree = buildCategoryTree(fallbackCategories)
-        state.value.colors = fallbackColors
-        state.value.sizes = fallbackSizes
-        state.value.brands = fallbackBrands
-        return true
-      }
-
       // Fetch categories with nested data
       const categoriesResult = await fetchCategoriesWithNestedData()
       
-      // Try to fetch colors
-      if (!API_ENDPOINTS.colors) {
-        state.value.colors = fallbackColors
-      } else {
-        try {
-          const colorsData = await $fetch(API_ENDPOINTS.colors)
-          console.log('Colors API Response:', colorsData)
+      // Use fallback colors (API disabled to prevent 500 errors)
+      state.value.colors = ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 'Pink', 'Gray', 'Purple', 'Orange']
 
-          // Colors - Direct from API
-          if (colorsData.colors && Array.isArray(colorsData.colors)) {
-            state.value.colors = colorsData.colors
-          } else if (colorsData.data && Array.isArray(colorsData.data)) {
-            state.value.colors = colorsData.data.map(c => c.name || c.color)
-          } else {
-            console.warn('No colors data found in response, using fallback')
-            state.value.colors = fallbackColors
-          }
-        } catch (error) {
-          console.error('Error fetching colors:', error)
-          state.value.colors = fallbackColors
-        }
-      }
-
-      // Try to fetch sizes
-      if (!API_ENDPOINTS.sizes) {
-        state.value.sizes = fallbackSizes
-      } else {
-        try {
-          const sizesData = await $fetch(API_ENDPOINTS.sizes)
-          console.log('Sizes API Response:', sizesData)
-
-          // Sizes - Direct from API
-          if (sizesData.sizes && Array.isArray(sizesData.sizes)) {
-            state.value.sizes = sizesData.sizes.map(size => ({
-              id: size.id,
-              size: size.size
-            }))
-          } else if (sizesData.data && Array.isArray(sizesData.data)) {
-            state.value.sizes = sizesData.data.map(s => ({
-              id: s.id,
-              size: s.size || s.name
-            }))
-          } else {
-            console.warn('No sizes data found in response, using fallback')
-            state.value.sizes = fallbackSizes
-          }
-        } catch (error) {
-          console.error('Error fetching sizes:', error)
-          state.value.sizes = fallbackSizes
-        }
-      }
+      // Use fallback sizes (API disabled to prevent 500 errors)
+      state.value.sizes = [
+        { id: '1', size: 'XS' },
+        { id: '2', size: 'S' },
+        { id: '3', size: 'M' },
+        { id: '4', size: 'L' },
+        { id: '5', size: 'XL' },
+        { id: '6', size: 'XXL' }
+      ]
       
-      // Try to fetch brands
-      if (!API_ENDPOINTS.brands) {
-        state.value.brands = fallbackBrands
-      } else {
-        try {
-          const brandsData = await $fetch(API_ENDPOINTS.brands)
-          
-          // Brands
-          if (brandsData.data?.length) {
-            state.value.brands = brandsData.data.map(brand => ({
-              id: brand.id,
-              name: brand.name,
-              logo: brand.logo,
-              description: brand.description,
-              seller: brand.Seller?.name || ''
-            }))
-          } else {
-            console.warn('No brands data found in response, using fallback')
-            state.value.brands = fallbackBrands
-          }
-        } catch (error) {
-          console.error('Error fetching brands:', error)
-          state.value.brands = fallbackBrands
-        }
-      }
+      // Use fallback brands (API disabled to prevent 500 errors)
+      state.value.brands = []
 
       return true
     } catch (error) {
-      console.error('Error fetching filter options:', error)
 
-      // Use fallback data
-      state.value.colors = fallbackColors
-      state.value.sizes = fallbackSizes
-      state.value.categories = fallbackCategories
-      state.value.categoryTree = buildCategoryTree(fallbackCategories)
-      state.value.brands = fallbackBrands
+      // Use empty arrays as fallback
+      state.value.colors = []
+      state.value.sizes = []
+      state.value.categories = []
+      state.value.categoryTree = []
+      state.value.brands = []
 
       return false
     }
@@ -1045,6 +862,7 @@ export const useProductStore = defineStore('productStore', () => {
                 id
                 color
                 size
+                material
               }
             }
             variants {
@@ -1057,8 +875,10 @@ export const useProductStore = defineStore('productStore', () => {
                 imageUrl
               }
               attributes {
+                id
                 color
                 size
+                material
               }
             }
           }
@@ -1072,14 +892,6 @@ export const useProductStore = defineStore('productStore', () => {
       }
     `
 
-    console.log('GraphQL Query with filters:', {
-      color: filters.color || 'none',
-      size: filters.size || 'none',
-      category: filters.category || 'none',
-      brand: filters.brand || 'none',
-      page: filters.page,
-      limit: filters.limit
-    })
 
     return query
   }
@@ -1107,23 +919,26 @@ export const useProductStore = defineStore('productStore', () => {
 
       // Check if GraphQL endpoint is available
       if (!API_ENDPOINTS.graphql) {
-        console.log('GraphQL endpoint not configured, using fallback products')
-        // Set fallback flag
-        state.value.usingFallbackData = true
-        // Use fallback products for demonstration
-        await generateFallbackProducts()
-        filterAndSortProducts()
+        // Set empty state - no mock data
+        state.value.allProducts = []
+        state.value.filteredAndSortedProducts = []
+        state.value.pagination = {
+          currentPage: 1,
+          lastPage: 1,
+          total: 0,
+          perPage: 1000,
+          from: 0,
+          to: 0
+        }
         return {
-          products: state.value.filteredAndSortedProducts,
-          pagination: state.value.pagination,
-          usingFallback: true
+          products: [],
+          pagination: state.value.pagination
         }
       }
 
       // Build GraphQL query with all active filters
       const query = buildGraphQLQuery(mergedFilters)
 
-      console.log('Sending GraphQL query with filters:', mergedFilters)
 
       let response;
       let apiFailed = false;
@@ -1139,7 +954,6 @@ export const useProductStore = defineStore('productStore', () => {
           timeout: 10000 // 10 seconds timeout
         })
       } catch (apiError) {
-        console.error('GraphQL API call failed:', apiError)
         apiFailed = true
       }
 
@@ -1148,13 +962,18 @@ export const useProductStore = defineStore('productStore', () => {
           !Array.isArray(response.data.productFilter.data) || 
           response.data.productFilter.data.length === 0) {
         
-        console.warn('GraphQL API failed or returned empty data, using fallback products')
         
-        // Set fallback flag
-        state.value.usingFallbackData = true
-        // Use fallback products
-        await generateFallbackProducts()
-        filterAndSortProducts()
+        // Set empty state - no mock data
+        state.value.allProducts = []
+        state.value.filteredAndSortedProducts = []
+        state.value.pagination = {
+          currentPage: 1,
+          lastPage: 1,
+          total: 0,
+          perPage: 1000,
+          from: 0,
+          to: 0
+        }
         
         // Still update URL to maintain filter state
         if (!state.value.isUpdatingFromURL) {
@@ -1162,56 +981,75 @@ export const useProductStore = defineStore('productStore', () => {
         }
         
         return {
-          products: state.value.filteredAndSortedProducts,
-          pagination: state.value.pagination,
-          usingFallback: true
+          products: [],
+          pagination: state.value.pagination
         }
       }
 
-      console.log('GraphQL response received:', response)
+
+      // Process API response - flatten variants into individual products
+      const realProducts = []
       
-      // Reset fallback flag since API succeeded
-      state.value.usingFallbackData = false
-
-      // Process API response
-      const products = response.data.productFilter.data.map(product => {
-        // Fix image URLs
-        const fixImageUrl = (url) => {
-          if (url && !url.startsWith('http')) {
-            if (url.startsWith('/')) {
-              return `https://kartmania-api.vibrantick.org${url}`
-            } else {
-              return `https://kartmania-api.vibrantick.org/${url}`
+      response.data.productFilter.data.forEach(product => {
+        // Create a separate product entry for each variant
+        if (product.variants && product.variants.length > 0) {
+          product.variants.forEach((variant, index) => {
+            // Fix image URLs for variant
+            const fixImageUrl = (url) => {
+              if (url && !url.startsWith('http')) {
+                if (url.startsWith('/')) {
+                  return `https://kartmania-api.vibrantick.org${url}`
+                } else {
+                  return `https://kartmania-api.vibrantick.org/${url}`
+                }
+              }
+              return url
             }
-          }
-          return url
-        }
 
-        // Fix main product images
-        if (product.mainProduct?.images) {
-          product.mainProduct.images = product.mainProduct.images.map(img => ({
-            ...img,
-            imageUrl: fixImageUrl(img.imageUrl)
-          }))
-        }
-
-        // Fix variant images
-        if (product.variants) {
-          product.variants = product.variants.map(variant => ({
-            ...variant,
-            images: variant.images?.map(img => ({
+            // Fix variant images
+            const fixedVariantImages = variant.images ? variant.images.map(img => ({
               ...img,
               imageUrl: fixImageUrl(img.imageUrl)
-            })) || []
-          }))
-        }
+            })) : []
 
-        return product
+            const variantProduct = {
+              ...product,
+              // Use variant as main product for display
+              mainProduct: {
+                ...product.mainProduct,
+                // Override with variant-specific data
+                id: variant.id,
+                name: variant.name,
+                price: variant.price,
+                images: fixedVariantImages.length > 0 ? fixedVariantImages : product.mainProduct.images,
+                // Use variant attributes directly, not from main product
+                attributes: variant.attributes || product.mainProduct.attributes
+              },
+              // Keep track of variant info
+              variantId: variant.id,
+              variantIndex: index,
+              // For product link and identification
+              groupId: `${product.groupId}-variant-${variant.id}`,
+              name: variant.name
+            }
+            realProducts.push(variantProduct)
+          })
+        } else {
+          // If no variants, add the main product as-is
+          realProducts.push(product)
+        }
       })
 
-      // Update state with new products
-      state.value.allProducts = products
-      state.value.pagination = response.data.productFilter.pagination
+
+      // Update state with real products only (no mock data)
+      state.value.allProducts = realProducts
+      
+      // Update pagination to reflect actual variant count
+      state.value.pagination = {
+        ...response.data.productFilter.pagination,
+        total: realProducts.length,
+        lastPage: Math.ceil(realProducts.length / response.data.productFilter.pagination.perPage)
+      }
 
       // Apply client-side price filtering and sorting
       filterAndSortProducts()
@@ -1223,189 +1061,34 @@ export const useProductStore = defineStore('productStore', () => {
 
       return {
         products: state.value.filteredAndSortedProducts,
-        pagination: state.value.pagination,
-        usingFallback: false
+        pagination: state.value.pagination
       }
     } catch (error) {
-      console.error('Error in fetchProductsWithFilters:', error)
       
       // More detailed error logging
-      if (error.response) {
-        console.error('Response error:', error.response)
-      }
-      if (error.status) {
-        console.error('Status code:', error.status)
-      }
       
-      // Set fallback flag
-      state.value.usingFallbackData = true
-      
-      // Use fallback products on any error
-      console.warn('Using fallback products due to error')
-      await generateFallbackProducts()
-      filterAndSortProducts()
+      // Set empty state on any error
+      state.value.allProducts = []
+      state.value.filteredAndSortedProducts = []
+      state.value.pagination = {
+        currentPage: 1,
+        lastPage: 1,
+        total: 0,
+        perPage: 1000, // Increased perPage to match limit
+        from: 0,
+        to: 0
+      }
       
       return {
-        products: state.value.filteredAndSortedProducts,
-        pagination: state.value.pagination,
-        usingFallback: true
+        products: [],
+        pagination: state.value.pagination
       }
     } finally {
       state.value.isLoading = false
     }
   }
 
-  // ==================== GENERATE FALLBACK PRODUCTS ====================
 
- // ==================== GENERATE FALLBACK PRODUCTS ====================
-
-const generateFallbackProducts = async () => {
-  const fallbackProducts = []
-  const productNames = [
-    'Wireless Bluetooth Headphones',
-    'Premium Leather Jacket',
-    'Smart Watch Series 5',
-    'Running Shoes',
-    'Casual T-Shirt',
-    'Gaming Laptop',
-    'Digital Camera',
-    'Handbag',
-    'Sunglasses',
-    'Fitness Tracker',
-    'Backpack',
-    'Smartphone',
-    'Tablet',
-    'Bluetooth Speaker',
-    'Watch',
-    'Sneakers',
-    'Jeans',
-    'Hoodie',
-    'Dress',
-    'Jacket'
-  ]
-
-  const categories = ['Electronics', 'Fashion', 'Footwear', 'Accessories', 'Gaming']
-  const brands = ['Nike', 'Apple', 'Samsung', 'Adidas', 'Sony']
-
-  // Fallback product images
-  const productImages = [
-    '/assets/images/recommended/camera.webp',
-    '/assets/images/recommended/women_wear.png',
-    '/assets/images/recommended/highheels.png',
-    '/assets/images/recommended/women purse.webp',
-    '/assets/images/recommended/gaming remote.webp',
-    '/assets/images/recommended/headphones.webp',
-    '/assets/images/recommended/mens-collection.webp',
-    '/assets/images/recommended/women-collection.webp',
-    '/assets/images/placeholder.jpg'
-  ]
-
-  for (let i = 1; i <= 50; i++) {
-    const categoryIndex = Math.floor(Math.random() * categories.length)
-    const brandIndex = Math.floor(Math.random() * brands.length)
-    const colorIndex = Math.floor(Math.random() * fallbackColors.length)
-    const sizeIndex = Math.floor(Math.random() * fallbackSizes.length)
-    const imageIndex = Math.floor(Math.random() * productImages.length)
-    
-    const price = Math.floor(Math.random() * 50000) + 1000
-    const discount = Math.random() > 0.7 ? Math.floor(Math.random() * 50) + 10 : 0
-    const discountedPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price
-    
-    const category = categories[categoryIndex]
-    const brand = brands[brandIndex]
-    const color = fallbackColors[colorIndex]
-    const size = fallbackSizes[sizeIndex].size
-    const productImage = productImages[imageIndex]
-    const productName = productNames[Math.floor(Math.random() * productNames.length)]
-
-    fallbackProducts.push({
-      groupId: `fallback-${i}`,
-      name: productName,
-      category: {
-        id: categoryIndex + 1,
-        name: category
-      },
-      brand: {
-        id: brandIndex + 1,
-        name: brand
-      },
-      mainProduct: {
-        id: `main-${i}`,
-        name: productName,
-        price: price,
-        discountValue: discount,
-        description: `High-quality ${category.toLowerCase()} product from ${brand}. Perfect for everyday use with ${color} color and size ${size}.`,
-        stock: Math.floor(Math.random() * 100) + 1,
-        popularity: Math.floor(Math.random() * 100),
-        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
-        images: [{
-          id: `img-${i}`,
-          isPrimary: true,
-          imageUrl: productImage
-        }],
-        reviews: Array.from({ length: Math.floor(Math.random() * 20) + 1 }, (_, idx) => ({
-          id: `review-${i}-${idx}`,
-          rating: Math.floor(Math.random() * 5) + 1,
-          review: `Great product! ${idx + 1}`,
-          createdAt: new Date(Date.now() - Math.floor(Math.random() * 365) * 24 * 60 * 60 * 1000).toISOString()
-        })),
-        attributes: [
-          {
-            id: `attr-${i}`,
-            color: color,
-            size: size
-          }
-        ]
-      },
-      variants: [
-        {
-          id: `variant-${i}-1`,
-          name: `${productName} - ${color}`,
-          price: price + (Math.random() > 0.5 ? 500 : -500),
-          stock: Math.floor(Math.random() * 50) + 1,
-          images: [{
-            id: `variant-img-${i}`,
-            isPrimary: true,
-            imageUrl: productImage
-          }],
-          attributes: [
-            {
-              color: color,
-              size: size
-            }
-          ]
-        }
-      ]
-    })
-  }
-
-  state.value.allProducts = fallbackProducts
-  state.value.pagination = {
-    currentPage: state.value.filters.page,
-    lastPage: Math.ceil(fallbackProducts.length / state.value.filters.limit),
-    total: fallbackProducts.length,
-    perPage: state.value.filters.limit,
-    from: ((state.value.filters.page - 1) * state.value.filters.limit) + 1,
-    to: Math.min(state.value.filters.page * state.value.filters.limit, fallbackProducts.length)
-  }
-  
-  console.log(`Generated ${fallbackProducts.length} fallback products with images`)
-}
-
-  const getCategoryImage = (category) => {
-    const imageMap = {
-      'Electronics': '/assets/images/recommended/camera.webp',
-      'Fashion': '/assets/images/recommended/women_wear.png',
-      'Footwear': '/assets/images/recommended/highheels.png',
-      'Accessories': '/assets/images/recommended/women purse.webp',
-      'Gaming': '/assets/images/recommended/gaming remote.webp',
-      'Audio': '/assets/images/recommended/headphones.webp',
-      'Men': '/assets/images/recommended/mens-collection.webp',
-      'Women': '/assets/images/recommended/women-collection.webp',
-      'default': '/assets/images/placeholder.jpg'
-    }
-    return imageMap[category] || imageMap.default
-  }
 
   // ==================== UPDATE FILTERS (MULTIPLE) ====================
 
@@ -1491,7 +1174,7 @@ const generateFallbackProducts = async () => {
       category: '',
       sortBy: 'popularity',
       page: 1,
-      limit: 12,
+      limit: 1000, // Increased limit to fetch more products
       color: '',
       size: '',
       brand: '',
@@ -1537,20 +1220,14 @@ const generateFallbackProducts = async () => {
       // Get filters from URL
       const urlFilters = parseFiltersFromURL()
 
-      console.log('Syncing from URL with filters:', urlFilters)
 
       // Update filters in state
       state.value.filters = urlFilters
 
       // Fetch products with URL filters
-      const result = await fetchProductsWithFilters(urlFilters)
-      
-      if (result.usingFallback) {
-        console.log('Using fallback data while syncing from URL')
-      }
+      await fetchProductsWithFilters(urlFilters)
 
     } catch (error) {
-      console.error('Error syncing from URL:', error)
     } finally {
       setTimeout(() => {
         state.value.isUpdatingFromURL = false
@@ -1579,11 +1256,7 @@ const generateFallbackProducts = async () => {
         await syncFiltersFromURL()
       } else {
         // Load all products initially (no filters)
-        const result = await fetchProductsWithFilters({})
-        
-        if (result.usingFallback) {
-          console.log('Initialized with fallback data')
-        }
+        await fetchProductsWithFilters({})
       }
 
       state.value.hasInitialized = true
@@ -1592,7 +1265,6 @@ const generateFallbackProducts = async () => {
       return true
 
     } catch (error) {
-      console.error('Failed to initialize store:', error)
       state.value.isLoading = false
       state.value.hasInitialized = true
       return false
@@ -1612,7 +1284,6 @@ const generateFallbackProducts = async () => {
       return;
     }
     
-    console.log('Route query changed, syncing from URL...');
     syncFiltersFromURL();
   }, { deep: true, immediate: false });
 
@@ -1621,7 +1292,6 @@ const generateFallbackProducts = async () => {
   return {
     // New getters
     categoryTree,
-    usingFallbackData,
     
     // Existing getters
     products,
@@ -1659,6 +1329,7 @@ const generateFallbackProducts = async () => {
     getDescription,
     getProductColor,
     getProductSize,
+    getProductMaterial,
     getProductBrand,
     getDiscountedPrice,
     getOriginalPrice,

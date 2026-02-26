@@ -19,340 +19,22 @@ export const useRecommendStore = defineStore('recommend', () => {
     perPage: 12
   })
   
-  // New flag to track if we're using fallback
-  const usingFallbackData = ref(false)
-  
   // Cache
   const productsCache = ref({})
   const categoryCache = ref(null)
   const lastFetchTime = ref({})
   const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
-  // ==================== ENHANCED FALLBACK DATA ====================
-  const FALLBACK_PRODUCTS = [
-    {
-      groupId: 'fallback-1',
-      name: 'Wireless Headphones',
-      category: { 
-        name: 'Electronics', 
-        id: '10',
-        image: '/assets/images/recommended/headphones.webp'
-      },
-      mainProduct: {
-        id: 'fallback-1',
-        name: 'Wireless Headphones',
-        price: 2499,
-        discountValue: 15,
-        stock: 50,
-        popularity: 85,
-        images: [{
-          id: 'img-1',
-          isPrimary: true,
-          imageUrl: '/assets/images/recommended/headphones.webp'
-        }],
-        reviews: [
-          { rating: 4.5, review: 'Great sound quality!' },
-          { rating: 5, review: 'Excellent battery life' }
-        ],
-        attributes: [
-          { id: 'attr-1', color: 'Black', size: null }
-        ],
-        description: 'Noise cancelling wireless headphones with 30hr battery life.',
-        createdAt: '2024-01-15T10:30:00Z'
-      },
-      variants: []
-    },
-    {
-      groupId: 'fallback-2',
-      name: 'Sports Sneakers',
-      category: { 
-        name: 'Footwear', 
-        id: '7',
-        image: '/assets/images/recommended/highheels.png'
-      },
-      mainProduct: {
-        id: 'fallback-2',
-        name: 'Sports Sneakers',
-        price: 2999,
-        discountValue: 20,
-        stock: 30,
-        popularity: 90,
-        images: [{
-          id: 'img-2',
-          isPrimary: true,
-          imageUrl: '/assets/images/recommended/highheels.png'
-        }],
-        reviews: [
-          { rating: 4, review: 'Very comfortable' },
-          { rating: 5, review: 'Perfect for running' }
-        ],
-        attributes: [
-          { id: 'attr-2', color: 'Blue', size: '42' }
-        ],
-        description: 'Lightweight running shoes with cushion support.',
-        createdAt: '2024-02-10T14:20:00Z'
-      },
-      variants: []
-    },
-    {
-      groupId: 'fallback-3',
-      name: 'Casual T-Shirt',
-      category: { 
-        name: 'Fashion', 
-        id: '1',
-        image: '/assets/images/recommended/women_wear.png'
-      },
-      mainProduct: {
-        id: 'fallback-3',
-        name: 'Casual T-Shirt',
-        price: 799,
-        discountValue: 10,
-        stock: 100,
-        popularity: 75,
-        images: [{
-          id: 'img-3',
-          isPrimary: true,
-          imageUrl: '/assets/images/recommended/women_wear.png'
-        }],
-        reviews: [
-          { rating: 4, review: 'Good quality fabric' },
-          { rating: 3.5, review: 'Nice fit' }
-        ],
-        attributes: [
-          { id: 'attr-3', color: 'White', size: 'M' }
-        ],
-        description: 'Comfortable cotton t-shirt for daily wear.',
-        createdAt: '2024-01-20T09:15:00Z'
-      },
-      variants: []
-    },
-    {
-      groupId: 'fallback-4',
-      name: 'Smart Watch',
-      category: { 
-        name: 'Electronics', 
-        id: '10',
-        image: '/assets/images/recommended/camera.webp'
-      },
-      mainProduct: {
-        id: 'fallback-4',
-        name: 'Smart Watch',
-        price: 5999,
-        discountValue: 25,
-        stock: 20,
-        popularity: 95,
-        images: [{
-          id: 'img-4',
-          isPrimary: true,
-          imageUrl: '/assets/images/recommended/camera.webp'
-        }],
-        reviews: [
-          { rating: 5, review: 'Best smartwatch ever!' },
-          { rating: 4.5, review: 'Great features' }
-        ],
-        attributes: [
-          { id: 'attr-4', color: 'Silver', size: null }
-        ],
-        description: 'Advanced smartwatch with health monitoring features.',
-        createdAt: '2024-02-05T11:45:00Z'
-      },
-      variants: []
-    },
-    {
-      groupId: 'fallback-5',
-      name: 'Backpack',
-      category: { 
-        name: 'Accessories', 
-        id: '5',
-        image: '/assets/images/recommended/women purse.webp'
-      },
-      mainProduct: {
-        id: 'fallback-5',
-        name: 'Backpack',
-        price: 1299,
-        discountValue: 0,
-        stock: 40,
-        popularity: 65,
-        images: [{
-          id: 'img-5',
-          isPrimary: true,
-          imageUrl: '/assets/images/recommended/women purse.webp'
-        }],
-        reviews: [
-          { rating: 4, review: 'Durable and spacious' },
-          { rating: 3.5, review: 'Good for laptop' }
-        ],
-        attributes: [
-          { id: 'attr-5', color: 'Navy', size: null }
-        ],
-        description: 'Durable backpack with laptop compartment.',
-        createdAt: '2024-01-25T16:30:00Z'
-      },
-      variants: []
-    },
-    {
-      groupId: 'fallback-6',
-      name: 'Perfume',
-      category: { 
-        name: 'Personal Care', 
-        id: '8',
-        image: '/assets/images/recommended/mens-collection.webp'
-      },
-      mainProduct: {
-        id: 'fallback-6',
-        name: 'Perfume',
-        price: 1599,
-        discountValue: 30,
-        stock: 25,
-        popularity: 80,
-        images: [{
-          id: 'img-6',
-          isPrimary: true,
-          imageUrl: '/assets/images/recommended/mens-collection.webp'
-        }],
-        reviews: [
-          { rating: 4.5, review: 'Long lasting fragrance' },
-          { rating: 4, review: 'Nice packaging' }
-        ],
-        attributes: [
-          { id: 'attr-6', color: 'Clear', size: null }
-        ],
-        description: 'Premium fragrance with long lasting scent.',
-        createdAt: '2024-02-12T13:20:00Z'
-      },
-      variants: []
-    }
-  ]
-
-  const FALLBACK_CATEGORIES = [
-    { 
-      id: '1', 
-      name: 'Fashion', 
-      productCount: 16, 
-      hasProducts: true,
-      image: '/assets/images/recommended/women_wear.png',
-      fallbackImage: '/assets/images/recommended/women_wear.png'
-    },
-    { 
-      id: '5', 
-      name: 'Accessories', 
-      productCount: 11, 
-      hasProducts: true,
-      image: '/assets/images/recommended/women purse.webp',
-      fallbackImage: '/assets/images/recommended/women purse.webp'
-    },
-    { 
-      id: '7', 
-      name: 'Footwear', 
-      productCount: 9, 
-      hasProducts: true,
-      image: '/assets/images/recommended/highheels.png',
-      fallbackImage: '/assets/images/recommended/highheels.png'
-    },
-    { 
-      id: '10', 
-      name: 'Electronics', 
-      productCount: 8, 
-      hasProducts: true,
-      image: '/assets/images/recommended/camera.webp',
-      fallbackImage: '/assets/images/recommended/camera.webp'
-    },
-    { 
-      id: '8', 
-      name: 'Personal Care', 
-      productCount: 6, 
-      hasProducts: true,
-      image: '/assets/images/recommended/mens-collection.webp',
-      fallbackImage: '/assets/images/recommended/mens-collection.webp'
-    },
-    { 
-      id: '12', 
-      name: 'Men', 
-      productCount: 12, 
-      hasProducts: true,
-      image: '/assets/images/recommended/mens-collection.webp',
-      fallbackImage: '/assets/images/recommended/mens-collection.webp'
-    },
-    { 
-      id: '6', 
-      name: 'Women', 
-      productCount: 14, 
-      hasProducts: true,
-      image: '/assets/images/recommended/women-collection.webp',
-      fallbackImage: '/assets/images/recommended/women-collection.webp'
-    },
-    { 
-      id: '3', 
-      name: 'Mobile', 
-      productCount: 0, 
-      hasProducts: false,
-      image: '/assets/images/recommended/camera.webp',
-      fallbackImage: '/assets/images/recommended/camera.webp'
-    },
-    { 
-      id: '13', 
-      name: 'Kitchen', 
-      productCount: 0, 
-      hasProducts: false,
-      image: '/assets/images/recommended/camera.webp',
-      fallbackImage: '/assets/images/recommended/camera.webp'
-    },
-    { 
-      id: '11', 
-      name: 'Skin care', 
-      productCount: 0, 
-      hasProducts: false,
-      image: '/assets/images/recommended/women-collection.webp',
-      fallbackImage: '/assets/images/recommended/women-collection.webp'
-    }
-  ]
-
-  // ==================== FALLBACK IMAGES ====================
-  const getFallbackImages = (index = 0) => {
-    const fallbackImages = [
-      '/assets/images/flashsale/camera.webp',
-      '/assets/images/flashsale/earbuds.jpg',
-      '/assets/images/flashsale/jean.jpg',
-      '/assets/images/flashsale/jeans-and-tshirt.jpg',
-      '/assets/images/flashsale/mobile.jpg',
-      '/assets/images/flashsale/sandal-women.jpg',
-      '/assets/images/buysection/sneaker.jpg',
-      '/assets/images/buysection/women-kurti.jpg'
-    ]
-    return fallbackImages[index % fallbackImages.length]
-  }
-
-  const getCategoryFallbackImage = (categoryName) => {
-    const categoryImages = {
-      'Electronics': '/assets/images/recommended/camera.webp',
-      'Mobile': '/assets/images/recommended/camera.webp',
-      'Women': '/assets/images/recommended/women-collection.webp',
-      'Men': '/assets/images/recommended/mens-collection.webp',
-      'Footwear': '/assets/images/recommended/highheels.png',
-      'Fashion': '/assets/images/recommended/women_wear.png',
-      'Accessories': '/assets/images/recommended/women purse.webp',
-      'Personal Care': '/assets/images/recommended/mens-collection.webp',
-      'Kitchen': '/assets/images/recommended/camera.webp',
-      'Skin care': '/assets/images/recommended/women-collection.webp'
-    }
-    return categoryImages[categoryName] || '/assets/images/recommended/camera.webp'
-  }
-
   // Computed
   const hasProducts = computed(() => products.value.length > 0)
   const hasCategories = computed(() => categories.value.length > 0)
   
   const getAllCategories = computed(() => {
-    if (usingFallbackData.value || categories.value.length === 0) {
-      return FALLBACK_CATEGORIES
-    }
     return categories.value
   })
   
   const getCategoriesWithProducts = computed(() => {
-    const cats = usingFallbackData.value || categories.value.length === 0 
-      ? FALLBACK_CATEGORIES 
-      : categories.value
+    const cats = categories.value
     return cats.filter(cat => (cat.productCount || 0) > 0)
   })
 
@@ -487,9 +169,6 @@ export const useRecommendStore = defineStore('recommend', () => {
       
       // Check if we got product data
       if (apiProducts.value && apiProducts.value.length > 0) {
-        // Reset fallback flag since API succeeded
-        usingFallbackData.value = false
-        
         // Convert products to the expected format for the store
         const convertedProducts = apiProducts.value.map(product => ({
           groupId: product.id?.toString() || `group-${product.id}`,
@@ -520,9 +199,14 @@ export const useRecommendStore = defineStore('recommend', () => {
         
         console.log(`Products fetched for category "${category || 'all'}": ${convertedProducts.length} items`)
       } else {
-        console.warn('API returned empty products array, using fallback')
-        usingFallbackData.value = true
-        useFallbackProducts(category, limit)
+        console.warn('API returned empty products array')
+        products.value = []
+        pagination.value = {
+          currentPage: 1,
+          lastPage: 1,
+          total: 0,
+          perPage: limit
+        }
       }
 
       return products.value
@@ -530,12 +214,14 @@ export const useRecommendStore = defineStore('recommend', () => {
       error.value = err.message
       console.error('Error fetching products:', err)
       
-      // Set fallback flag
-      usingFallbackData.value = true
-      
-      // Use fallback products on error
-      const { category = null, limit = 10 } = filters
-      useFallbackProducts(category, limit)
+      // Set empty state on error
+      products.value = []
+      pagination.value = {
+        currentPage: 1,
+        lastPage: 1,
+        total: 0,
+        perPage: limit
+      }
       
       return products.value
     } finally {
@@ -543,63 +229,27 @@ export const useRecommendStore = defineStore('recommend', () => {
     }
   }
 
-  // Enhanced fallback products function
-  const useFallbackProducts = (category = null, limit = 10) => {
-    //console.log(' Using fallback products for category:', category)
-    
-    let filteredProducts = [...FALLBACK_PRODUCTS]
-    
-    if (category) {
-      // Filter by category
-      filteredProducts = FALLBACK_PRODUCTS.filter(p => 
-        p.category?.name?.toLowerCase() === category.toLowerCase()
-      )
-      
-      // If no products for category, show all
-      if (filteredProducts.length === 0) {
-        //console.log(`No fallback products for category "${category}", showing all`)
-        filteredProducts = FALLBACK_PRODUCTS
-      }
-    }
-    
-    // Apply limit
-    filteredProducts = filteredProducts.slice(0, limit)
-    
-    products.value = filteredProducts
-    
-    pagination.value = {
-      currentPage: 1,
-      lastPage: Math.ceil(FALLBACK_PRODUCTS.length / limit),
-      total: FALLBACK_PRODUCTS.length,
-      perPage: limit
-    }
-    
-    //console.log(`Showing ${filteredProducts.length} fallback products`)
-  }
-
-  // Fetch categories with enhanced fallback
+  // Fetch categories
   const fetchCategories = async (forceRefresh = false) => {
     try {
       // Check if API endpoint is available
       if (!API_URL_CATEGORY) {
-        //console.log('Categories API endpoint not configured, using fallback')
-        usingFallbackData.value = true
-        useFallbackCategories()
+        console.warn('Categories API endpoint not configured')
+        categories.value = []
         return categories.value
       }
 
       // Check cache first
       if (!forceRefresh && categoryCache.value && isCacheValid('categories')) {
-        //console.log('Using cached categories')
+        console.log('Using cached categories')
         categories.value = categoryCache.value
-        usingFallbackData.value = false
         return categories.value
       }
 
       isLoading.value = true
       error.value = null
 
-      //console.log('Fetching categories from API...', API_URL_CATEGORY)
+      console.log('Fetching categories from API...', API_URL_CATEGORY)
       
       let response;
       try {
@@ -623,26 +273,21 @@ export const useRecommendStore = defineStore('recommend', () => {
             productCount: category._count?.products || 0,
             image: category.image,
             logo: category.logo,
-            hasProducts: (category._count?.products || 0) > 0,
-            fallbackImage: getCategoryFallbackImage(category.name)
+            hasProducts: (category._count?.products || 0) > 0
           }))
           .filter(category => category.name && category.id)
           .sort((a, b) => b.productCount - a.productCount)
 
-        //console.log('Processed categories:', allCategories.length)
-        
-        // Reset fallback flag
-        usingFallbackData.value = false
+        console.log('Processed categories:', allCategories.length)
         
         categories.value = allCategories
         categoryCache.value = allCategories
         lastFetchTime.value['categories'] = Date.now()
         
-        //console.log(`Categories fetched: ${allCategories.length} items`)
+        console.log(`Categories fetched: ${allCategories.length} items`)
       } else {
-        console.warn('No valid categories data in response, using fallback')
-        usingFallbackData.value = true
-        useFallbackCategories()
+        console.warn('No valid categories data in response')
+        categories.value = []
       }
 
       return categories.value
@@ -650,46 +295,23 @@ export const useRecommendStore = defineStore('recommend', () => {
       error.value = err.message
       console.error('Error fetching categories:', err)
       
-      // Set fallback flag
-      usingFallbackData.value = true
-      
-      useFallbackCategories()
+      categories.value = []
       return categories.value
     } finally {
       isLoading.value = false
     }
   }
 
-  // Use fallback categories
-  const useFallbackCategories = () => {
-    //console.log(' Using fallback categories')
-    categories.value = FALLBACK_CATEGORIES
-    categoryCache.value = FALLBACK_CATEGORIES
-    lastFetchTime.value['categories'] = Date.now()
-  }
-
-  // ==================== PRODUCT GETTERS WITH FALLBACK ====================
+  // ==================== PRODUCT GETTERS ====================
   const getProductName = (product) => {
     if (!product) return 'Product Name'
-    
-    // Check if using fallback data
-    if (usingFallbackData.value) {
-      return product.name || product.mainProduct?.name || 'Unnamed Product'
-    }
     
     return product.name || product.mainProduct?.name || 'Unnamed Product'
   }
 
   const getProductImage = (product, index = 0) => {
-    if (!product) return getFallbackImages(index)
+    if (!product) return '/assets/images/placeholder.jpg'
     
-    // If using fallback data, return fallback image
-    if (usingFallbackData.value) {
-      return product.mainProduct?.images?.[0]?.imageUrl || 
-             getCategoryFallbackImage(product.category?.name) ||
-             getFallbackImages(index)
-    }
-
     // Try API image first
     const primaryImage = product?.mainProduct?.images?.find(img => img.isPrimary)
     if (primaryImage?.imageUrl) {
@@ -718,22 +340,12 @@ export const useRecommendStore = defineStore('recommend', () => {
       }
     }
 
-    // Use fallback image based on product index or category
-    const categoryName = product?.category?.name || ''
-    if (categoryName) {
-      return getCategoryFallbackImage(categoryName)
-    }
-    
-    // Default fallback images
-    return getFallbackImages(index)
+    // Default placeholder image
+    return '/assets/images/placeholder.jpg'
   }
 
   const getOriginalPrice = (product) => {
     if (!product) return 0
-    
-    if (usingFallbackData.value) {
-      return product.mainProduct?.price || 0
-    }
     
     const price = product?.mainProduct?.price || product?.price || 0
     return parseFloat(price) || 0
@@ -741,15 +353,6 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   const getDiscountedPrice = (product) => {
     const originalPrice = getOriginalPrice(product)
-    
-    if (usingFallbackData.value) {
-      const discountValue = product.mainProduct?.discountValue || 0
-      if (discountValue > 0 && discountValue <= 100) {
-        const discounted = originalPrice - (originalPrice * discountValue / 100)
-        return Math.max(0, Math.round(discounted))
-      }
-      return originalPrice
-    }
     
     const discountValue = product?.mainProduct?.discountValue || product?.discountValue || 0
     
@@ -763,16 +366,6 @@ export const useRecommendStore = defineStore('recommend', () => {
   const getProductRating = (product) => {
     if (!product) return 4.0
     
-    if (usingFallbackData.value) {
-      const reviews = product.mainProduct?.reviews || []
-      if (reviews.length > 0) {
-        const totalRating = reviews.reduce((sum, review) => sum + (parseFloat(review.rating) || 0), 0)
-        const average = totalRating / reviews.length
-        return parseFloat(average.toFixed(1))
-      }
-      return 4.0 + Math.random() * 0.5
-    }
-    
     const reviews = product?.mainProduct?.reviews || []
     if (reviews.length === 0) return 4.0 + Math.random() * 0.5
     
@@ -784,19 +377,11 @@ export const useRecommendStore = defineStore('recommend', () => {
   const getReviewCount = (product) => {
     if (!product) return Math.floor(Math.random() * 100) + 5
     
-    if (usingFallbackData.value) {
-      return product.mainProduct?.reviews?.length || Math.floor(Math.random() * 100) + 5
-    }
-    
     return product?.mainProduct?.reviews?.length || Math.floor(Math.random() * 100) + 5
   }
 
   const getProductStock = (product) => {
     if (!product) return Math.floor(Math.random() * 50) + 10
-    
-    if (usingFallbackData.value) {
-      return product.mainProduct?.stock || Math.floor(Math.random() * 50) + 10
-    }
     
     return product?.mainProduct?.stock || product?.stock || Math.floor(Math.random() * 50) + 10
   }
@@ -821,11 +406,6 @@ export const useRecommendStore = defineStore('recommend', () => {
   const isBestSeller = (product) => {
     if (!product) return false
     
-    if (usingFallbackData.value) {
-      const popularity = product.mainProduct?.popularity || Math.floor(Math.random() * 100)
-      return popularity > 80
-    }
-    
     const popularity = product?.mainProduct?.popularity || product?.popularity || Math.floor(Math.random() * 100)
     return popularity > 80
   }
@@ -840,21 +420,16 @@ export const useRecommendStore = defineStore('recommend', () => {
       await fetchProducts({ sortBy: 'popularity' })
       
       return { 
-        success: true, 
-        usingFallback: usingFallbackData.value 
+        success: true
       }
     } catch (err) {
       console.error('Initialize failed:', err)
       return { 
         success: false, 
-        error: err.message,
-        usingFallback: true 
+        error: err.message
       }
     }
   }
-
-  // New getter to check if using fallback
-  const isUsingFallback = computed(() => usingFallbackData.value)
 
   return {
     // State
@@ -863,14 +438,12 @@ export const useRecommendStore = defineStore('recommend', () => {
     isLoading,
     error,
     pagination,
-    usingFallbackData,
     
     // Computed
     hasProducts,
     hasCategories,
     getAllCategories,
     getCategoriesWithProducts,
-    isUsingFallback,
 
     // Actions
     fetchProducts,

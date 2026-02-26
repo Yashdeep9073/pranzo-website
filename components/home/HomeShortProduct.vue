@@ -245,64 +245,7 @@ const { offers: apiOffers, loading: offersLoading, error: offersError, refresh: 
   isActive: true,
 })
 
-const staticTopSellingProducts = [
-  {
-    id: 1,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img5.png"
-  },
-  {
-    id: 2,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img6.png"
-  },
-  {
-    id: 3,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img7.png"
-  },
-  {
-    id: 4,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img8.png"
-  },
-  {
-    id: 5,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img5.png"
-  },
-  {
-    id: 6,
-    name: "Taylor Farms Broccoli Florets Vegetables",
-    rating: 4.8,
-    reviews: '17k',
-    price: '1500.00',
-    originalPrice: '1500.00',
-    image: "/assets/images/thumbs/short-product-img5.png"
-  }
-]
-
-// Computed properties with fallback logic
+// Computed properties
 const featuredProducts = computed(() => {
   if (apiProducts.value.length > 0) {
     return apiProducts.value.slice(0, 6).map(product => ({
@@ -415,20 +358,19 @@ const weekDealProduct = computed(() => {
     }
   }
   
-  // Fallback to static data
+  // If no offers, return empty state
   return {
     id: 1,
-    name: "Perfectly Packed Meat Combos for Delicious and Flavorful Meals Every Day",
-    price: 60.99,
-    originalPrice: 79.99,
-    stock: 35,
+    name: "No deals available",
+    price: 0,
+    originalPrice: 0,
+    stock: 0,
     image: "/assets/images/thumbs/week-deal-img.png",
     startDate: null,
     endDate: null
   }
 })
 
-// Week Deal Countdown - Dynamic based on offer dates
 // Week Deal Countdown - Dynamic based on offer dates
 const weekDealCountdown = ref({
   days: '03',

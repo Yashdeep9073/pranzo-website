@@ -26,15 +26,14 @@
                 <span class="tab-label">All Products</span>
               </button>
                
-              <!-- Categories from API or Fallback -->
+              <!-- Categories from API -->
               <button 
                 v-for="(category, index) in allCategories"
                 :key="category.id"
                 class="tab-button"
                 :class="{ 
                   active: activeTab === category.id,
-                  'no-products': category.productCount === 0,
-                  'fallback-category': isFallbackData
+                  'no-products': category.productCount === 0
                 }"
                 @click="loadProductsForCategory(category.id)"
                 :disabled="(isLoading && activeTab !== category.id) || category.productCount === 0"
@@ -42,7 +41,6 @@
               >
                 <span class="tab-label">
                   {{ category.name }}
-                  <!-- <span v-if="isFallbackData" class="fallback-badge">DEMO</span> -->
                 </span>  
               </button>
             </div>
@@ -89,7 +87,6 @@
           >
             <div 
               class="product-card"
-              :class="{ 'fallback-product': isFallbackProduct(product) }"
             > 
               <!-- Product Badges -->
               <div class="product-badges">
@@ -100,11 +97,10 @@
               <button 
                 class="wishlist-btn"
                 @click="addToWishlist(product)"
-                :disabled="isLoading || isFallbackProduct(product)"
-                :title="isFallbackProduct(product) ? 'Demo mode' : isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                :disabled="isLoading"
+                :title="isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'"
                 :class="{ 
-                  'in-wishlist': isInWishlist(product),
-                  'fallback-disabled': isFallbackProduct(product)
+                  'in-wishlist': isInWishlist(product)
                 }"
               >
                 <i :class="['ph', isInWishlist(product) ? 'ph-heart-fill' : 'ph-heart']"></i>
@@ -186,9 +182,9 @@
                   <!-- Add to Cart Button -->
                   <button 
                     @click.stop="handleAddToCart(product)"
-                    :disabled="isFallbackProduct(product) || getProductStock(product) === 0 || isAddingToCart"
+                    :disabled="getProductStock(product) === 0 || isAddingToCart"
                     class="add-to-cart-btn"
-                    :class="{ 'disabled': isFallbackProduct(product) || getProductStock(product) === 0 || isAddingToCart }"
+                    :class="{ 'disabled': getProductStock(product) === 0 || isAddingToCart }"
                   >
                     <i v-if="!isAddingToCart" class="ph ph-shopping-cart"></i>
                     <i v-else class="ph ph-spinner-gap animate-spin"></i>
@@ -217,12 +213,6 @@
           View More
         </button>
       </div>
-      
-      <!-- Demo Mode Indicator -->
-      <!-- <div v-if="isFallbackData && filteredProducts.length > 0" class="demo-notice">
-        <i class="ph ph-info"></i>
-        <span>Showing demo products. API connection will be restored automatically.</span>
-      </div> -->
     </div>
   </section>
 </template>
@@ -251,7 +241,6 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const currentPage = ref(1)
 const productsPerPage = 10
-const isFallbackData = ref(false)
 const isAddingToCart = ref(false) // Prevent multiple clicks
 
 // Tab scrolling
@@ -269,15 +258,8 @@ const filteredProducts = computed(() => recommendStore.products || [])
 
 const pagination = computed(() => recommendStore.pagination || { total: 0, perPage: productsPerPage })
 
-// Check if product is fallback
-const isFallbackProduct = (product) => {
-  return product?.groupId?.includes('fallback') || product?.groupId?.includes('demo')
-}
-
-// Handle image error with fallback
+// Handle image error
 const handleImageError = (event, index) => {
-  //console.log('Image failed to load, using fallback:', event.target.src)
-  
   // Hide broken image
   const img = event.target
   img.style.display = 'none'
@@ -286,26 +268,16 @@ const handleImageError = (event, index) => {
 
 // Get product link
 const getProductLink = (product) => {
-  if (isFallbackProduct(product)) {
-    return '/shop/shop-all/--1'
-  }
   return `/shop/shop-all/${getProductName(product)}--${product.groupId}`
 }
 
 // Initialize
 onMounted(async () => {
-  //console.log('Component mounted - Loading initial data')
-  
   isLoading.value = true
   
   try {
     // Load categories first
     await recommendStore.fetchCategories()
-    
-    // Check if using fallback categories
-    if (allCategories.value.some(cat => cat.id.includes('fallback') || cat.name === 'DEMO')) {
-      isFallbackData.value = true
-    }
     
     // Load "All" products
     activeTab.value = 'all'
@@ -316,11 +288,6 @@ onMounted(async () => {
       sortBy: 'popularity'
     })
     
-    // Check if using fallback products
-    if (filteredProducts.value.some(p => isFallbackProduct(p))) {
-      isFallbackData.value = true
-    }
-    
     // Check if we need scroll buttons
     nextTick(() => {
       checkScrollButtons()
@@ -329,7 +296,6 @@ onMounted(async () => {
   } catch (error) {
     console.error('Initialization error:', error)
     errorMessage.value = 'Failed to load data. Please try again.'
-    isFallbackData.value = true
   } finally {
     isLoading.value = false
   }
@@ -437,14 +403,6 @@ const viewMoreProducts = async () => {
 
 // Product actions
 const addToWishlist = (product) => {
-  if (isFallbackProduct(product)) {
-    toast.info('This is a demo product. Add real products when API is connected.', {
-      position: 'top-center',
-      timeout: 2000
-    })
-    return
-  }
-  
   try {
     const wasInWishlist = wishlistStore?.hasProduct?.(product)
     wishlistStore?.toggleItem?.(product)
@@ -505,23 +463,13 @@ const handleAddToCart = (product) => {
     return
   }
   
-  // Extract the actual product data from the nested structure
+  // Extract actual product data from nested structure
   const actualProduct = product.mainProduct || product
   
   if (!actualProduct || !actualProduct.id) {
     console.error('Invalid product:', actualProduct)
     toast.error("Invalid product data", {
       position: "top-center",
-      timeout: 2000,
-      hideProgressBar: true
-    })
-    return
-  }
-  
-  if (isFallbackProduct(product)) {
-    console.log('Product is fallback, skipping cart addition')
-    toast.info("Demo mode - Cannot add to cart", {
-      position: "top-center", 
       timeout: 2000,
       hideProgressBar: true
     })
@@ -565,79 +513,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Previous CSS remains the same, add these new styles */
-
-/* Fallback badge */
-.fallback-badge {
-  background: #f59e0b;
-  color: white;
-  font-size: 0.6rem;
-  padding: 1px 4px;
-  border-radius: 3px;
-  margin-left: 4px;
-  vertical-align: top;
-}
-
-.fallback-category {
-  opacity: 0.9;
-}
-
-.fallback-category.active {
-  background: #f59e0b;
-}
-
-.fallback-product {
-  border: 1px dashed #f59e0b;
-}
-
-.badge.fallback {
-  background: #f59e0b;
-}
-
-.wishlist-btn.fallback-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.wishlist-btn.fallback-disabled:hover {
-  background: white;
-  border-color: #e5e7eb;
-}
-
-/* Demo notice */
-.demo-notice {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #9a3412;
-  font-size: 0.9rem;
-}
-
-.demo-notice i {
-  font-size: 1.1rem;
-}
-
-/* Demo button in empty state */
-.demo-btn {
-  background: #f59e0b;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 12px;
-}
-
-.demo-btn:hover {
-  background: #d97706;
-}
+/* Previous CSS remains the same */
 
 /* Stock status */
 .stock-status {
@@ -1513,18 +1389,6 @@ onUnmounted(() => {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-}
-
-/* Fallback Indicator */
-.fallback-indicator {
-  text-align: center;
-  margin-top: 15px;
-  padding: 8px;
-  font-size: 0.85rem;
-}
-
-.fallback-indicator i {
-  margin-right: 5px;
 }
 
 /* Buttons */
