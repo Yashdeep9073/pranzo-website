@@ -225,7 +225,7 @@ onMounted(() => {
 
 .brand-card:hover {
   transform: translateY(-4px);
-  border-color: #3b82f6;
+  border-color: #CA2D52;
   box-shadow: 0 12px 20px -6px rgba(59, 130, 246, 0.15), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
 }
 
@@ -293,8 +293,8 @@ onMounted(() => {
 }
 
 .nav-btn:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #CA2D52;
+  border-color: #CA2D52;
   color: white;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
@@ -311,7 +311,7 @@ onMounted(() => {
   height: 40px;
   border: 3px solid rgba(59, 130, 246, 0.1);
   border-radius: 50%;
-  border-top-color: #3b82f6;
+  border-top-color: #CA2D52;
   animation: spin 1s ease-in-out infinite;
 }
 

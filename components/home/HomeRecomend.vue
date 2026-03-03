@@ -266,7 +266,7 @@ const handleImageError = (event, index) => {
 
 // Get product link
 const getProductLink = (product) => {
-  return `/shop-all/${getProductName(product)}--${product.groupId}`
+  return `/shop/shop-all/${getProductName(product)}--${product.groupId}`
 }
 
 // Initialize
@@ -520,7 +520,7 @@ onUnmounted(() => {
 }
 
 .stock-status .in-stock {
-  color: #059669;
+  color: var(--main-600);
 }
 
 .stock-status .low-stock {
@@ -533,7 +533,7 @@ onUnmounted(() => {
 
 /* ==================== ADD TO CART BUTTON ==================== */
 .add-to-cart-btn {
-  background: linear-gradient(135deg, #1b6db5 0%, #2a8ce6 100%);
+  background: linear-gradient(135deg, var(--main-600), var(--main-700));
   color: white;
   border: none;
   padding: 8px 16px;
@@ -551,9 +551,9 @@ onUnmounted(() => {
 }
 
 .add-to-cart-btn:hover:not(.disabled) {
-  background: linear-gradient(135deg, #1558a8 0%, #1e7bc8 100%);
+  background: linear-gradient(135deg, var(--main-700), var(--main-800));
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(27, 109, 181, 0.3);
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.3);
 }
 
 .add-to-cart-btn.disabled {
@@ -633,9 +633,9 @@ onUnmounted(() => {
 
 .scroll-btn:hover:not(:disabled) {
   background: #f9fafb;
-  border-color: #1b6db5;
-  color: #1b6db5;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--main-600);
+  color: var(--main-600);
+  box-shadow: 0 4px 8px rgba(202, 45, 82, 0.1);
 }
 
 .scroll-btn:disabled {
@@ -674,18 +674,18 @@ onUnmounted(() => {
 }
 
 .tab-button:hover:not(:disabled) {
-  color: #1b6db5;
-  border-color: #1b6db5;
+  color: var(--main-600);
+  border-color: var(--main-600);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(27, 109, 181, 0.15);
+  box-shadow: 0 2px 8px rgba(202, 45, 82, 0.15);
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #1b6db5 0%, #2a8ce6 100%);
+  background: linear-gradient(135deg, var(--main-600), var(--main-700));
   color: white;
-  border-color: #1b6db5;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(27, 109, 181, 0.25);
+  border-color: var(--main-600);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(202, 45, 82, 0.25);
 }
 
 .tab-button:disabled {
@@ -836,8 +836,8 @@ onUnmounted(() => {
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #1b6db5;
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.15);
+  border-color: var(--main-600);
 }
 
 /* ==================== PRODUCT BADGES ==================== */
@@ -861,11 +861,11 @@ onUnmounted(() => {
 }
 
 .badge.sale {
-  background: #1d79c5;
+  background: var(--main-600);
 }
 
 .badge.best {
-  background: #0891b2;
+  background: var(--main-700);
 }
 
 .badge.out-of-stock {
@@ -1401,12 +1401,12 @@ onUnmounted(() => {
 }
 
 .btn-main {
-  background: #1b6db5;
+  background: linear-gradient(135deg, var(--main-600), var(--main-700));
   color: white;
 }
 
 .btn-main:hover {
-  background: #155a9e;
+  background: linear-gradient(135deg, var(--main-700), var(--main-800));
 }
 
 .btn-main i {

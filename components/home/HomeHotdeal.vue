@@ -287,7 +287,7 @@ const getProductImage = (product: any) => {
 
 /* Explore Button */
 .explore-shop-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #CA2D52 0%, #830622 100%);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -306,7 +306,7 @@ const getProductImage = (product: any) => {
 }
 
 .explore-shop-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #830622 0%, #CA2D52 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
@@ -608,7 +608,7 @@ const getProductImage = (product: any) => {
 }
 
 .quick-view-btn:hover {
-  background: #3b82f6;
+  background: #CA2D52;
   color: white;
   transform: scale(1.1);
 }
@@ -637,7 +637,7 @@ const getProductImage = (product: any) => {
 }
 
 .product-name-link:hover {
-  color: #3b82f6;
+  color: #CA2D52;
 }
 
 .product-price-section {
@@ -680,7 +680,7 @@ const getProductImage = (product: any) => {
 }
 
 .add-cart-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #CA2D52 0%, #830622 100%);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -697,7 +697,7 @@ const getProductImage = (product: any) => {
 }
 
 .add-cart-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #830622 0%, #CA2D52 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
@@ -851,9 +851,9 @@ const getProductImage = (product: any) => {
 
 .deals-prev:hover,
 .deals-next:hover {
-  background: #4f46e5;
+  background: #CA2D52;
   color: white;
-  border-color: #4f46e5;
+  border-color: #CA2D52;
   transform: scale(1.1);
 }
 

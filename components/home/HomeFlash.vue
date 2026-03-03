@@ -373,7 +373,7 @@ h5 {
   width: 48px;
   height: 48px;
   border: 3px solid #e2e8f0;
-  border-top-color: #3b82f6;
+  border-top-color: #CA2D52;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -436,7 +436,7 @@ h5 {
   transform: translateY(-4px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-color: #3b82f6;
+  border-color: #CA2D52;
 }
 
 /* Add to Cart Button */
@@ -444,8 +444,8 @@ h5 {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: rgba(202, 45, 82, 0.1);
+  color: #CA2D52;
   border: none;
   padding: 8px 16px;
   border-radius: 20px;
@@ -467,7 +467,7 @@ h5 {
 }
 
 .add-cart-btn:hover {
-  background: #3b82f6;
+  background: #CA2D52;
   color: white;
 }
 
@@ -584,7 +584,7 @@ h5 {
 }
 
 .product-link:hover {
-  color: #3b82f6;
+  color: #CA2D52;
 }
 
 /* Progress Section */
@@ -645,9 +645,9 @@ h5 {
 }
 
 .nav-btn:hover {
-  background: #3b82f6;
+  background: #CA2D52;
   color: white;
-  border-color: #3b82f6;
+  border-color: #CA2D52;
   transform: scale(1.1);
 }
 

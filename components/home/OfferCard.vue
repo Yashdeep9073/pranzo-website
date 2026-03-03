@@ -226,12 +226,12 @@ const formatDate = (dateString: string) => {
 }
 
 .badge-text {
-  background: white;
-  color: #1e293b;
+  background: var(--main-600);
+  color: white;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(202, 45, 82, 0.2);
 }
 
 .offer-card__content {
@@ -244,7 +244,7 @@ const formatDate = (dateString: string) => {
   display: inline-block;
   padding: 4px 10px;
   background: #eef2ff;
-  color: #4f46e5;
+  color: #CA2D52;
   border-radius: 4px;
   font-size: 0.625rem;
   font-weight: 600;
@@ -303,30 +303,30 @@ const formatDate = (dateString: string) => {
 }
 
 .btn-primary {
-  background: #4f46e5;
+  background: #CA2D52;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #4338ca;
+  background: var(--main-700);
 }
 
 .btn-danger {
-  background: #dc2626;
+  background: var(--main-600);
   color: white;
 }
 
 .btn-danger:hover {
-  background: #b91c1c;
+  background: var(--main-700);
 }
 
 .btn-success {
-  background: #16a34a;
+  background: var(--main-600);
   color: white;
 }
 
 .btn-success:hover {
-  background: #15803d;
+  background: var(--main-700);
 }
 
 .btn-warning {
@@ -339,12 +339,12 @@ const formatDate = (dateString: string) => {
 }
 
 .btn-info {
-  background: #0891b2;
+  background: var(--main-600);
   color: white;
 }
 
 .btn-info:hover {
-  background: #0e7490;
+  background: var(--main-700);
 }
 
 .btn-secondary {

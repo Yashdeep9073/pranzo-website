@@ -20,7 +20,7 @@
               required 
             /> 
 
-            <button type="submit" class="btn py-20 px-32 bg-success-600 flex-shrink-0 hover-bg-success-700 flex-grow-1"
+            <button type="submit" class="btn py-20 px-32 bg-main-600 flex-shrink-0 hover-bg-main-700 flex-grow-1"
               :disabled="loading">
               {{ loading ? 'Subscribing...' : 'Subscribe now' }}
             </button>

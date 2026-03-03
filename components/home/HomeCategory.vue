@@ -159,7 +159,7 @@ const getSubCategoryLink = (category, sub) => {
   bottom: -6px;
   width: 40px;         
   height: 2.2px;         
-  background: #2896f6;  
+  background: #CA2D52;  
   border-radius: 2px;
 }
 

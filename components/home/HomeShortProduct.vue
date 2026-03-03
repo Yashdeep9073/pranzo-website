@@ -205,7 +205,7 @@
               </p>
   
               <div class="progress w-100 bg-gray-100 rounded-pill h-8" role="progressbar" aria-label="Basic example" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar bg-success-600 rounded-pill" style="width: 35%"></div>
+                <div class="progress-bar bg-main-600 rounded-pill" style="width: 35%"></div>
               </div>
               
               <div class="d-flex align-items-center gap-6 mt-6">
@@ -213,7 +213,7 @@
                 <h6 class="text-danger-600 mb-0 text-md fw-semibold">₹{{ weekDealProduct.price }}</h6>
               </div>
               
-              <button @click="addToCart(weekDealProduct)" class="product-card__cart btn bg-success-600 text-white hover-bg-success-700 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center">
+              <button @click="addToCart(weekDealProduct)" class="product-card__cart btn bg-main-600 text-white hover-bg-main-700 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center">
                 Add To Cart <i class="ph ph-shopping-cart"></i> 
               </button>
             </div>

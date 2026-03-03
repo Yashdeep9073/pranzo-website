@@ -1866,7 +1866,7 @@ onMounted(() => {
 }
 
 .thumbnail-item.active-thumbnail {
-  border-color: #3b82f6;
+  border-color: #CA2D52;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
@@ -1966,7 +1966,7 @@ onMounted(() => {
   width: 24px;
   height: 8px;
   border-radius: 4px;
-  background-color: #3b82f6;
+  background-color: #CA2D52;
 }
 
 /* Mobile Thumbnails Slider */
@@ -1995,7 +1995,7 @@ onMounted(() => {
 }
 
 .mobile-thumbnail-item.mobile-active-thumbnail {
-  border-color: #3b82f6;
+  border-color: #CA2D52;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
@@ -2155,12 +2155,12 @@ onMounted(() => {
 
 .btn-outline-main {
   background: transparent;
-  border: 1px solid #3b82f6;
-  color: #3b82f6;
+  border: 1px solid #CA2D52;
+  color: #CA2D52;
 }
 
 .btn-outline-main:hover {
-  background: #3b82f6;
+  background: #CA2D52;
   color: white;
 }
 
@@ -2257,7 +2257,7 @@ onMounted(() => {
 
 /* Button Styles */
 .btn-main {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #CA2D52 0%, #830622 100%);
   color: white;
   border: none;
 }

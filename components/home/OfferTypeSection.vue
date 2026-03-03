@@ -95,17 +95,17 @@ const toggleShowAll = () => {
 
 .theme-primary {
   background: #eef2ff;
-  color: #4f46e5;
+  color: #CA2D52;
 }
 
 .theme-danger {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--main-50);
+  color: var(--main-600);
 }
 
 .theme-success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--main-50);
+  color: var(--main-600);
 }
 
 .theme-warning {
@@ -114,8 +114,8 @@ const toggleShowAll = () => {
 }
 
 .theme-info {
-  background: #cffafe;
-  color: #0891b2;
+  background: var(--main-50);
+  color: var(--main-600);
 }
 
 .theme-secondary {
@@ -139,9 +139,9 @@ const toggleShowAll = () => {
 }
 
 .btn-outline:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #1e293b;
+  background: var(--main-50);
+  border-color: var(--main-200);
+  color: var(--main-600);
 }
 
 .btn-sm {

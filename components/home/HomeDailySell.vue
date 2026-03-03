@@ -104,7 +104,7 @@
                 <span class="text-sm fw-medium text-heading">{{ dailyDealsOffers[0].description || 'Limited time offer' }}</span>
                 <span class="text-xs text-heading">Expire {{ new Date(dailyDealsOffers[0].endDate).toLocaleDateString() }}</span>
               </div>
-              <NuxtLink to="/shop-all" class="mt-16 btn bg-success-600 hover-text-white hover-bg-success-700 text-white fw-medium d-inline-flex align-items-center rounded-pill gap-8">
+              <NuxtLink to="/shop-all" class="mt-16 btn bg-main-600 hover-text-white hover-bg-main-700 text-white fw-medium d-inline-flex align-items-center rounded-pill gap-8">
                 Shop Now
                 <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span>
               </NuxtLink>
@@ -125,7 +125,7 @@
                 <span class="text-sm fw-medium text-heading">Delivery by 6:15am</span>
                 <span class="text-xs text-heading">Expire Aug 5</span>
               </div>
-              <NuxtLink to="/shop-all" class="mt-16 btn bg-success-600 hover-text-white hover-bg-success-700 text-white fw-medium d-inline-flex align-items-center rounded-pill gap-8">
+              <NuxtLink to="/shop-all" class="mt-16 btn bg-main-600 hover-text-white hover-bg-main-700 text-white fw-medium d-inline-flex align-items-center rounded-pill gap-8">
                 Shop Now
                 <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span>
               </NuxtLink>

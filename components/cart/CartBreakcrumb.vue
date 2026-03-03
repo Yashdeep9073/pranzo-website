@@ -93,7 +93,7 @@ a {
 }
 
 a:hover {
-  color: #3b82f6;
+  color: #CA2D52;
 }
 
 /* Text styles */
@@ -106,11 +106,11 @@ a:hover {
 }
 
 .text-main-600 {
-  color: #3b82f6;
+  color: #CA2D52;
 }
 
 .hover-text-main-600:hover {
-  color: #3b82f6;
+  color: #CA2D52;
 }
 
 .mb-0 {

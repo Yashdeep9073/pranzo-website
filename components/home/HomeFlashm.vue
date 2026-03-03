@@ -76,7 +76,7 @@
                     to="/shop-all" 
                     :class="[
                       'btn d-inline-flex align-items-center rounded-pill gap-8 mt-24',
-                      index === 0 ? 'btn-main' : 'bg-success-600 hover-bg-success-700'
+                      index === 0 ? 'btn-main' : 'bg-main-600 hover-bg-main-700'
                     ]"
                   >
                     Shop Now
@@ -99,13 +99,13 @@
               delay: 3000,
               disableOnInteraction: false,
               pauseOnMouseEnter: true
-            }"
+            } as any"
             :speed="500"
             :grab-cursor="true"
             :pagination="{
               clickable: true,
               dynamicBullets: true
-            }"
+            } as any"
             class="flash-sales-swiper"
           >
             <SwiperSlide
@@ -146,7 +146,7 @@
                     to="/shop-all" 
                     :class="[
                       'btn d-inline-flex align-items-center justify-content-center rounded-pill gap-4 gap-md-6 px-4 px-md-5 py-2 py-md-3 text-xs text-md-sm fw-semibold',
-                      index === 0 ? 'btn-main' : 'bg-success-600 hover-bg-success-700 text-white'
+                      index === 0 ? 'btn-main' : 'bg-main-600 hover-bg-main-700 text-white'
                     ]"
                   >
                     Shop Now
@@ -521,7 +521,7 @@ onUnmounted(() => {
 
 /* Button Styles */
 .btn-main {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #CA2D52, #830622);
   border: none;
   padding: 12px 28px;
   font-weight: 600;
@@ -537,21 +537,21 @@ onUnmounted(() => {
   color: white;
 }
 
-.bg-success-600 {
-  background: linear-gradient(135deg, #059669, #047857) !important;
+.bg-main-600 {
+  background: linear-gradient(135deg, var(--main-600), var(--main-700)) !important;
   border: none !important;
   padding: 12px 28px;
   font-weight: 600;
   color: white;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 4px 15px rgba(202, 45, 82, 0.3);
 }
 
-.bg-success-600:hover {
-  background: linear-gradient(135deg, #047857, #065f46) !important;
+.bg-main-600:hover {
+  background: linear-gradient(135deg, var(--main-700), var(--main-800)) !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+  box-shadow: 0 6px 20px rgba(202, 45, 82, 0.4);
   color: white;
 }
 
@@ -575,7 +575,7 @@ onUnmounted(() => {
 
 :deep(.swiper-pagination-bullet-active) {
   width: 24px;
-  background: #4f46e5;
+  background: #CA2D52;
   border-radius: 4px;
 }
 
@@ -649,7 +649,7 @@ onUnmounted(() => {
   }
   
   .btn-main,
-  .bg-success-600 {
+  .bg-main-600 {
     padding: 10px 20px !important;
   }
 }
@@ -676,7 +676,7 @@ onUnmounted(() => {
   }
   
   .btn-main,
-  .bg-success-600 {
+  .bg-main-600 {
     padding: 8px 16px !important;
     font-size: 0.75rem !important;
   }
@@ -715,7 +715,7 @@ onUnmounted(() => {
   }
   
   .btn-main,
-  .bg-success-600 {
+  .bg-main-600 {
     padding: 6px 12px !important;
     font-size: 0.6875rem !important;
   }

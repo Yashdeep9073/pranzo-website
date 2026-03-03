@@ -2,7 +2,7 @@
   <div class="category-dropdown-wrapper position-relative">
     <button
       type="button"
-      class="category-button d-flex align-items-center gap-12 text-white bg-success-600 px-20 py-16 rounded-6 hover-bg-success-700 transition-2"
+      class="category-button d-flex align-items-center gap-12 text-white bg-main-600 px-20 py-16 rounded-6 hover-bg-main-700 transition-2"
       @click="toggleDropdown"
       @blur="onBlur"
     >
@@ -16,7 +16,7 @@
     <!-- Dropdown Start -->
     <div
       v-if="isOpen"
-      class="category-dropdown border border-success-200 shadow bg-white p-16 rounded-16 w-100 max-w-472 position-absolute inset-block-start-100 inset-inline-start-0 z-99 transition-2"
+      class="category-dropdown border border-main-200 shadow bg-white p-16 rounded-16 w-100 max-w-472 position-absolute inset-block-start-100 inset-inline-start-0 z-99 transition-2"
       @mouseenter="keepOpen = true"
       @mouseleave="closeDropdown"
     >

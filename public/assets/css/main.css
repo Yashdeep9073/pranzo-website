@@ -59,14 +59,14 @@
     --display-one: clamp(2.5rem, -0.0733rem + 6.3692vw, 7.5rem);
   /* Font Size End */
   /* template main color */
-    --main-h: 196;
-    --main-s: 69%;
-    --main-l: 36%;
+    --main-h: 349;
+    --main-s: 61%;
+    --main-l: 47%;
     --main: var(--main-h) var(--main-s) var(--main-l);
   /* template main color */
-    --main-two-h: 224;
-    --main-two-s: 71%;
-    --main-two-l: 49%;
+    --main-two-h: 347;
+    --main-two-s: 88%;
+    --main-two-l: 27%;
     --main-two: var(--main-two-h) var(--main-two-s) var(--main-two-l);
   /* White Color */
     --white: 0 0% 100%;
@@ -651,6 +651,7 @@ textarea + .input-icon {
 .select-has-icon select {
     background-image: none;
     -webkit-appearance: none;
+    appearance: none;
     padding: 20px 24px;
     font-size: 18px;
 }
@@ -746,6 +747,7 @@ input::-webkit-inner-spin-button {
 
 input[type=number] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 /* Custom Checkbox & Radio Css Start */
@@ -8092,6 +8094,7 @@ padding-block-start: 10px !important;
 .text-line-1 {
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -8100,6 +8103,7 @@ padding-block-start: 10px !important;
 .text-line-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -8108,6 +8112,7 @@ padding-block-start: 10px !important;
 .text-line-3 {  
     display: -webkit-box; 
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis; 
@@ -10296,6 +10301,7 @@ padding-block-start: 10px !important;
     .testimonials-item__desc {
         display: -webkit-box;
         -webkit-line-clamp: 3;
+        line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;

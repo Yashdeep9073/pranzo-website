@@ -166,7 +166,7 @@ const handleImageError = (e: Event) => {
   position: absolute;
   left: 1px;
   top: 0;
-  background: linear-gradient(90deg, #006124, #02c0b3);
+  background: linear-gradient(90deg, #CA2D52, #830622);
   padding: 6px 16px;
   border-radius: 11px;
   z-index: 4;
@@ -236,7 +236,7 @@ const handleImageError = (e: Event) => {
 
 .shop-btn {
   background: #fff;
-  color: #046ab7;
+  color: #CA2D52;
   border: none;
   padding: 8px 18px;
   font-size: 13px;

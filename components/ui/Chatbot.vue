@@ -315,7 +315,7 @@ background: linear-gradient(
 
 /* ---------- HEADER ---------- */
 .chatbot-header {
-  background: #4f46e5;
+  background: #CA2D52;
   color: white;
   padding: 10px 12px;
   font-weight: 600;
@@ -339,7 +339,7 @@ background: linear-gradient(
 
 .chatbot-quick-questions span {
   background: #eef2ff;
-  color: #3730a3;
+  color: #CA2D52;
   padding: 4px 8px;
   font-size: 12px;
   border-radius: 6px;
@@ -362,7 +362,7 @@ background: linear-gradient(
 }
 
 .message.user {
-  background: #4f46e5;
+  background: #CA2D52;
   color: white;
   margin-left: auto;
 }
@@ -389,7 +389,7 @@ background: linear-gradient(
 .chatbot-input button {
   margin-left: 6px;
   padding: 6px 10px;
-  background: #4f46e5;
+  background: #CA2D52;
   color: white;
   border: none;
   border-radius: 6px;

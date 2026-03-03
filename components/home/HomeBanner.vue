@@ -212,7 +212,7 @@ onUnmounted(() => {
   width: 20px;
   height: 20px;
   border: 2px solid #ddd;
-  border-top-color: #007bff;
+  border-top-color: #CA2D52;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -313,7 +313,7 @@ onUnmounted(() => {
 }
 
 .shop-btn {
-  background: linear-gradient(135deg, #ff6b35, #ff8e53);
+  background: linear-gradient(135deg, #CA2D52, #830622);
   color: white;
   border: none;
   padding: 12px 30px;
