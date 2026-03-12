@@ -325,6 +325,11 @@ onBeforeUnmount(() => {
   display: none;
 }
 
+/* Hide mobile swiper on desktop by default */
+.mobile-deals-swiper {
+  display: none;
+}
+
 /* Arrow positioning - ORIGINAL */
 .arrow-center {
   position: relative;
