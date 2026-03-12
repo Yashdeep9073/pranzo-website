@@ -59,47 +59,44 @@
       </div>
     </div>
 
-    <!-- Mobile Grid Layout (325px and above) -->
-    <div v-if="!isLoading && categories.length > 0" class="mobile-deals-grid">
+    <!-- Mobile Swiper Layout (325px and above) -->
+    <div v-if="!isLoading && categories.length > 0" class="mobile-deals-swiper">
       <swiper
         :modules="modules"
-        :slides-per-view="1"
+        :slides-per-view="3.5"
         :space-between="12"
-        :loop="categories.length > 4" 
-        class="deal-grid-swiper"
+        :loop="false"
+        :direction="'horizontal'"
+        :rtl="false"
+        class="deal-swiper"
       >
-        <!-- 1 slide = 4 cards -->
+        <!-- Individual category slides -->
         <swiper-slide
-          v-for="(chunk, index) in chunkedCategories"
-          :key="index"
+          v-for="category in categories"
+          :key="category.id"
         >
-         <div class="deal-grid">
-  <NuxtLink
-    v-for="category in chunk"
-    :key="category.id"
-    :to="getCategoryLink(category)"
-    class="deal-card"
-  >
-    <!-- Background Image -->
-    <div
-      class="deal-bg"
-      :style="{
-        backgroundImage: `url(${getCategoryImage(category)})` 
-      }"
-    ></div>
+         <NuxtLink
+           :to="getCategoryLink(category)"
+           class="deal-card"
+         >
+           <!-- Circular Background Image -->
+           <div
+             class="deal-bg"
+             :style="{
+               backgroundImage: `url(${getCategoryImage(category)})` 
+             }"
+           ></div>
 
-    <!-- Count badge -->
-    <div class="deal-count">
-      {{ category.productCount || 0 }}+
-    </div>
+           <!-- Count badge -->
+           <div class="deal-count">
+             {{ category.productCount || 0 }}+
+           </div>
 
-    <!-- Name -->
-    <div class="deal-name">
-      {{ category.name }}
-    </div>
-  </NuxtLink>
-</div>
-
+           <!-- Name -->
+           <div class="deal-name">
+             {{ category.name }}
+           </div>
+         </NuxtLink>
         </swiper-slide>
       </swiper>
     </div>
@@ -416,41 +413,51 @@ onBeforeUnmount(() => {
   100% { background-position: 200% 0; }
 }
 
-/* MOBILE DEALS GRID LAYOUT - 325px and above */
+/* MOBILE DEALS SWIPER LAYOUT - 325px and above */
 @media (min-width: 320px) and (max-width: 576px) {
   /* Hide desktop categories on mobile */
   .desktop-categories {
     display: none !important;
   }
   
-  /* Show mobile deals grid */
-  .mobile-deals-grid {
+  /* Show mobile deals swiper */
+  .mobile-deals-swiper {
     display: block;
     padding: 7px 0;
   }
   
-  /* Deal grid styling */
-.deal-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* Deal swiper styling */
+.deal-swiper {
   padding: 7px;
-  gap: 12px;
 }
 
 /* Card */
 .deal-card {
   position: relative;
-  height: 140px;
-  border-radius: 12px;
-  overflow: hidden;
+  width: 100%;
+  height: auto;
+  overflow: visible;
   text-decoration: none;
-  background: #ecedeb;
+  background: transparent;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+/* Circular image container */
+.deal-card .deal-bg {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  position: relative;
+  margin-bottom: 6px;
 }
 
 /* Background image */
 .deal-bg {
-  position: absolute;
-  inset: 0;
+  position: relative;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -458,35 +465,24 @@ onBeforeUnmount(() => {
 }
 
 .deal-count {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 999px;
-  z-index: 2;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-bottom: 3px;
+  text-align: center;
 }
 
 /* Name */
 .deal-name {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 8px 10px;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  color: #fff;
-  z-index: 2;
-
-  background: linear-gradient(
-    to top,
-    rgba(0,0,0,0.6),
-    rgba(0,0,0,0)
-  );
+  color: #333;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0;
 }
 
 }

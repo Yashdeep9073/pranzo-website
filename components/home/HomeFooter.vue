@@ -3,7 +3,7 @@
     <div class="container container-lg">
       <div class="row g-4">
         <!-- Company Info - Takes more space on desktop -->
-        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-duration="200">
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="200">
           <div class="footer-item">
             <div class="footer-item__logo mb-3">
               <NuxtLink to="/">
@@ -58,7 +58,7 @@
         </div>
         
         <!-- Customer Support -->
-        <div class="col-lg-3 col-md-6 col-6" data-aos="fade-up" data-aos-duration="600">
+        <div class="col-lg-2 col-md-6 col-6" data-aos="fade-up" data-aos-duration="600">
           <div class="footer-item">
             <h6 class="footer-item__title mb-3">Customer Support</h6>
             <ul class="footer-menu list-unstyled">
@@ -85,7 +85,7 @@
         </div>
         
         <!-- My Account -->
-        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="800">
+        <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-duration="800">
           <div class="footer-item">
             <h6 class="footer-item__title mb-3">My Account</h6>
             <ul class="footer-menu list-unstyled">
@@ -106,6 +106,33 @@
               </li>
               <li class="mb-0">
                 <NuxtLink to="/account/wishlist" class="text-heading hover-text-main-600 small">Wishlist</NuxtLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Popular Searches -->
+        <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+          <div class="footer-item">
+            <h6 class="footer-item__title mb-3">Popular Searches</h6>
+            <ul class="footer-menu list-unstyled">
+              <li class="mb-2">
+                <NuxtLink to="/shop-all" class="text-heading hover-text-main-600 small">Men's Clothing</NuxtLink>
+              </li>
+              <li class="mb-2">
+                <NuxtLink to="/shop-all" class="text-heading hover-text-main-600 small">Women's Fashion</NuxtLink>
+              </li>
+              <li class="mb-2">
+                <NuxtLink to="/shop-all" class="text-heading hover-text-main-600 small">Electronics</NuxtLink>
+              </li>
+              <li class="mb-2">
+                <NuxtLink to="/shop-all" class="text-heading hover-text-main-600 small">Home & Living</NuxtLink>
+              </li>
+              <li class="mb-2">
+                <NuxtLink to="/shop-all" class="text-heading hover-text-main-600 small">Sports & Fitness</NuxtLink>
+              </li>
+              <li class="mb-0">
+                <NuxtLink to="/shop-all" class="text-heading hover-text-main-600 small">Beauty & Personal Care</NuxtLink>
               </li>
             </ul>
           </div>

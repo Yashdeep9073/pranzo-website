@@ -121,15 +121,17 @@ import { useCart } from '~/composables/api/useCart'
 
 export default {
   name: 'HomeFlash',
+
   setup() {
     const { offers, loading, error, refresh: fetchAllOffers } = useOffersApi()
+    const swiperContainer = ref<HTMLElement | null>(null)
+    const swiperInstance = ref<any>(null)
     const activeOffer = computed(() => {
       if (!offers.value) return null
-
       return offers.value.find(o => o.offerType === 'FLASH_SALE') || null
     })
 
-    // Simple countdown function for mock data
+    // Countdown
     const getCountdown = (offerId: number) => {
       const offer = offers.value.find(o => o.id === offerId)
       if (!offer) return undefined
@@ -144,16 +146,10 @@ export default {
       const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
       const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60))
 
-      return {
-        days,
-        hours,
-        minutes,
-        isStarting: false,
-        isExpired: timeRemaining === 0
-      }
+      return { days, hours, minutes, isStarting: false, isExpired: timeRemaining === 0 }
     }
 
-    // Display products from PRODUCT type offers
+    // Products from offers with duplicates for looping
     const displayProducts = computed(() => {
       if (!offers.value || offers.value.length === 0) return []
 
@@ -165,75 +161,95 @@ export default {
       if (!productOffers.length) return []
 
       const firstOffer = productOffers[0]
-      if (!firstOffer) return []
-
       const offerProducts = firstOffer.products || firstOffer.OfferProducts || []
 
-      return (offerProducts || [])
+      const products = offerProducts
         .map((item: any) => item.product || item.Product || item)
-        .filter((p: any) => p && p.id && p.name) // Ensure product has required fields
+        .filter((p: any) => p && p.id && p.name)
         .map((product: any) => ({
           ...product,
           price: Number(product.price),
           discount: firstOffer.discountValue ?? 20
         }))
-    })
 
-
-    // Fetch limited time offers on mount
-    onMounted(async () => {
-      try {
-        await fetchAllOffers() // Fetch all offers
-      } catch (err) {
-        console.error('❌ [HomeFlash] Failed to fetch offers:', err)
+      // Duplicate products if less than needed for proper looping
+      const minSlidesForLoop = 6
+      if (products.length < minSlidesForLoop && products.length > 0) {
+        const duplicatesNeeded = Math.ceil(minSlidesForLoop / products.length)
+        const duplicated = []
+        for (let i = 0; i < duplicatesNeeded; i++) {
+          duplicated.push(...products)
+        }
+        return duplicated
       }
+
+      return products
     })
 
-    // Swiper refs and logic (unchanged from previous implementation)
-    const swiperContainer = ref<HTMLElement | null>(null)
-    const swiperInstance = ref<any>(null)
+    // Initialize swiper
     const initSwiper = async () => {
       if (!swiperContainer.value || displayProducts.value.length === 0) return
+
       try {
         const SwiperModule = await import('swiper')
         const { Navigation, Autoplay } = await import('swiper/modules')
         const Swiper = SwiperModule.default
+        
+        const productCount = displayProducts.value.length
+        const shouldLoop = productCount >= 3 // Enable loop only if we have enough products
+        
         swiperInstance.value = new Swiper(swiperContainer.value, {
           modules: [Navigation, Autoplay],
-          loop: true,
-          slidesPerView: 6,
-          spaceBetween: 12,
-          centeredSlides: false,
-          grabCursor: true,
+          loop: shouldLoop,
+          slidesPerView: 'auto',
+          spaceBetween: 8,
           speed: 600,
-          navigation: { nextEl: '.next-btn', prevEl: '.prev-btn', disabledClass: 'nav-btn-disabled' },
-          autoplay: { delay: 2000, disableOnInteraction: false, pauseOnMouseEnter: false },
-          breakpoints: {
-            320: { slidesPerView: 1, spaceBetween: 4 },
-            375: { slidesPerView: 1.1, spaceBetween: 4 },
-            400: { slidesPerView: 1.3, spaceBetween: 4 },
-            480: { slidesPerView: 1.8, spaceBetween: 6 },
-            576: { slidesPerView: 2.5, spaceBetween: 6 },
-            640: { slidesPerView: 3.2, spaceBetween: 8 },
-            768: { slidesPerView: 4.2, spaceBetween: 8 },
-            900: { slidesPerView: 5.1, spaceBetween: 10 },
-            1024: { slidesPerView: 5.8, spaceBetween: 10 },
-            1200: { slidesPerView: 6.4, spaceBetween: 8 },
-            1400: { slidesPerView: 6.8, spaceBetween: 10 },
+          grabCursor: true,
+          autoplay: {
+            delay: 2000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+            stopOnLastSlide: false
           },
+          navigation: {
+            nextEl: '.next-btn',
+            prevEl: '.prev-btn'
+          },
+          breakpoints: {
+            320: { slidesPerView: 'auto', spaceBetween: 4 },
+            480: { slidesPerView: 'auto', spaceBetween: 6 },
+            640: { slidesPerView: 'auto', spaceBetween: 6 },
+            768: { slidesPerView: 'auto', spaceBetween: 6 },
+            1024: { slidesPerView: 'auto', spaceBetween: 8 },
+            1200: { slidesPerView: 'auto', spaceBetween: 8 }
+          }
         })
-      } catch (error) {
-        console.error('Error initializing Swiper:', error)
+      } catch (err) {
+        console.error('Swiper initialization failed:', err)
       }
     }
 
     const slideNext = () => swiperInstance.value?.slideNext()
     const slidePrev = () => swiperInstance.value?.slidePrev()
 
+    // Reinitialize swiper when products change
+    watch(displayProducts, async () => {
+      await nextTick()
 
-    // Watch active offer to reinitialize Swiper when data changes
-    watch(activeOffer, () => {
-      nextTick(() => initSwiper())
+      if (swiperInstance.value) {
+        swiperInstance.value.destroy(true, true)
+        swiperInstance.value = null
+      }
+
+      initSwiper()
+    })
+
+    onMounted(async () => {
+      try {
+        await fetchAllOffers()
+      } catch (err) {
+        console.error('❌ Failed to fetch offers:', err)
+      }
     })
 
     onUnmounted(() => {
@@ -243,47 +259,67 @@ export default {
       }
     })
 
-    // Helper functions (same as before)
+    // Helpers
     const formatDate = (dateString: string) => {
-      try { const date = new Date(dateString); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }
-      catch { return 'Limited time' }
+      try {
+        const date = new Date(dateString)
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        })
+      } catch {
+        return 'Limited time'
+      }
     }
-    const getProductImage = (product: any) => product.image || product.images?.[0]?.imageUrl || '/assets/images/buysection/shirt.jpg'
-    const calculateDiscountedPrice = (original: number, discount: number) => Math.round(original * (1 - discount / 100))
-    const getRandomSoldPercentage = () => Math.floor(Math.random() * 30) + 70
-    const getRandomAvailable = () => Math.floor(Math.random() * 20) + 5
-    const handleImageError = (event: any) => { 
-  if (event.target.src !== '/assets/images/buysection/shirt.jpg') {
-    event.target.src = '/assets/images/buysection/shirt.jpg'
-  }
-  event.target.onerror = null // Prevent infinite loop
-}
 
-    // Generate SEO-friendly URL for products
+    const getProductImage = (product: any) =>
+      product.image ||
+      product.images?.[0]?.imageUrl ||
+      '/assets/images/buysection/shirt.jpg'
+
+    const calculateDiscountedPrice = (original: number, discount: number) =>
+      Math.round(original * (1 - discount / 100))
+
+    const getRandomSoldPercentage = () =>
+      Math.floor(Math.random() * 30) + 70
+
+    const getRandomAvailable = () =>
+      Math.floor(Math.random() * 20) + 5
+
+    const handleImageError = (event: any) => {
+      if (event.target.src !== '/assets/images/buysection/shirt.jpg') {
+        event.target.src = '/assets/images/buysection/shirt.jpg'
+      }
+      event.target.onerror = null
+    }
+
     const generateProductUrl = (product: any) => {
       if (!product) return '/shop-all'
-      
-      // Get product name and slugify it
-      const name = product.name || product.title || 'product'
+
+      const name = product.name || 'product'
+
       const slug = name
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
         .trim()
-      
-      // Get product ID
-      const productId = product.id || product.groupId || product.productId || ''
-      
-      // Return SEO-friendly URL
+
+      const productId =
+        product.id || product.groupId || product.productId || ''
+
       return `/shop-all/${slug}/${productId}`
     }
-    const addToCart = (product: any) => { 
+
+    const addToCart = (product: any) => {
       const { addToCart: cartAdd } = useCart()
       cartAdd(product)
-      console.log('Product added to cart:', product.name)
+      console.log('Added to cart:', product.name)
     }
-    const formatDiscountText = (offer: any) => `${offer.discountValue}% OFF`
+
+    const formatDiscountText = (offer: any) =>
+      `${offer.discountValue}% OFF`
 
     return {
       swiperContainer,
@@ -304,11 +340,10 @@ export default {
       generateProductUrl,
       addToCart,
       getCountdown,
-      formatDiscountText,
+      formatDiscountText
     }
-  },
+  }
 }
-
 </script>
 
 <style scoped>
@@ -417,9 +452,9 @@ h5 {
 /* Swiper Container Wrapper */
 .swiper-container-wrapper {
   position: relative;
-  padding: 0 16px;
+  padding: 0 4px;
   overflow: visible;
-  margin: 0 -4px;
+  margin: 0;
 }
 
 /* Swiper */
@@ -431,7 +466,7 @@ h5 {
 .swiper-wrapper {
   display: flex;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   transition-timing-function: ease-out;
   box-sizing: border-box;
 }
@@ -441,6 +476,9 @@ h5 {
   display: flex;
   flex-shrink: 0;
   transition: transform 0.3s ease;
+  padding: 0;
+  margin: 0;
+  width: auto;
 }
 
 /* Product Card */
@@ -454,8 +492,7 @@ h5 {
   flex-direction: column;
   height: 100%;
   width: 100%;
-  min-width: 0;
-  max-width: 320px;
+  max-width: 200px;
   max-height: 340px;
   position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
