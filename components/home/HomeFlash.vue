@@ -36,70 +36,85 @@
 
       <!-- Content -->
       <div v-else class="flash-sales-content">
-        <!-- Swiper Container -->
-        <div class="swiper-container-wrapper">
-          <div ref="swiperContainer" class="product-swiper">
-            <div class="swiper-wrapper">
-              <div v-for="(product, index) in displayProducts" :key="product.id" class="swiper-slide">
-                <div class="product-card">
-                  <NuxtLink :to="generateProductUrl(product)" class="product-image-container">
-                    <img :src="getProductImage(product)" :alt="product.name" class="product-image"
-                      @error="handleImageError($event)" loading="lazy" width="280" height="210" />
-                  </NuxtLink>
+        <!-- Mobile Grid View -->
+        <div class="mobile-grid-view" v-if="isMobile">
+          <div v-for="product in displayProducts.slice(0, 12)" :key="product.id" class="mobile-product-card">
+            <NuxtLink :to="generateProductUrl(product)" class="mobile-product-image-container">
+              <img :src="getProductImage(product)" :alt="product.name" class="mobile-product-image"
+                @error="handleImageError($event)" loading="lazy" width="200" height="200" />
+              <div class="mobile-price-overlay">
+                Under ₹{{ calculateDiscountedPrice(product.price, product.discount || 50) }}
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
 
-                  <div class="product-content">
-                    <h6 class="product-title">
-                      <NuxtLink :to="generateProductUrl(product)" class="product-link">
-                        {{ product.name }}
-                      </NuxtLink>
-                    </h6>
+        <!-- Desktop Swiper View -->
+        <div class="desktop-swiper-view" v-else>
+          <div class="swiper-container-wrapper">
+            <div ref="swiperContainer" class="product-swiper">
+              <div class="swiper-wrapper">
+                <div v-for="(product, index) in displayProducts" :key="product.id" class="swiper-slide">
+                  <div class="product-card">
+                    <NuxtLink :to="generateProductUrl(product)" class="product-image-container">
+                      <img :src="getProductImage(product)" :alt="product.name" class="product-image"
+                        @error="handleImageError($event)" loading="lazy" width="280" height="210" />
+                    </NuxtLink>
 
-                    <div class="price-review-row">
-                      <div class="price-section">
-                        <span class="current-price">
-                          ₹{{ calculateDiscountedPrice(product.price, product.discount || 50) }}
-                          <span class="per-unit">/Qty</span>
-                        </span>
-                        <span class="original-price" v-if="activeOffer?.discountValue">
-                          ₹{{ product.price }}
-                        </span>
+                    <div class="product-content">
+                      <h6 class="product-title">
+                        <NuxtLink :to="generateProductUrl(product)" class="product-link">
+                          {{ product.name }}
+                        </NuxtLink>
+                      </h6>
+
+                      <div class="price-review-row">
+                        <div class="price-section">
+                          <span class="current-price">
+                            ₹{{ calculateDiscountedPrice(product.price, product.discount || 50) }}
+                            <span class="per-unit">/Qty</span>
+                          </span>
+                          <span class="original-price" v-if="activeOffer?.discountValue">
+                            ₹{{ product.price }}
+                          </span>
+                        </div>
+
+                        <div class="review-section">
+                          <span class="rating">4.8</span>
+                          <i class="ph-fill ph-star rating-star"></i>
+                          <span class="review-count">(17k)</span>
+                        </div>
                       </div>
 
-                      <div class="review-section">
-                        <span class="rating">4.8</span>
-                        <i class="ph-fill ph-star rating-star"></i>
-                        <span class="review-count">(17k)</span>
+                      <!-- Progress Bar -->
+                      <div class="progress-section">
+                        <div class="progress-info">
+                          <span>Sold: {{ getRandomSoldPercentage() }}%</span>
+                          <span>Available: {{ getRandomAvailable() }}</span>
+                        </div>
+                        <div class="progress-bar">
+                          <div class="progress-fill" :style="{ width: getRandomSoldPercentage() + '%' }"></div>
+                        </div>
                       </div>
+
+                      <button class="add-cart-btn" @click="addToCart(product)">
+                        Add<i class="ph ph-shopping-cart"></i>
+                      </button>
                     </div>
-
-                    <!-- Progress Bar -->
-                    <div class="progress-section">
-                      <div class="progress-info">
-                        <span>Sold: {{ getRandomSoldPercentage() }}%</span>
-                        <span>Available: {{ getRandomAvailable() }}</span>
-                      </div>
-                      <div class="progress-bar">
-                        <div class="progress-fill" :style="{ width: getRandomSoldPercentage() + '%' }"></div>
-                      </div>
-                    </div>
-
-                    <button class="add-cart-btn" @click="addToCart(product)">
-                      Add <i class="ph ph-shopping-cart"></i>
-                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Navigation Buttons -->
-          <div class="navigation-buttons" v-if="displayProducts.length > 0">
-            <button type="button" class="nav-btn prev-btn" @click="slidePrev">
-              <i class="ph ph-caret-left"></i>
-            </button>
-            <button type="button" class="nav-btn next-btn" @click="slideNext">
-              <i class="ph ph-caret-right"></i>
-            </button>
+            <!-- Navigation Buttons -->
+            <div class="navigation-buttons" v-if="displayProducts.length > 0">
+              <button type="button" class="nav-btn prev-btn" @click="slidePrev">
+                <i class="ph ph-caret-left"></i>
+              </button>
+              <button type="button" class="nav-btn next-btn" @click="slideNext">
+                <i class="ph ph-caret-right"></i>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -126,6 +141,22 @@ export default {
     const { offers, loading, error, refresh: fetchAllOffers } = useOffersApi()
     const swiperContainer = ref<HTMLElement | null>(null)
     const swiperInstance = ref<any>(null)
+    const isMobile = ref(false)
+
+    // Check if mobile
+    const checkMobile = () => {
+      isMobile.value = window.innerWidth <= 768
+    }
+
+    // Mobile responsive listener
+    onMounted(() => {
+      checkMobile()
+      window.addEventListener('resize', checkMobile)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', checkMobile)
+    })
     const activeOffer = computed(() => {
       if (!offers.value) return null
       return offers.value.find(o => o.offerType === 'FLASH_SALE') || null
@@ -165,7 +196,18 @@ export default {
 
       const products = offerProducts
         .map((item: any) => item.product || item.Product || item)
-        .filter((p: any) => p && p.id && p.name)
+        .filter((p: any) => {
+  // Ensure we have an identifier; fall back to other fields or generate one
+  if (!p) return false;
+  if (!p.id) {
+    p.id = p.productId ?? p.groupId ?? `temp-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  // Ensure a name exists
+  if (!p.name) {
+    p.name = p.title ?? 'Unnamed product';
+  }
+  return true;
+})
         .map((product: any) => ({
           ...product,
           price: Number(product.price),
@@ -194,15 +236,15 @@ export default {
         const SwiperModule = await import('swiper')
         const { Navigation, Autoplay } = await import('swiper/modules')
         const Swiper = SwiperModule.default
-        
+
         const productCount = displayProducts.value.length
         const shouldLoop = productCount >= 3 // Enable loop only if we have enough products
-        
+
         swiperInstance.value = new Swiper(swiperContainer.value, {
           modules: [Navigation, Autoplay],
           loop: shouldLoop,
           slidesPerView: 'auto',
-          spaceBetween: 8,
+          spaceBetween: 16,
           speed: 600,
           grabCursor: true,
           autoplay: {
@@ -216,12 +258,12 @@ export default {
             prevEl: '.prev-btn'
           },
           breakpoints: {
-            320: { slidesPerView: 'auto', spaceBetween: 4 },
-            480: { slidesPerView: 'auto', spaceBetween: 6 },
-            640: { slidesPerView: 'auto', spaceBetween: 6 },
-            768: { slidesPerView: 'auto', spaceBetween: 6 },
-            1024: { slidesPerView: 'auto', spaceBetween: 8 },
-            1200: { slidesPerView: 'auto', spaceBetween: 8 }
+            320: { slidesPerView: 'auto', spaceBetween: 8 },
+            480: { slidesPerView: 'auto', spaceBetween: 12 },
+            640: { slidesPerView: 'auto', spaceBetween: 12 },
+            768: { slidesPerView: 'auto', spaceBetween: 16 },
+            1024: { slidesPerView: 'auto', spaceBetween: 20 },
+            1200: { slidesPerView: 'auto', spaceBetween: 24 }
           }
         })
       } catch (err) {
@@ -328,6 +370,7 @@ export default {
       displayProducts,
       loading,
       error,
+      isMobile,
       initSwiper,
       slideNext,
       slidePrev,
@@ -751,8 +794,90 @@ h5 {
   color: #94a3b8;
 }
 
+/* Mobile Grid View */
+.mobile-grid-view {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  padding: 12px;
+  height: 100vw;
+  max-height: 600px;
+  width: 100%;
+}
+
+.mobile-product-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.mobile-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+  border-color: #CA2D52;
+}
+
+.mobile-product-image-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  min-height: 0;
+  position: relative;
+}
+
+.mobile-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.mobile-product-card:hover .mobile-product-image {
+  transform: scale(1.05);
+}
+
+.mobile-price-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: transparent;
+  color: white;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Desktop Swiper View - Hide on Mobile */
+.desktop-swiper-view {
+  display: block;
+}
+
+.mobile-grid-view {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  .desktop-swiper-view {
+    display: none;
+  }
+
+  .mobile-grid-view {
+    display: grid;
+  }
+
   .flash-sales {
     padding: 8px 0 16px;
   }
@@ -765,44 +890,6 @@ h5 {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-  }
-
-  .swiper-container-wrapper {
-    padding: 0 8px;
-    margin: 0;
-    overflow: hidden;
-  }
-
-  .product-image-container {
-    min-height: 140px;
-  }
-
-  .product-image {
-    height: 140px;
-    padding: 10px;
-  }
-
-  .product-content {
-    padding: 12px;
-  }
-
-  .current-price {
-    font-size: 16px;
-  }
-
-  .product-link {
-    font-size: 14px;
-    max-height: 2.8em;
-  }
-
-  .add-cart-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .nav-btn {
-    width: 36px;
-    height: 36px;
   }
 }
 

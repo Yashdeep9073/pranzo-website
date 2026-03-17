@@ -61,7 +61,8 @@ const { offers, loading, error, refresh } = useOffersApi({ isActive: true })
 // Computed properties
 const offersByType = computed(() => {
   const grouped: { [key: string]: any[] } = {}
-  offers.value.forEach(offer => {
+  const active = offers.value.filter(offer => offer.isActive !== false)
+  active.forEach(offer => {
     const type = offer.offerType || 'OTHER'
     if (!grouped[type]) {
       grouped[type] = []
@@ -79,13 +80,13 @@ const activeOffers = computed(() => {
 const otherOffers = computed(() => {
   const predefinedTypes = ['FLASH_SALE', 'DEALS_REVEALED', 'LIMITED', 'CATEGORY', 'CLEARANCE', 'FESTIVAL', 'SEASONAL', 'BANNER', 'PRODUCT', 'PRODUCT_CATEGORY']
   const result: { [key: string]: any[] } = {}
-  
+
   Object.entries(offersByType.value).forEach(([type, offerList]) => {
     if (!predefinedTypes.includes(type)) {
       result[type] = offerList
     }
   })
-  
+
   return result
 })
 
@@ -115,10 +116,12 @@ const formatOfferType = (type: string) => {
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
