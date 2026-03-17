@@ -44,7 +44,7 @@
       <div v-if="offer.endDate" class="valid-until text-xs text-gray-500 mb-12">
         <i class="ph ph-calendar me-2"></i>
         <span v-if="offerCountdown && !offerCountdown.isExpired">
-          {{ offerCountdown.isStarting ? 'Starts in' : 'Ends in' }}: 
+          {{ offerCountdown.isStarting ? 'Starts in' : 'Ends in' }}:
           {{ offerCountdown.days }}d {{ offerCountdown.hours }}h {{ offerCountdown.minutes }}m
         </span>
         <span v-else>
@@ -53,11 +53,7 @@
       </div>
 
       <!-- Action Button -->
-      <NuxtLink
-        to="/shop-all"
-        class="offer-btn btn-block"
-        :class="`btn-${theme}`"
-      >
+      <NuxtLink to="/shop-all" class="offer-btn btn-block" :class="`btn-${theme}`">
         Shop Now
         <i class="ph ph-arrow-right ms-2"></i>
       </NuxtLink>
@@ -93,23 +89,23 @@ const getCountdown = (offerId: number) => {
   // This is a simplified countdown - you might want to implement a more sophisticated version
   const offer = props.offer
   if (!offer.endDate) return null
-  
+
   const now = new Date().getTime()
   const endTime = new Date(offer.endDate).getTime()
   const startTime = offer.startDate ? new Date(offer.startDate).getTime() : now
-  
+
   const isStarting = startTime > now
   const targetTime = isStarting ? startTime : endTime
   const difference = targetTime - now
-  
+
   if (difference <= 0) {
     return { isExpired: true, days: 0, hours: 0, minutes: 0, isStarting: false }
   }
-  
+
   const days = Math.floor(difference / (1000 * 60 * 60 * 24))
   const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
-  
+
   return { isExpired: false, days, hours, minutes, isStarting }
 }
 

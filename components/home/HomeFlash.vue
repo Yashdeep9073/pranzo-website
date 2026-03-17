@@ -38,7 +38,7 @@
       <div v-else class="flash-sales-content">
         <!-- Mobile Grid View -->
         <div class="mobile-grid-view" v-if="isMobile">
-          <div v-for="product in displayProducts.slice(0, 12)" :key="product.id" class="mobile-product-card">
+          <div v-for="product in displayProducts.slice(0, 6)" :key="product.id" class="mobile-product-card">
             <NuxtLink :to="generateProductUrl(product)" class="mobile-product-image-container">
               <img :src="getProductImage(product)" :alt="product.name" class="mobile-product-image"
                 @error="handleImageError($event)" loading="lazy" width="200" height="200" />
@@ -197,17 +197,17 @@ export default {
       const products = offerProducts
         .map((item: any) => item.product || item.Product || item)
         .filter((p: any) => {
-  // Ensure we have an identifier; fall back to other fields or generate one
-  if (!p) return false;
-  if (!p.id) {
-    p.id = p.productId ?? p.groupId ?? `temp-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  // Ensure a name exists
-  if (!p.name) {
-    p.name = p.title ?? 'Unnamed product';
-  }
-  return true;
-})
+          // Ensure we have an identifier; fall back to other fields or generate one
+          if (!p) return false;
+          if (!p.id) {
+            p.id = p.productId ?? p.groupId ?? `temp-${Math.random().toString(36).substr(2, 9)}`;
+          }
+          // Ensure a name exists
+          if (!p.name) {
+            p.name = p.title ?? 'Unnamed product';
+          }
+          return true;
+        })
         .map((product: any) => ({
           ...product,
           price: Number(product.price),
@@ -797,13 +797,13 @@ h5 {
 /* Mobile Grid View */
 .mobile-grid-view {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
   padding: 12px;
-  height: 100vw;
-  max-height: 600px;
+  aspect-ratio: 3/2;
   width: 100%;
+  max-height: 50vh;
 }
 
 .mobile-product-card {
@@ -816,6 +816,7 @@ h5 {
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   position: relative;
+  aspect-ratio: 1/1;
 }
 
 .mobile-product-card:hover {

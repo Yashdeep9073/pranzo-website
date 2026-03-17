@@ -5,27 +5,17 @@
       <OfferTypeSection v-if="offersByType['FLASH_SALE'] && offersByType['FLASH_SALE'].length > 0" type="FLASH_SALE"
         title="Flash Sale" icon="lightning" :offers="offersByType['FLASH_SALE']" theme="danger" />
 
-      <!-- Deals Revealed Section -->
-      <OfferTypeSection v-if="offersByType['DEALS_REVEALED'] && offersByType['DEALS_REVEALED'].length > 0"
-        type="DEALS_REVEALED" title="Deals Revealed" icon="gift" :offers="offersByType['DEALS_REVEALED']"
-        theme="primary" />
+      <!-- Daily Deals Section -->
+      <OfferTypeSection v-if="offersByType['DAILY_DEALS'] && offersByType['DAILY_DEALS'].length > 0" type="DAILY_DEALS"
+        title="Daily Deals" icon="calendar" :offers="offersByType['DAILY_DEALS']" theme="primary" />
+
+      <!-- Category Section -->
+      <OfferTypeSection v-if="offersByType['CATEGORY'] && offersByType['CATEGORY'].length > 0" type="CATEGORY"
+        title="Category Specials" icon="tag" :offers="offersByType['CATEGORY']" theme="success" />
 
       <!-- Festival Section -->
       <OfferTypeSection v-if="offersByType['FESTIVAL'] && offersByType['FESTIVAL'].length > 0" type="FESTIVAL"
-        title="Festival Offers" icon="confetti" :offers="offersByType['FESTIVAL']" theme="success" />
-
-      <!-- Clearance Section -->
-      <OfferTypeSection v-if="offersByType['CLEARANCE'] && offersByType['CLEARANCE'].length > 0" type="CLEARANCE"
-        title="Clearance Sale" icon="tag" :offers="offersByType['CLEARANCE']" theme="warning" />
-
-      <!-- Limited Offers Section -->
-      <OfferTypeSection v-if="offersByType['LIMITED'] && offersByType['LIMITED'].length > 0" type="LIMITED"
-        title="Limited Offers" icon="hourglass" :offers="offersByType['LIMITED']" theme="info" />
-
-      <!-- Product Category Section -->
-      <OfferTypeSection v-if="offersByType['PRODUCT_CATEGORY'] && offersByType['PRODUCT_CATEGORY'].length > 0"
-        type="PRODUCT_CATEGORY" title="Category Specials" icon="tag" :offers="offersByType['PRODUCT_CATEGORY']"
-        theme="primary" />
+        title="Festival Offers" icon="confetti" :offers="offersByType['FESTIVAL']" theme="warning" />
 
       <!-- Other Offers Section -->
       <OfferTypeSection v-for="(offerList, type) in otherOffers" :key="type" :type="type" :title="formatOfferType(type)"
@@ -36,14 +26,19 @@
   <!-- Loading State -->
   <div v-else-if="loading" class="py-30">
     <div class="container container-lg">
-      <div class="row g-12">
-        <div v-for="n in 3" :key="n" class="col-md-4">
-          <div class="skeleton-loader p-20 rounded-16">
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text mt-12"></div>
-            <div class="skeleton-text mt-12"></div>
-          </div>
-        </div>
+      <div class="text-center">
+        <p>Loading offers...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Offers State -->
+  <div v-else class="py-30">
+    <div class="container container-lg">
+      <div class="text-center">
+        <p>No offers available at the moment.</p>
+        <p>Total offers: {{ offers.length }}</p>
+        <p>Active offers: {{ activeOffers.length }}</p>
       </div>
     </div>
   </div>
@@ -78,7 +73,7 @@ const activeOffers = computed(() => {
 
 // Get offers that are not in predefined types
 const otherOffers = computed(() => {
-  const predefinedTypes = ['FLASH_SALE', 'DEALS_REVEALED', 'LIMITED', 'CATEGORY', 'CLEARANCE', 'FESTIVAL', 'SEASONAL', 'BANNER', 'PRODUCT', 'PRODUCT_CATEGORY']
+  const predefinedTypes = ['FLASH_SALE', 'DAILY_DEALS', 'CATEGORY', 'FESTIVAL']
   const result: { [key: string]: any[] } = {}
 
   Object.entries(offersByType.value).forEach(([type, offerList]) => {

@@ -28,15 +28,18 @@
     <div class="mobile-section-grid d-md-none">
       <div class="section-grid-mobile grid-4">
         <div v-for="(offer, index) in validOffers.slice(0, 4)" :key="offer.id" class="section-card-mobile">
-          <div class="section-card-image">
-            <img v-if="getOfferImage(offer)" :src="getOfferImage(offer)" :alt="offer.name" class="section-full-image" />
-            <div v-else class="section-full-placeholder">
-              <i class="ph ph-gift"></i>
+          <NuxtLink :to="`/shop-all?offer=${encodeURIComponent(offer.name)}`" class="section-card-link">
+            <div class="section-card-image">
+              <img v-if="getOfferImage(offer)" :src="getOfferImage(offer)" :alt="offer.name"
+                class="section-full-image" />
+              <div v-else class="section-full-placeholder">
+                <i class="ph ph-gift"></i>
+              </div>
             </div>
             <div class="section-offer-name">
               {{ offer.name }}
             </div>
-          </div>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -288,6 +291,27 @@ const formatDiscountText = (offer: any) => {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   border: 1px solid rgba(229, 231, 235, 0.8);
+  cursor: pointer;
+}
+
+.section-card-mobile:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+.section-card-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  z-index: 2;
+}
+
+.section-card-link:hover {
+  text-decoration: none;
+  color: inherit;
 }
 
 .section-card-mobile:hover {
@@ -302,6 +326,7 @@ const formatDiscountText = (offer: any) => {
   height: 220px;
   overflow: hidden;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  z-index: 1;
 }
 
 .section-full-image {

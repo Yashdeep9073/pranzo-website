@@ -2,253 +2,164 @@
   <header class="header">
     <div class="container">
       <nav class="header-inner">
-        <!-- Logo with Category Dropdown --> 
+        <!-- Logo with Category Dropdown -->
         <div class="logo-section">
-          <!-- Category Dropdown Component --> 
+          <!-- Category Dropdown Component -->
           <div class="category-dropdown-wrapper" v-if="!isMobile">
-            <button 
-              type="button"
-              class="category-button"
-              @click="toggleCategoryDropdown"
-              @blur="onCategoryBlur"
-              aria-label="Browse categories"
-            > 
+            <button type="button" class="category-button" @click="toggleCategoryDropdown" @blur="onCategoryBlur"
+              aria-label="Browse categories">
               <span class="category-icon-wrapper">
                 <!-- Category icon -->
                 <svg class="category-icon" viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                  <path fill="currentColor" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
                 </svg>
               </span>
-              
+
               <span class="category-text">Browse Categories</span>
-              
+
               <span class="dropdown-arrow" :class="{ 'rotate-180': showCategoryDropdown }">
                 <svg viewBox="0 0 256 256" width="16" height="16">
-                  <path fill="currentColor" d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                  <path fill="currentColor"
+                    d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z" />
                 </svg>
               </span>
             </button>
 
             <!-- Category Dropdown -->
-            <div 
-              v-if="showCategoryDropdown"
-              class="category-dropdown"
-              @mouseenter="keepCategoryDropdownOpen = true"
-              @mouseleave="closeCategoryDropdown"
-            >
+            <div v-if="showCategoryDropdown" class="category-dropdown" @mouseenter="keepCategoryDropdownOpen = true"
+              @mouseleave="closeCategoryDropdown">
               <div class="category-grid">
                 <template v-if="categories.length > 0">
-                  <a
-                    v-for="category in limitedCategories"
-                    :key="category.id"
-                    :href="getCategoryLink(category)"
-                    class="category-card"
-                    @click.prevent="handleCategoryDropdownClick(category)"
-                  >
+                  <a v-for="category in limitedCategories" :key="category.id" :href="getCategoryLink(category)"
+                    class="category-card" @click.prevent="handleCategoryDropdownClick(category)">
                     <span class="category-card-icon">
-                      <img 
-                        :src="getCategoryImage(category)" 
-                        :alt="category.name" 
-                        class="category-card-image"
-                        @error="handleImageError"
-                      />
+                      <img :src="getCategoryImage(category)" :alt="category.name" class="category-card-image"
+                        @error="handleImageError" />
                     </span>
                     <span class="category-card-name">{{ category.name }}</span>
                   </a>
                 </template>
-                
+
                 <!-- Fallback Categories when API fails -->
                 <template v-else>
-                  <a
-                    v-for="category in limitedFallbackCategories"
-                    :key="category.id"
-                    :href="getFallbackCategoryLink(category)"
-                    class="category-card"
-                    @click.prevent="handleFallbackCategoryClick(category)"
-                  >
+                  <a v-for="category in limitedFallbackCategories" :key="category.id"
+                    :href="getFallbackCategoryLink(category)" class="category-card"
+                    @click.prevent="handleFallbackCategoryClick(category)">
                     <span class="category-card-icon">
-                      <img 
-                        :src="category.image" 
-                        :alt="category.name" 
-                        class="category-card-image"
-                        @error="handleImageError"
-                      />
+                      <img :src="category.image" :alt="category.name" class="category-card-image"
+                        @error="handleImageError" />
                     </span>
                     <span class="category-card-name">{{ category.name }}</span>
                   </a>
                 </template>
               </div>
-              
+
               <!-- View All Button (Optional) -->
               <div v-if="categories.length > 9 || fallbackCategories.length > 0" class="view-all-container">
-                <NuxtLink 
-                  to="/shop-all" 
-                  class="view-all-button"
-                  @click="closeCategoryDropdown"
-                >
+                <NuxtLink to="/shop-all" class="view-all-button" @click="closeCategoryDropdown">
                   <span>View All Categories</span>
                   <svg viewBox="0 0 256 256" width="16" height="16">
-                    <path fill="currentColor" d="M224.49,136.49l-72,72a12,12,0,0,1-17-17L187,140H40a12,12,0,0,1,0-24H187L135.51,64.48a12,12,0,0,1,17-17l72,72A12,12,0,0,1,224.49,136.49Z"/>
+                    <path fill="currentColor"
+                      d="M224.49,136.49l-72,72a12,12,0,0,1-17-17L187,140H40a12,12,0,0,1,0-24H187L135.51,64.48a12,12,0,0,1,17-17l72,72A12,12,0,0,1,224.49,136.49Z" />
                   </svg>
-                </NuxtLink> 
+                </NuxtLink>
               </div>
             </div>
           </div>
-          
+
           <!-- Logo -->
-          <div class="logo"> 
+          <div class="logo">
             <NuxtLink to="/" class="logo-link" aria-label="Market Pro Home">
-              <img  
-                :src="logoImage || '/assets/images/logo/pranzo-weblogo.png'"
-                alt="Market Pro"
-                class="logo-img"
-                @error="handleLogoError"
-              >
+              <img :src="logoImage || '/assets/images/logo/pranzo-weblogo.png'" alt="Market Pro" class="logo-img"
+                @error="handleLogoError">
             </NuxtLink>
-          </div>
-        </div>
-        
-        <!-- Mobile Search Triggers - Responsive -->
-        <div class="mobile-search-trigger" @click="openMobileSearch" v-if="isMobile">
-          <div class="mobile-search-placeholder">
-            <i class="search-icon"></i>
-            <span>Search products...</span>
           </div>
         </div>
 
         <!-- Desktop Navigation -->
         <nav class="desktop-nav" aria-label="Main navigation" v-if="!isMobile">
           <ul class="nav-list">
-            <li 
-              v-for="category in visibleCategoriesWithFallback"
-              :key="category.id"
-              class="nav-item"
-              @mouseenter="handleCategoryHover(category)"
-              @mouseleave="handleCategoryLeave"
-            >
-              <NuxtLink
-                :to="getCategoryLink(category)"
-                class="nav-link"
-                :class="{ 'active': isActiveCategory(category) }"
-                @click="handleCategoryClick(category)"
-                prefetch
-              >
+            <li v-for="category in visibleCategoriesWithFallback" :key="category.id" class="nav-item"
+              @mouseenter="handleCategoryHover(category)" @mouseleave="handleCategoryLeave">
+              <NuxtLink :to="getCategoryLink(category)" class="nav-link"
+                :class="{ 'active': isActiveCategory(category) }" @click="handleCategoryClick(category)" prefetch>
                 {{ getCategoryName(category) }}
-                <i 
-                  v-if="hasSubCategories(category)" 
-                  class="dropdown-icon"
-                  :class="{ 'rotated': activeCategoryMenu === category.id }"
-                ></i>
+                <i v-if="hasSubCategories(category)" class="dropdown-icon"
+                  :class="{ 'rotated': activeCategoryMenu === category.id }"></i>
               </NuxtLink>
-              
+
               <!-- Category Mega Menu here centered -->
-              <div 
-                v-if="activeCategoryMenu === category.id && hasSubCategories(category)"
-                class="category-mega-menu"
-                @mouseenter="keepMenuOpen"
-                @mouseleave="closeCategoryMenu"
-              >
+              <div v-if="activeCategoryMenu === category.id && hasSubCategories(category)" class="category-mega-menu"
+                @mouseenter="keepMenuOpen" @mouseleave="closeCategoryMenu">
                 <div class="mega-menu-content">
-                  <!-- Dynamic Subcategories - Equal Width Grid --> 
+                  <!-- Dynamic Subcategories - Equal Width Grid -->
                   <template v-if="category.subCategories && category.subCategories.length > 0">
                     <div class="mega-grid">
                       <template v-for="subCategory in category.subCategories" :key="subCategory.id">
                         <div class="mega-column">
                           <!-- Sub Category -->
-                          <NuxtLink
-                            :to="getCategoryLink(subCategory)"
-                            class="subcategory-title"
-                            @click="handleSubCategoryClick"
-                          >
-                            {{subCategory.name}}
+                          <NuxtLink :to="getCategoryLink(subCategory)" class="subcategory-title"
+                            @click="handleSubCategoryClick">
+                            {{ subCategory.name }}
                           </NuxtLink>
 
                           <!-- Sub Sub Categories -->
-                          <div
-                            v-if="subCategory.subSubCategories?.length"
-                            class="subsubcategory-list"
-                          >
-                            <NuxtLink
-                              v-for="subSubCategory in subCategory.subSubCategories"
-                              :key="subSubCategory.id"
-                              :to="getCategoryLink(subSubCategory)"
-                              class="subsubcategory-item"
-                              @click="handleSubCategoryClick"
-                            >
-                              {{subSubCategory.name}}
+                          <div v-if="subCategory.subSubCategories?.length" class="subsubcategory-list">
+                            <NuxtLink v-for="subSubCategory in subCategory.subSubCategories" :key="subSubCategory.id"
+                              :to="getCategoryLink(subSubCategory)" class="subsubcategory-item"
+                              @click="handleSubCategoryClick">
+                              {{ subSubCategory.name }}
                             </NuxtLink>
                           </div>
                         </div>
                       </template>
                     </div>
                   </template>
-                  
+
                   <!-- Fallback Categories Mega Menu -->
                   <template v-else-if="category.subCategoriesFallback && category.subCategoriesFallback.length > 0">
                     <div class="mega-grid">
                       <template v-for="subCategory in category.subCategoriesFallback" :key="subCategory.id">
                         <div class="mega-column">
                           <!-- Sub Category -->
-                          <NuxtLink
-                            :to="subCategory.link || getFallbackCategoryLink(category)"
-                            class="subcategory-title"
-                            @click="handleSubCategoryClick"
-                          >
-                            {{subCategory.name}}
+                          <NuxtLink :to="subCategory.link || getFallbackCategoryLink(category)"
+                            class="subcategory-title" @click="handleSubCategoryClick">
+                            {{ subCategory.name }}
                           </NuxtLink>
 
                           <!-- Sub Sub Categories -->
-                          <div
-                            v-if="subCategory.subSubCategories?.length"
-                            class="subsubcategory-list"
-                          >
-                            <NuxtLink
-                              v-for="subSubCategory in subCategory.subSubCategories"
-                              :key="subSubCategory.id"
-                              :to="subSubCategory.link || getFallbackCategoryLink(category)"
-                              class="subsubcategory-item"
-                              @click="handleSubCategoryClick"
-                            >
-                              {{subSubCategory.name}}
+                          <div v-if="subCategory.subSubCategories?.length" class="subsubcategory-list">
+                            <NuxtLink v-for="subSubCategory in subCategory.subSubCategories" :key="subSubCategory.id"
+                              :to="subSubCategory.link || getFallbackCategoryLink(category)" class="subsubcategory-item"
+                              @click="handleSubCategoryClick">
+                              {{ subSubCategory.name }}
                             </NuxtLink>
                           </div>
                         </div>
                       </template>
                     </div>
                   </template>
-                  
+
                   <!-- Static Categories for Men (Equal Width Grid) -->
                   <template v-else-if="category.name.toLowerCase() === 'men'">
                     <div class="mega-grid static-categories">
                       <div class="mega-column">
                         <h5 class="section-title">Topwear</h5>
                         <div class="category-items">
-                          <NuxtLink 
-                            to="/shop-all?category=T-Shirts" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=T-Shirts" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             T-Shirts
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Shirts" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Shirts" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Shirts
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Kurtas" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Kurtas" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Kurtas
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Sweatshirts" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Sweatshirts" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Sweatshirts
                           </NuxtLink>
                         </div>
@@ -256,32 +167,20 @@
                       <div class="mega-column">
                         <h5 class="section-title">Bottomwear</h5>
                         <div class="category-items">
-                          <NuxtLink 
-                            to="/shop-all?category=Jeans" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Jeans" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Jeans
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Trousers" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Trousers" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Trousers
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Shorts" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Shorts" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Shorts
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Track Pants" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Track Pants" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Track Pants
                           </NuxtLink>
                         </div>
@@ -289,32 +188,20 @@
                       <div class="mega-column">
                         <h5 class="section-title">Footwear</h5>
                         <div class="category-items">
-                          <NuxtLink 
-                            to="/shop-all?category=Casual Shoes" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Casual Shoes" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Casual Shoes
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Sports Shoes" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Sports Shoes" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Sports Shoes
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Sandals" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Sandals" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Sandals
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Slippers" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Slippers" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Slippers
                           </NuxtLink>
                         </div>
@@ -322,32 +209,20 @@
                       <div class="mega-column">
                         <h5 class="section-title">Accessories</h5>
                         <div class="category-items">
-                          <NuxtLink 
-                            to="/shop-all?category=Watches" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Watches" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Watches
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Sunglasses" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Sunglasses" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Sunglasses
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Belts" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Belts" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Belts
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Wallets" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Wallets" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Wallets
                           </NuxtLink>
                         </div>
@@ -355,32 +230,20 @@
                       <div class="mega-column">
                         <h5 class="section-title">Winterwear</h5>
                         <div class="category-items">
-                          <NuxtLink 
-                            to="/shop-all?category=Jackets" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Jackets" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Jackets
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Sweaters" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Sweaters" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Sweaters
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Thermals" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Thermals" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Thermals
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Gloves" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Gloves" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Gloves
                           </NuxtLink>
                         </div>
@@ -388,32 +251,20 @@
                       <div class="mega-column">
                         <h5 class="section-title">Sports</h5>
                         <div class="category-items">
-                          <NuxtLink 
-                            to="/shop-all?category=Activewear" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Activewear" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Activewear
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Gym Wear" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Gym Wear" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Gym Wear
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Swimwear" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Swimwear" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Swimwear
                           </NuxtLink>
-                          <NuxtLink 
-                            to="/shop-all?category=Sports Accessories" 
-                            class="subcategory-item"
-                            @click="handleSubCategoryClick"
-                          >
+                          <NuxtLink to="/shop-all?category=Sports Accessories" class="subcategory-item"
+                            @click="handleSubCategoryClick">
                             Sports Accessories
                           </NuxtLink>
                         </div>
@@ -421,110 +272,81 @@
                     </div>
                   </template>
                 </div>
-                
-                <!-- Banner Section --> 
+
+                <!-- Banner Section -->
                 <div class="category-banner">
                   <div class="banner-content">
                     <h4>{{ getBannerTitle(category) }}</h4>
                     <p>{{ getBannerSubtitle(category) }}</p>
-                    <NuxtLink
-                      :to="getCategoryLink(category)"
-                      class="banner-button"     
-                      @click="handleCategoryClick(category)" 
-                    >
+                    <NuxtLink :to="getCategoryLink(category)" class="banner-button"
+                      @click="handleCategoryClick(category)">
                       Shop Now
                     </NuxtLink>
-                  </div> 
-                </div> 
-              </div> 
-            </li> 
-          </ul> 
-        </nav>  
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </nav>
 
         <!-- Search Bar -->
         <div class="search-container" v-if="!isMobile">
           <div class="search-wrapper">
-            <input 
-              type="text"
-              v-model="searchQuery"
-              @input="handleSearchInput"
-              @focus="showSearchDropdown = true"
-              @blur="onInputBlur"
-              @keydown.enter="performSearch"
-              class="search-input"
-              placeholder="Search for products..."
-              autocomplete="off"
-              aria-label="Search products"
-            >
-            
+            <input type="text" v-model="searchQuery" @input="handleSearchInput" @focus="showSearchDropdown = true"
+              @blur="onInputBlur" @keydown.enter="performSearch" class="search-input"
+              placeholder="Search for products..." autocomplete="off" aria-label="Search products">
+
             <div v-if="searchLoading" class="search-loading">
               <div class="spinner"></div>
             </div>
-            
-            <button
-              type="button"
-              @click="performSearch"
-              class="search-button"
-              :disabled="searchLoading"
-              aria-label="Search"
-            >
+
+            <button type="button" @click="performSearch" class="search-button" :disabled="searchLoading"
+              aria-label="Search">
               <i class="search-icon"></i>
             </button>
 
-            <!-- Search Results --> 
-            <div
-              v-if="showSearchDropdown && searchResults.length > 0"
-              class="search-results"
-            >
+            <!-- Search Results -->
+            <div v-if="showSearchDropdown && searchResults.length > 0" class="search-results">
               <div class="results-header">
                 <h6>Found {{ searchResults.length }} product{{ searchResults.length !== 1 ? 's' : '' }}</h6>
               </div>
               <div class="results-list">
-                <div 
-                  v-for="product in searchResults"
-                  :key="product.id"
-                  @click="selectProduct(product)"
-                  @mousedown.prevent
-                  class="product-result"
-                >
+                <div v-for="product in searchResults" :key="product.id" @click="selectProduct(product)"
+                  @mousedown.prevent class="product-result">
                   <div class="product-image">
                     <img :src="getProductImage(product)" :alt="product.name">
                   </div>
                   <div class="product-info">
                     <h6>{{ product.name }}</h6>
-                    <span class="product-price">₹{{ product.price }}</span>
+                    <p class="product-category">{{ getCategoryName(product) }}</p>
+                    <p class="product-price">₹{{ formatPrice(product.price) }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      
+
         <!-- Header Actions -->
         <div class="header-actions">
           <NuxtLink to="/account/profile" class="action-link" aria-label="Profile" v-if="!isMobile">
             <i class="action-icon profile"></i>
           </NuxtLink>
-          
+
           <NuxtLink to="/account/wishlist" class="action-link" aria-label="Wishlist" v-if="!isMobile">
             <i class="action-icon heart"></i>
             <span v-if="wishlistCount > 0" class="action-badge">{{ wishlistCount }}</span>
           </NuxtLink>
-           
+
           <NuxtLink to="/cart" class="action-link" aria-label="Cart" v-if="!isMobile">
             <i class="action-icon cart"></i>
             <span v-if="cartCount > 0" class="action-badge cart-badge" :class="{ 'pulse': badgePulse }">
               {{ cartCount }}
             </span>
           </NuxtLink>
-          
-          <button
-            class="mobile-toggle"
-            @click="toggleMobileMenu"
-            aria-label="Toggle mobile menu"
-            :aria-expanded="showMobileMenu"
-            v-if="isMobile"
-          >
+
+          <button class="mobile-toggle" @click="toggleMobileMenu" aria-label="Toggle mobile menu"
+            :aria-expanded="showMobileMenu" v-if="isMobile">
             <i class="menu-icon"></i>
           </button>
         </div>
@@ -532,33 +354,21 @@
     </div>
 
     <!-- Mobile Menu Overlay -->
-    <div
-      v-if="showMobileMenu"
-      class="mobile-overlay"
-      @click="closeMobileMenu"
-    ></div>
+    <div v-if="showMobileMenu" class="mobile-overlay" @click="closeMobileMenu"></div>
 
     <!-- Mobile Menu -->
-    <div
-      v-if="showMobileMenu"
-      class="mobile-menu"
-      :class="{ 'active': showMobileMenu }"
-    >
+    <div v-if="showMobileMenu" class="mobile-menu" :class="{ 'active': showMobileMenu }">
       <div class="mobile-header">
-        <img
-          src="/assets/images/logo/pfevicon.png"
-          alt="Market Pro"
-          class="mobile-logo"
-        />
+        <img src="/assets/images/logo/pfevicon.png" alt="Market Pro" class="mobile-logo" />
         <button @click="closeMobileMenu" class="mobile-close" aria-label="Close menu">
           <i class="close-icon"></i>
         </button>
       </div>
-      
-      <!-- Mobile Content --> 
+
+      <!-- Mobile Content -->
       <div class="mobile-content">
         <!-- Mobile Search Trigger -->
-        <div class="mobile-search-trigger" @click="openMobileSearch">
+        <div class="mobile-search-trigger" @click="toggleSearchSidebar">
           <div class="mobile-search-placeholder">
             <i class="search-icon"></i>
             <span>Search products...</span>
@@ -568,39 +378,21 @@
         <!-- Mobile Navigation -->
         <div class="mobile-nav">
           <template v-if="categories.length > 0">
-            <NuxtLink 
-              v-for="category in categories" 
-              :key="category.id"
-              :to="getCategoryLink(category)"
-              class="mobile-nav-item"
-              @click="handleMobileCategoryClick"
-            > 
+            <NuxtLink v-for="category in categories" :key="category.id" :to="getCategoryLink(category)"
+              class="mobile-nav-item" @click="handleMobileCategoryClick">
               <div class="mobile-nav-icon">
-                <img
-                  :src="getCategoryImage(category)"
-                  :alt="category.name"
-                  @error="handleImageError"
-                >
+                <img :src="getCategoryImage(category)" :alt="category.name" @error="handleImageError">
               </div>
               <span>{{ category.name }}</span>
             </NuxtLink>
           </template>
-          
+
           <!-- Fallback Categories for Mobile -->
           <template v-else>
-            <NuxtLink 
-              v-for="category in limitedFallbackCategories"
-              :key="category.id"
-              :to="getFallbackCategoryLink(category)"
-              class="mobile-nav-item"
-              @click="handleMobileCategoryClick"
-            > 
+            <NuxtLink v-for="category in limitedFallbackCategories" :key="category.id"
+              :to="getFallbackCategoryLink(category)" class="mobile-nav-item" @click="handleMobileCategoryClick">
               <div class="mobile-nav-icon">
-                <img
-                  :src="category.image"
-                  :alt="category.name"
-                  @error="handleImageError"
-                >
+                <img :src="category.image" :alt="category.name" @error="handleImageError">
               </div>
               <span>{{ category.name }}</span>
             </NuxtLink>
@@ -609,60 +401,102 @@
       </div>
     </div>
 
+    <!-- Search Sidebar -->
+    <div v-if="showSearchSidebar" class="search-sidebar-overlay" @click="closeSearchSidebar"></div>
+    <div v-if="showSearchSidebar" class="search-sidebar" :class="{ 'active': showSearchSidebar }">
+      <div class="search-sidebar-header">
+        <h3>Search Products</h3>
+        <button @click="closeSearchSidebar" class="search-sidebar-close" aria-label="Close search">
+          <i class="close-icon"></i>
+        </button>
+      </div>
+
+      <div class="search-sidebar-content">
+        <div class="search-sidebar-input-wrapper">
+          <input type="text" v-model="searchQuery" @input="handleSearchInput" @keydown.enter="performSearch"
+            class="search-sidebar-input" placeholder="Search for products..." autocomplete="off"
+            aria-label="Search products" ref="sidebarSearchInput">
+
+          <button type="button" @click="performSearch" class="search-sidebar-button" :disabled="searchLoading"
+            aria-label="Search">
+            <i class="search-icon"></i>
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="searchLoading" class="search-sidebar-loading">
+          <div class="spinner"></div>
+          <p>Searching...</p>
+        </div>
+
+        <!-- Search Results -->
+        <div v-else-if="searchResults.length > 0" class="search-sidebar-results">
+          <div class="search-sidebar-results-header">
+            <h6>Found {{ searchResults.length }} product{{ searchResults.length !== 1 ? 's' : '' }}</h6>
+          </div>
+          <div class="search-sidebar-results-list">
+            <div v-for="product in searchResults" :key="product.id" @click="selectProduct(product)"
+              class="search-sidebar-result">
+              <div class="search-sidebar-product-image">
+                <img :src="getProductImage(product)" :alt="product.name">
+              </div>
+              <div class="search-sidebar-product-info">
+                <h6>{{ product.name }}</h6>
+                <p class="search-sidebar-product-category">{{ getCategoryName(product) }}</p>
+                <p class="search-sidebar-product-price">₹{{ formatPrice(product.price) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div v-else-if="searchQuery && !searchLoading && searchResults.length === 0" class="search-sidebar-no-results">
+          <div class="no-results-icon">
+            <i class="search-icon"></i>
+          </div>
+          <p>No products found for "{{ searchQuery }}"</p>
+        </div>
+
+        <!-- Initial State -->
+        <div v-else-if="!searchQuery" class="search-sidebar-initial">
+          <div class="search-sidebar-icon">
+            <i class="search-icon"></i>
+          </div>
+          <p>Search for products by name, category or description</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Full Screen Mobile Search Modal -->
-    <div 
-      v-if="showMobileSearchModal" 
-      class="mobile-search-modal"
-      :class="{ 'modal-active': showMobileSearchModal }"
-    >
+    <div v-if="showMobileSearchModal" class="mobile-search-modal" :class="{ 'modal-active': showMobileSearchModal }">
       <div class="mobile-search-header">
         <div class="mobile-search-input-wrapper">
-          <button 
-            @click="closeMobileSearch" 
-            class="back-button"
-            aria-label="Go back"
-          >
+          <button @click="closeMobileSearch" class="back-button" aria-label="Go back">
             <svg viewBox="0 0 24 24" width="24" height="24">
-              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
             </svg>
           </button>
-          
-          <input
-            type="text"
-            ref="mobileSearchInput"
-            v-model="mobileSearchQuery"
-            @input="handleMobileSearchInput"
-            @keydown.enter="performMobileSearchSubmit"
-            class="mobile-modal-search-input"
-            placeholder="Search for products..."
-            autocomplete="off"
-            aria-label="Search products"
-          >
-          
-          <button
-            v-if="mobileSearchQuery"
-            @click="clearMobileSearch"
-            class="clear-button"
-            aria-label="Clear search"
-          >
+
+          <input type="text" ref="mobileSearchInput" v-model="mobileSearchQuery" @input="handleMobileSearchInput"
+            @keydown.enter="performMobileSearchSubmit" class="mobile-modal-search-input"
+            placeholder="Search for products..." autocomplete="off" aria-label="Search products">
+
+          <button v-if="mobileSearchQuery" @click="clearMobileSearch" class="clear-button" aria-label="Clear search">
             <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              <path fill="currentColor"
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
-          
-          <button
-            type="button"
-            @click="performMobileSearchSubmit"
-            class="search-submit-button"
-            :disabled="mobileSearchLoading"
-            aria-label="Search"
-          >
+
+          <button type="button" @click="performMobileSearchSubmit" class="search-submit-button"
+            :disabled="mobileSearchLoading" aria-label="Search">
             <svg viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              <path fill="currentColor"
+                d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
           </button>
         </div>
-        
+
         <div v-if="mobileSearchLoading" class="mobile-search-loading">
           <div class="mobile-spinner"></div>
           <span>Searching...</span>
@@ -672,77 +506,60 @@
       <!-- Search Results Content -->
       <div class="mobile-search-results">
         <!-- Recent Searches -->
-        <div 
-          v-if="!mobileSearchQuery && recentSearches.length > 0"
-          class="recent-searches"
-        >
+        <div v-if="!mobileSearchQuery && recentSearches.length > 0" class="recent-searches">
           <div class="recent-header">
             <h6>Recent Searches</h6>
-            <button 
-              @click="clearRecentSearches" 
-              class="clear-recent"
-            >
+            <button @click="clearRecentSearches" class="clear-recent">
               Clear
             </button>
           </div>
           <div class="recent-list">
-            <div 
-              v-for="search in recentSearches"
-              :key="search"
-              @click="selectRecentSearch(search)"
-              class="recent-item"
-            >
+            <div v-for="search in recentSearches" :key="search" @click="selectRecentSearch(search)" class="recent-item">
               <span>{{ search }}</span>
               <button @click.stop="removeRecentSearch(search)">
                 <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  <path fill="currentColor"
+                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                 </svg>
               </button>
             </div>
           </div>
         </div>
-        
+
         <!-- No Recent Searches -->
         <div v-else-if="!mobileSearchQuery && recentSearches.length === 0" class="initial-state">
           <svg viewBox="0 0 24 24" width="48" height="48" class="search-placeholder-icon">
-            <path fill="#ddd" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            <path fill="#ddd"
+              d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
           <p>Search for products by name, category or description</p>
         </div>
-        
+
         <!-- Loading State -->
         <div v-else-if="mobileSearchLoading" class="loading-state">
           <div class="mobile-spinner"></div>
           <p>Searching...</p>
         </div>
-        
+
         <!-- No Results -->
-        <div 
-          v-else-if="mobileSearchQuery && !mobileSearchLoading && mobileSearchResults.length === 0"
-          class="no-results"
-        >
+        <div v-else-if="mobileSearchQuery && !mobileSearchLoading && mobileSearchResults.length === 0"
+          class="no-results">
           <svg viewBox="0 0 24 24" width="48" height="48" class="no-results-icon">
-            <path fill="#999" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            <path fill="#999"
+              d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
           <p>No products found for "{{ mobileSearchQuery }}"</p>
         </div>
-        
+
         <!-- Search Results -->
-        <div 
-          v-else-if="mobileSearchResults.length > 0"
-          class="mobile-results-list"
-        >
+        <div v-else-if="mobileSearchResults.length > 0" class="mobile-results-list">
           <div class="mobile-results-header">
             <h6>Found {{ mobileSearchResults.length }} product{{ mobileSearchResults.length !== 1 ? 's' : '' }}</h6>
           </div>
-          
+
           <div class="mobile-products-list">
-            <div 
-              v-for="product in mobileSearchResults"
-              :key="product.id"
-              @click="selectMobileProduct(product)"
-              class="mobile-product-result"
-            >
+            <div v-for="product in mobileSearchResults" :key="product.id" @click="selectMobileProduct(product)"
+              class="mobile-product-result">
               <div class="mobile-product-image">
                 <img :src="getProductImage(product)" :alt="product.name" @error="handleProductImageError">
               </div>
@@ -760,14 +577,8 @@
 
   <!-- Mobile Bottom Navigation (Only on Mobile) -->
   <nav v-if="isMobile" class="mobile-bottom-nav">
-    <NuxtLink 
-      v-for="tab in mobileTabs"
-      :key="tab.name"
-      :to="tab.route"
-      class="nav-item"
-      :class="{ 'active': activeTab === tab.name }"
-      @click="setActiveTab(tab.name)"
-    >
+    <NuxtLink v-for="tab in mobileTabs" :key="tab.name" :to="tab.route" class="nav-item"
+      :class="{ 'active': activeTab === tab.name }" @click="setActiveTab(tab.name)">
       <div class="nav-icon-wrapper">
         <svg viewBox="0 0 24 24" width="22" height="22">
           <path :d="tab.icon" fill="currentColor" />
@@ -779,7 +590,7 @@
           {{ wishlistCount > 99 ? '99+' : wishlistCount }}
         </span>
       </div>
-      <span class="nav-label">{{ tab.label }}</span> 
+      <span class="nav-label">{{ tab.label }}</span>
     </NuxtLink>
   </nav>
 
@@ -787,14 +598,8 @@
   <footer v-else class="desktop-footer-nav">
     <div class="footer-container">
       <div class="footer-content">
-        <NuxtLink
-          v-for="tab in desktopTabs"
-          :key="tab.name"
-          :to="tab.route"
-          class="footer-item"
-          :class="{ 'active': activeTab === tab.name }" 
-          @click="setActiveTab(tab.name)"
-        >
+        <NuxtLink v-for="tab in desktopTabs" :key="tab.name" :to="tab.route" class="footer-item"
+          :class="{ 'active': activeTab === tab.name }" @click="setActiveTab(tab.name)">
           <div class="footer-icon-wrapper">
             <svg viewBox="0 0 24 24" width="24" height="24">
               <path :d="tab.icon" fill="currentColor" />
@@ -811,12 +616,12 @@
       </div>
     </div>
   </footer>
-</template> 
+</template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from '#imports'
-const config = useRuntimeConfig() 
+const config = useRuntimeConfig()
 const API_URL = config.public.api.MEDIA_API_URL
 const API_URL_CATEGORIES = config.public.api.categories
 
@@ -844,6 +649,10 @@ const categoryMenuTimeout = ref(null)
 const isMobile = ref(false)
 const recentSearches = ref([])
 const mobileSearchController = ref(null)
+
+// Search Sidebar State
+const showSearchSidebar = ref(false)
+const sidebarSearchInput = ref(null)
 
 // New State Variables for Category Dropdown
 const showCategoryDropdown = ref(false)
@@ -1303,22 +1112,22 @@ const limitedFallbackCategories = computed(() => {
 // Utility Functions
 const debounce = (fn, delay) => {
   let timeoutId
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => fn.apply(this, args), delay)
   }
 }
 
-const throttle = (fn, limit) => { 
+const throttle = (fn, limit) => {
   let inThrottle
-  return function(...args) {  
+  return function (...args) {
     if (!inThrottle) {
       fn.apply(this, args)
-      inThrottle = true 
-      setTimeout(() => inThrottle = false, limit)   
+      inThrottle = true
+      setTimeout(() => inThrottle = false, limit)
     }
   }
-}  
+}
 
 // ==================== CART SYSTEM ====================
 const cartManager = {
@@ -1362,7 +1171,7 @@ const setActiveTab = (tabName) => {
 
 const updateActiveTabFromRoute = () => {
   const path = route.path
-  
+
   if (path === '/') {
     activeTab.value = 'home'
   } else if (path.includes('/shop-all')) {
@@ -1397,14 +1206,14 @@ const openMobileSearch = () => {
       mobileSearchInput.value.focus()
     }
   }, 100)
-} 
+}
 
 const closeMobileSearch = () => {
   showMobileSearchModal.value = false
   mobileSearchQuery.value = ''
   mobileSearchResults.value = []
   document.body.style.overflow = ''
-  
+
   // Abort any ongoing search
   if (mobileSearchController.value) {
     mobileSearchController.value.abort()
@@ -1417,7 +1226,7 @@ const clearMobileSearch = () => {
   mobileSearchResults.value = []
 }
 
-const loadRecentSearches = () =>  {
+const loadRecentSearches = () => {
   const saved = localStorage.getItem('recentSearches')
   if (saved) {
     try {
@@ -1434,7 +1243,7 @@ const saveRecentSearches = () => {
 
 const addToRecentSearches = (query) => {
   if (!query.trim()) return
-  
+
   // Remove if already exists
   recentSearches.value = recentSearches.value.filter(s => s.toLowerCase() !== query.toLowerCase())
   // Add to beginning
@@ -1475,19 +1284,19 @@ const performMobileSearch = debounce(async (searchTerm) => {
 
   try {
     const response = await fetch(
-     API_URL_CATEGORIES ,
-      { 
+      API_URL_CATEGORIES,
+      {
         signal: AbortSignal.timeout(3000)
       }
     )
-    
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    
-    const result = await response.json() 
+
+    const result = await response.json()
     const products = result.data || []
-    
+
     const queryLower = searchTerm.toLowerCase()
-    const filtered = products.filter(product => 
+    const filtered = products.filter(product =>
       product.name?.toLowerCase().includes(queryLower) ||
       product.description?.toLowerCase().includes(queryLower) ||
       product.category?.name?.toLowerCase().includes(queryLower)
@@ -1542,26 +1351,26 @@ const initialize = () => {
   // Check mobile - use 1025px to match CSS breakpoints
   isMobile.value = window.innerWidth < 1025
   window.addEventListener('resize', handleResize)
-  
+
   fetchLogo()
   fetchCategories()
-  
+
   setupCartSystem()
-  
+
   cartManager.updateCounts()
-  
+
   loadRecentSearches()
-  
+
   updateActiveTabFromRoute()
 }
 
 const handleResize = throttle(() => {
   isMobile.value = window.innerWidth < 1025
   if (isMobile.value) {
-    showCategoryDropdown.value = false 
+    showCategoryDropdown.value = false
     keepCategoryDropdownOpen.value = false
   }
-}, 200) 
+}, 200)
 
 // ==================== CART EVENT SYSTEM ==================== 
 const setupCartSystem = () => {
@@ -1576,11 +1385,11 @@ const setupCartSystem = () => {
 
   let lastCart = ''
   let lastWishlist = ''
-  
+
   const poll = () => {
     const currentCart = localStorage.getItem('shopping_cart')
     const currentWishlist = localStorage.getItem('wishlist')
-    
+
     if (currentCart !== lastCart || currentWishlist !== lastWishlist) {
       cartManager.updateCounts()
       lastCart = currentCart
@@ -1588,10 +1397,10 @@ const setupCartSystem = () => {
     }
   }
 
-  window.addEventListener('storage', handleStorage) 
+  window.addEventListener('storage', handleStorage)
   window.addEventListener('cart-updated', handleCartEvent)
   window.addEventListener('wishlist-updated', handleWishlistEvent)
-  
+
   const interval = setInterval(poll, 1000)
 
   return () => {
@@ -1609,9 +1418,9 @@ const fetchCategories = async () => {
       import.meta.env.VITE_API_CATEGORIES,
       { signal: AbortSignal.timeout(5000) }
     )
-    
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    
+
     const data = await response.json()
     categories.value = data.data || []
   } catch (error) {
@@ -1628,9 +1437,9 @@ const getCategoryName = (category) => {
 }
 
 const hasSubCategories = (category) => {
-  return (category.subCategories?.length > 0) || 
-         (category.subCategoriesFallback?.length > 0) ||
-         ['men', 'women'].includes(category.name.toLowerCase())
+  return (category.subCategories?.length > 0) ||
+    (category.subCategoriesFallback?.length > 0) ||
+    ['men', 'women'].includes(category.name.toLowerCase())
 }
 
 const getCategoryLink = (category) => {
@@ -1646,12 +1455,12 @@ const isActiveCategory = (category) => {
 
 const getCategoryImage = (category) => {
   return category.logo || category.image || '/assets/images/category-placeholder.png'
-}  
+}
 
 const getBannerTitle = (category) => {
   const name = category.name
-  if (name.includes('Men')) return "MEN'S COLLECTION" 
-  if (name.includes('Women')) return "WOMEN'S FASHION"  
+  if (name.includes('Men')) return "MEN'S COLLECTION"
+  if (name.includes('Women')) return "WOMEN'S FASHION"
   return `${name.toUpperCase()} COLLECTION`
 }
 
@@ -1671,7 +1480,7 @@ const getBannerSubtitle = (category) => {
 const toggleCategoryDropdown = () => {
   showCategoryDropdown.value = !showCategoryDropdown.value
   keepCategoryDropdownOpen.value = showCategoryDropdown.value
-  
+
   if (showCategoryDropdown.value) {
     showSearchDropdown.value = false
     activeCategoryMenu.value = null
@@ -1707,7 +1516,7 @@ const handleCategoryHover = (category) => {
     clearTimeout(categoryMenuTimeout.value)
     categoryMenuTimeout.value = null
   }
-  
+
   if (hasSubCategories(category)) {
     activeCategoryMenu.value = category.id
   }
@@ -1761,7 +1570,7 @@ const enableBodyScroll = () => {
     document.body.style.top = ''
     document.body.style.width = ''
     document.body.style.overflow = ''
-    
+
     window.scrollTo(0, scrollY)
     sessionStorage.removeItem('scrollPosition')
   }
@@ -1792,7 +1601,7 @@ const handleMobileCategoryClick = () => {
 // ==================== DESKTOP SEARCH ====================
 const performSearch = debounce(async (query) => {
   const searchTerm = query || searchQuery.value
-  
+
   if (!searchTerm.trim()) {
     searchResults.value = []
     return
@@ -1805,19 +1614,19 @@ const performSearch = debounce(async (query) => {
       `${config.public.apiBase}/common/product/read`,
       { signal: AbortSignal.timeout(3000) }
     )
-    
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    
+
     const result = await response.json()
     const products = result.data || []
-    
+
     const queryLower = searchTerm.toLowerCase()
-    const filtered = products.filter(product => 
+    const filtered = products.filter(product =>
       product.name?.toLowerCase().includes(queryLower) ||
       product.description?.toLowerCase().includes(queryLower) ||
       product.category?.name?.toLowerCase().includes(queryLower)
     )
-    
+
     searchResults.value = filtered.slice(0, 8)
     showSearchDropdown.value = true
   } catch (error) {
@@ -1855,6 +1664,20 @@ const closeMobileMenu = () => {
   enableBodyScroll()
 }
 
+// ==================== SEARCH SIDEBAR ====================
+const toggleSearchSidebar = () => {
+  showSearchSidebar.value = !showSearchSidebar.value
+  if (showSearchSidebar.value) {
+    nextTick(() => {
+      sidebarSearchInput.value?.focus()
+    })
+  }
+}
+
+const closeSearchSidebar = () => {
+  showSearchSidebar.value = false
+}
+
 // ==================== UTILITIES ====================
 const onInputBlur = () => {
   setTimeout(() => {
@@ -1890,7 +1713,7 @@ let cleanupCartSystem = null
 onMounted(() => {
   initialize()
   cleanupCartSystem = setupCartSystem()
-  
+
   const savedScrollPosition = sessionStorage.getItem('scrollPosition')
   if (savedScrollPosition) {
     setTimeout(() => {
@@ -1898,13 +1721,13 @@ onMounted(() => {
       sessionStorage.removeItem('scrollPosition')
     }, 100)
   }
-  
+
   // Click outside handler
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.category-dropdown-wrapper') && 
-        !e.target.closest('.search-wrapper') && 
-        !e.target.closest('.search-results') &&
-        !e.target.closest('.category-mega-menu')) {
+    if (!e.target.closest('.category-dropdown-wrapper') &&
+      !e.target.closest('.search-wrapper') &&
+      !e.target.closest('.search-results') &&
+      !e.target.closest('.category-mega-menu')) {
       showSearchDropdown.value = false
       if (!e.target.closest('.nav-item')) {
         closeCategoryMenu()
@@ -1946,6 +1769,7 @@ watch(() => route.path, () => {
   display: flex;
   z-index: 100;
 }
+
 .view-all-button {
   display: inline-flex;
   align-items: center;
@@ -1988,7 +1812,7 @@ watch(() => route.path, () => {
   display: flex;
   z-index: 100;
 }
-               
+
 .category-button {
   width: auto;
   background: linear-gradient(135deg, var(--main-600), var(--main-700));
@@ -2122,6 +1946,7 @@ watch(() => route.path, () => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2138,6 +1963,7 @@ watch(() => route.path, () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   height: 60px;
 }
+
 .container {
   max-width: 1480px;
   margin: 0 auto;
@@ -2163,7 +1989,7 @@ watch(() => route.path, () => {
 }
 
 .logo-img {
-  height: 40px;
+  height: 32px;
   width: auto;
   object-fit: contain;
 }
@@ -2232,6 +2058,7 @@ watch(() => route.path, () => {
 .dropdown-icon.rotated {
   transform: rotate(180deg);
 }
+
 /* Category Mega Menu */
 .category-mega-menu {
   position: fixed;
@@ -2255,16 +2082,19 @@ watch(() => route.path, () => {
   overflow: hidden;
   box-sizing: border-box;
 }
+
 .nav-item:hover .category-mega-menu {
   opacity: 1;
   visibility: visible;
   animation: slideDown 0.2s ease-out;
 }
+
 @keyframes slideDown {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -2483,7 +2313,9 @@ watch(() => route.path, () => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .search-button {
@@ -2680,9 +2512,17 @@ watch(() => route.path, () => {
 }
 
 @keyframes badgePulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Active/pressed states for buttons */
@@ -2805,7 +2645,7 @@ watch(() => route.path, () => {
   padding: 1rem;
 }
 
-/* Mobile Search Trigger */ 
+/* Mobile Search Trigger */
 .mobile-search-trigger {
   position: relative;
   margin-bottom: 0;
@@ -2834,9 +2674,7 @@ watch(() => route.path, () => {
 .mobile-search-placeholder .search-icon {
   width: 16px;
   height: 16px;
-  opacity: 0.6;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7280' d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
-  background-size: contain;
+  color: #ffffff;
 }
 
 .mobile-search-placeholder span {
@@ -3229,8 +3067,8 @@ watch(() => route.path, () => {
   bottom: 0;
   left: 0;
   right: 0;
-  width:100%;
-  height:70px;
+  width: 100%;
+  height: 70px;
   background: white;
   display: flex;
   justify-content: space-around;
@@ -3300,7 +3138,7 @@ watch(() => route.path, () => {
 } */
 
 .footer-content {
-  
+
   display: none;
   justify-content: space-around;
   align-items: center;
@@ -3385,14 +3223,14 @@ watch(() => route.path, () => {
   .container {
     max-width: 1320px;
   }
-  
+
   .search-input {
     font-size: 0.9375rem;
     padding: 0.75rem 3rem 0.75rem 1rem;
   }
-  
+
   .logo-img {
-    height: 48px;
+    height: 36px;
   }
 }
 
@@ -3401,9 +3239,9 @@ watch(() => route.path, () => {
   .container {
     max-width: 1140px;
   }
-  
+
   .logo-img {
-    height: 44px;
+    height: 32px;
   }
 }
 
@@ -3412,35 +3250,35 @@ watch(() => route.path, () => {
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: flex;
   }
-  
+
   .search-container {
     flex: 1;
     max-width: none;
     margin: 0 1rem;
   }
-  
+
   .category-mega-menu {
     display: none !important;
   }
-  
+
   .category-dropdown-wrapper {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .logo-img {
-    height: 40px;
+    height: 28px;
   }
 }
 
@@ -3449,73 +3287,73 @@ watch(() => route.path, () => {
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: flex;
   }
-  
+
   .search-container {
     flex: 1;
     max-width: none;
     margin: 0 0.75rem;
   }
-  
+
   .category-mega-menu {
     display: none !important;
   }
-  
+
   .category-dropdown-wrapper {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .header-inner {
     gap: 0.75rem;
   }
-  
+
   .logo-img {
-    height: 36px;
+    height: 40px;
   }
-  
+
   .search-input {
     padding: 0.625rem 2.5rem 0.625rem 0.75rem;
     font-size: 0.875rem;
   }
-  
+
   .action-link {
     width: 40px;
     height: 40px;
   }
-  
+
   .action-icon {
     width: 20px;
     height: 20px;
   }
-  
+
   .mobile-menu {
     width: 100%;
     max-width: 380px;
   }
-  
+
   .mobile-bottom-nav {
     height: 65px;
   }
-  
+
   .mobile-bottom-nav .nav-item {
     padding: 8px 10px;
   }
-  
+
   .mobile-bottom-nav .nav-label {
     font-size: 10px;
   }
-  
+
   .cart-badge,
   .wishlist-badge {
     min-width: 17px;
@@ -3531,73 +3369,73 @@ watch(() => route.path, () => {
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: flex;
   }
-  
+
   .search-container {
     flex: 1;
     max-width: none;
     margin: 0 0.5rem;
   }
-  
+
   .category-mega-menu {
     display: none !important;
   }
-  
+
   .category-dropdown-wrapper {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .header-inner {
     gap: 0.5rem;
   }
-  
+
   .logo-img {
-    height: 34px;
+    height: 36px;
   }
-  
+
   .search-input {
     padding: 0.5rem 2.5rem 0.5rem 0.75rem;
     font-size: 0.8125rem;
   }
-  
+
   .action-link {
     width: 38px;
     height: 38px;
   }
-  
+
   .action-icon {
     width: 18px;
     height: 18px;
   }
-  
+
   .mobile-menu {
     width: 100%;
     max-width: 320px;
   }
-  
+
   .mobile-bottom-nav {
     height: 62px;
   }
-  
+
   .mobile-bottom-nav .nav-item {
     padding: 6px 8px;
   }
-  
+
   .mobile-bottom-nav .nav-label {
     font-size: 9px;
   }
-  
+
   .cart-badge,
   .wishlist-badge {
     min-width: 16px;
@@ -3606,16 +3444,17 @@ watch(() => route.path, () => {
     top: -6px;
     right: -6px;
   }
-  
+
   .mobile-search-placeholder {
     padding: 0.5rem 0.625rem;
   }
-  
+
   .mobile-search-placeholder .search-icon {
     width: 14px;
     height: 14px;
+    color: #ffffff;
   }
-  
+
   .mobile-search-placeholder span {
     font-size: 0.8125rem;
   }
@@ -3626,70 +3465,70 @@ watch(() => route.path, () => {
   .container {
     padding: 0 1rem;
   }
-  
+
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: flex;
   }
-  
+
   .search-container {
     display: none;
   }
-  
+
   .category-mega-menu {
     display: none !important;
   }
-  
+
   .category-dropdown-wrapper {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .header-inner {
     gap: 0.5rem;
   }
-  
+
   .logo-img {
     height: 32px;
   }
-  
+
   .action-link {
     width: 36px;
     height: 36px;
   }
-  
+
   .action-icon {
     width: 16px;
     height: 16px;
   }
-  
+
   .mobile-menu {
     width: 100%;
     max-width: 300px;
   }
-  
+
   .mobile-bottom-nav {
     height: 60px;
   }
-  
+
   .mobile-bottom-nav .nav-item {
     padding: 6px 8px;
   }
-  
+
   .mobile-bottom-nav .nav-label {
     font-size: 9px;
   }
-  
+
   .cart-badge,
   .wishlist-badge {
     min-width: 15px;
@@ -3698,16 +3537,17 @@ watch(() => route.path, () => {
     top: -5px;
     right: -5px;
   }
-  
+
   .mobile-search-placeholder {
     padding: 0.5rem;
   }
-  
+
   .mobile-search-placeholder .search-icon {
     width: 14px;
     height: 14px;
+    color: #ffffff;
   }
-  
+
   .mobile-search-placeholder span {
     font-size: 0.75rem;
   }
@@ -3718,70 +3558,70 @@ watch(() => route.path, () => {
   .container {
     padding: 0 0.875rem;
   }
-  
+
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: flex;
   }
-  
+
   .search-container {
     display: none;
   }
-  
+
   .category-mega-menu {
     display: none !important;
   }
-  
+
   .category-dropdown-wrapper {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .header-inner {
     gap: 0.375rem;
   }
-  
+
   .logo-img {
-    height: 30px;
+    height: 28px;
   }
-  
+
   .action-link {
     width: 34px;
     height: 34px;
   }
-  
+
   .action-icon {
     width: 15px;
     height: 15px;
   }
-  
+
   .mobile-menu {
     width: 100%;
     max-width: 280px;
   }
-  
+
   .mobile-bottom-nav {
     height: 58px;
   }
-  
+
   .mobile-bottom-nav .nav-item {
     padding: 4px 6px;
   }
-  
+
   .mobile-bottom-nav .nav-label {
     font-size: 8px;
   }
-  
+
   .cart-badge,
   .wishlist-badge {
     min-width: 14px;
@@ -3790,16 +3630,17 @@ watch(() => route.path, () => {
     top: -4px;
     right: -4px;
   }
-  
+
   .mobile-search-placeholder {
     padding: 0.375rem 0.5rem;
   }
-  
+
   .mobile-search-placeholder .search-icon {
     width: 12px;
     height: 12px;
+    color: #ffffff;
   }
-  
+
   .mobile-search-placeholder span {
     font-size: 0.6875rem;
   }
@@ -3810,70 +3651,70 @@ watch(() => route.path, () => {
   .container {
     padding: 0 0.75rem;
   }
-  
+
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: flex;
   }
-  
+
   .search-container {
     display: none;
   }
-  
+
   .category-mega-menu {
     display: none !important;
   }
-  
+
   .category-dropdown-wrapper {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .header-inner {
     gap: 0.25rem;
   }
-  
+
   .logo-img {
-    height: 28px;
+    height: 30px;
   }
-  
+
   .action-link {
     width: 32px;
     height: 32px;
   }
-  
+
   .action-icon {
     width: 14px;
     height: 14px;
   }
-  
+
   .mobile-menu {
     width: 100%;
     max-width: 260px;
   }
-  
+
   .mobile-bottom-nav {
     height: 56px;
   }
-  
+
   .mobile-bottom-nav .nav-item {
     padding: 4px 4px;
   }
-  
+
   .mobile-bottom-nav .nav-label {
     font-size: 7px;
   }
-  
+
   .cart-badge,
   .wishlist-badge {
     min-width: 13px;
@@ -3882,16 +3723,17 @@ watch(() => route.path, () => {
     top: -3px;
     right: -3px;
   }
-  
+
   .mobile-search-placeholder {
     padding: 0.375rem 0.4375rem;
   }
-  
+
   .mobile-search-placeholder .search-icon {
     width: 12px;
     height: 12px;
+    color: #ffffff;
   }
-  
+
   .mobile-search-placeholder span {
     font-size: 0.625rem;
   }
@@ -3957,31 +3799,31 @@ watch(() => route.path, () => {
   .mobile-search-trigger {
     display: none;
   }
-  
+
   .mobile-toggle {
     display: none;
   }
-  
+
   .mobile-menu {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: none;
   }
-  
+
   .desktop-footer-nav {
     display: block;
   }
-  
+
   .desktop-nav {
     display: flex;
   }
-  
+
   .search-container {
     display: block;
   }
-  
+
   .category-dropdown-wrapper {
     display: block;
   }
@@ -3993,5 +3835,387 @@ watch(() => route.path, () => {
   width: 100% !important;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+/* Search Trigger Button */
+.search-trigger-btn {
+  background: #ffffff;
+  border: 1px solid #CA2D52;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.search-trigger-btn:hover {
+  background: #f8fafc;
+  border-color: #CA2D52;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.3);
+}
+
+.search-trigger-btn .search-icon {
+  width: 16px;
+  height: 16px;
+  color: #ffffff;
+}
+
+/* Hide desktop search trigger on mobile */
+@media (max-width: 1024px) {
+  .search-trigger-btn {
+    display: none;
+  }
+}
+
+/* Mobile Search Trigger */
+.mobile-search-trigger {
+  position: relative;
+  margin-bottom: 0;
+  cursor: pointer;
+  flex: 1;
+  max-width: none;
+  margin: 0 0.5rem;
+  display: block;
+}
+
+.mobile-search-trigger .mobile-search-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.mobile-search-trigger:hover .mobile-search-placeholder {
+  background: #f8fafc;
+  border-color: #CA2D52;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.3);
+}
+
+.mobile-search-trigger .search-icon {
+  width: 16px;
+  height: 16px;
+  color: #CA2D52;
+}
+
+.mobile-search-trigger span {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.search-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.search-sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.search-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-sidebar.active {
+  transform: translateX(0);
+}
+
+.search-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.search-sidebar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.search-sidebar-close {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.search-sidebar-close:hover {
+  background: #f1f5f9;
+}
+
+.search-sidebar-close .close-icon {
+  width: 20px;
+  height: 20px;
+  color: #64748b;
+}
+
+.search-sidebar-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.search-sidebar-input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-sidebar-input {
+  width: 100%;
+  padding: 12px 50px 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  background: #ffffff;
+}
+
+.search-sidebar-input:focus {
+  border-color: #CA2D52;
+  background: #ffffff;
+}
+
+.search-sidebar-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.search-sidebar-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.search-sidebar-button .search-icon {
+  width: 16px;
+  height: 16px;
+  color: #ffffff;
+}
+
+.search-sidebar-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.search-sidebar-loading .spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e2e8f0;
+  border-top-color: #CA2D52;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+.search-sidebar-results {
+  margin-top: 20px;
+}
+
+.search-sidebar-results-header {
+  margin-bottom: 16px;
+}
+
+.search-sidebar-results-header h6 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.search-sidebar-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-sidebar-result {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-sidebar-result:hover {
+  background: #f8fafc;
+}
+
+.search-sidebar-product-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.search-sidebar-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.search-sidebar-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-sidebar-product-info h6 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.search-sidebar-product-category {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 8px 0;
+}
+
+.search-sidebar-product-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #CA2D52;
+  margin: 0;
+}
+
+.search-sidebar-no-results,
+.search-sidebar-initial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.search-sidebar-no-results .no-results-icon,
+.search-sidebar-initial .search-sidebar-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.search-sidebar-no-results p,
+.search-sidebar-initial p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Responsive Search Sidebar */
+@media (max-width: 768px) {
+  .search-sidebar {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .search-trigger-btn {
+    display: none;
+    /* Hide desktop search trigger on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .search-sidebar {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-sidebar-header {
+    padding: 16px;
+  }
+
+  .search-sidebar-content {
+    padding: 16px;
+  }
+
+  .search-sidebar-input {
+    padding: 10px 40px 10px 14px;
+    font-size: 14px;
+  }
+
+  .search-sidebar-button {
+    right: 6px;
+    padding: 6px 10px;
+  }
+
+  .search-sidebar-button .search-icon {
+    width: 14px;
+    height: 14px;
+    color: #ffffff;
+  }
+
+  .search-sidebar-product-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .search-sidebar-product-info h6 {
+    font-size: 13px;
+  }
+
+  .search-sidebar-product-category {
+    font-size: 11px;
+  }
+
+  .search-sidebar-product-price {
+    font-size: 13px;
+  }
 }
 </style>

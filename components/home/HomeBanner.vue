@@ -5,31 +5,21 @@
         <div class="slide active">
           <!-- Background Image -->
           <Transition name="slide-fade">
-            <img 
-              v-if="currentBanner"
-              :key="currentBanner.image"
-              :src="currentBanner.image" 
-              :alt="currentBanner.title"
-              class="banner-image"
-            />
+            <img v-if="currentBanner" :key="currentBanner.image" :src="currentBanner.image" :alt="currentBanner.title"
+              class="banner-image" />
           </Transition>
-          
+
           <!-- Overlay -->
           <div class="overlay"></div>
-          
+
           <!-- Content -->
           <Transition name="slide-content-fade">
-          <NuxtLink 
-            v-if="currentBanner"
-            :key="currentBanner.title"
-            to="/shop-all"
-            class="banner-content-link"
-          >
-            <div class="content">
-              <span class="subtitle">{{ currentBanner.description }}</span>
-              <h1 class="title">{{ currentBanner.title }}</h1>
-            </div>
-          </NuxtLink>
+            <NuxtLink v-if="currentBanner" :key="currentBanner.title" to="/shop-all" class="banner-content-link">
+              <div class="content">
+                <span class="subtitle">{{ currentBanner.description }}</span>
+                <h1 class="title">{{ currentBanner.title }}</h1>
+              </div>
+            </NuxtLink>
           </Transition>
         </div>
 
@@ -93,7 +83,7 @@ const stopAutoSlide = () => {
 // Fetch banners from API using new media hook
 const fetchBanners = async () => {
   loading.value = true
-  
+
   try {
     // Fetch media with slider category filter
     const mediaResponse = await fetchMedia({
@@ -101,31 +91,31 @@ const fetchBanners = async () => {
       limit: 10,
       sort: "createdAt:desc"
     })
-    
+
     const items = mediaResponse.data || []
-    
+
     // Filter for SLIDER category media only
     const sliderItems = items.filter((item: any) => {
       const category = item?.category?.toLowerCase() || ''
       const title = item?.title?.toLowerCase() || ''
-      
+
       // Look for exact "slider" category match
-      return category === 'slider' || 
-             category === 'SLIDER' ||
-             title === 'slider' ||
-             title === 'SLIDER'
+      return category === 'slider' ||
+        category === 'SLIDER' ||
+        title === 'slider' ||
+        title === 'SLIDER'
     })
-    
+
     if (sliderItems.length > 0) {
       const apiBanners = sliderItems.map((item: any) => {
         // Try different possible URL fields
         let imageUrl = item.url || item.imageUrl || item.image || item.src || ''
-        
+
         // If the URL is relative, construct full URL
         if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
           imageUrl = `https://api.pranzo.in${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
         }
-        
+
         return {
           id: item.id,
           title: item.title || '',
@@ -134,7 +124,7 @@ const fetchBanners = async () => {
           category: 'HEROSECTION'
         }
       })
-      
+
       banners.value = apiBanners
       currentIndex.value = 0
       error.value = null
@@ -159,7 +149,7 @@ const fetchBanners = async () => {
 onMounted(() => {
   // Try to fetch slider media from API
   fetchBanners()
-  
+
   // Also try again after 3 seconds if failed
   setTimeout(() => {
     if (error.value) {
@@ -177,10 +167,13 @@ onUnmounted(() => {
 <style scoped>
 .hero-banner {
   width: 100%;
-  min-height: 450px;
+  min-height: 250px;
   position: relative;
   overflow: hidden;
-  margin-bottom: 3rem; /* Add spacing after banner */
+  margin-bottom: 3rem;
+  /* Ensure banner takes full viewport width on mobile */
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
 }
 
 /* Loading State (minimal) */
@@ -213,13 +206,16 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Banner Main (always visible) */
 .banner-main {
   width: 100%;
-  min-height: 450px;
+  min-height: 250px;
+  /* Reduced from 450px */
 }
 
 .banner-slider {
@@ -230,7 +226,8 @@ onUnmounted(() => {
 
 .slide {
   position: relative;
-  min-height: 450px;
+  min-height: 350px;
+  /* Reduced from 450px */
 }
 
 .banner-image {
@@ -304,6 +301,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -311,9 +309,12 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -323,6 +324,7 @@ onUnmounted(() => {
   0% {
     background-position: -200% center;
   }
+
   100% {
     background-position: 200% center;
   }
@@ -337,7 +339,8 @@ onUnmounted(() => {
 
 .content {
   position: relative;
-  height: 450px;
+  height: 350px;
+  /* Reduced from 450px */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -397,12 +400,12 @@ onUnmounted(() => {
     max-width: min(100%, 960px);
     padding: 18px 20px;
   }
-  
+
   .title {
     font-size: 32px;
     max-width: min(92vw, 880px);
   }
-  
+
   .subtitle {
     font-size: 17px;
     max-width: min(92vw, 800px);
@@ -413,18 +416,18 @@ onUnmounted(() => {
   .hero-banner {
     margin-bottom: 2.5rem;
   }
-  
+
   .content {
     max-width: min(100%, 880px);
     padding: 16px 18px;
   }
-  
+
   .title {
     font-size: 30px;
     max-width: min(94vw, 800px);
     margin-bottom: 20px;
   }
-  
+
   .subtitle {
     font-size: 16px;
     max-width: min(94vw, 750px);
@@ -433,19 +436,26 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 340px;
+    min-height: 30vh;
+    /* Reduced from 35vh */
   }
 
   .hero-banner {
     margin-bottom: 2rem;
+    /* Reset full viewport width on mobile */
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .banner-image {
     object-position: center;
+    height: 30vh;
+    object-fit: cover;
   }
 
   .content {
@@ -467,18 +477,18 @@ onUnmounted(() => {
     max-width: 96vw;
     margin-bottom: 10px;
   }
-  
+
   .loading-state {
     top: 8px;
     right: 8px;
     padding: 4px 8px;
   }
-  
+
   .spinner {
     width: 16px;
     height: 16px;
   }
-  
+
   .error-indicator {
     bottom: 8px;
     right: 8px;
@@ -487,21 +497,29 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 320px;
+    min-height: 25vh;
+    /* Reduced from 30vh */
   }
-  
+
   .hero-banner {
     margin-bottom: 1.8rem;
   }
-  
+
+  .banner-image {
+    height: 25vh;
+    object-fit: cover;
+  }
+
   .content {
     padding: 12px 14px;
     justify-content: flex-start;
-    padding-top: 60px;
+    padding-top: 15vh;
+    /* Relative positioning */
   }
 
   .title {
@@ -518,20 +536,28 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 280px;
+    min-height: 20vh;
+    /* Reduced from 25vh */
   }
 
   .hero-banner {
     margin-bottom: 1.5rem;
   }
 
+  .banner-image {
+    height: 20vh;
+    object-fit: cover;
+  }
+
   .content {
     padding: 10px 12px;
-    padding-top: 50px;
+    padding-top: 12vh;
+    /* Adjusted relative positioning */
     justify-content: flex-start;
   }
 
@@ -546,24 +572,24 @@ onUnmounted(() => {
     line-height: 1.3;
     margin-bottom: 6px;
   }
-  
+
   .overlay {
     background: rgba(0, 0, 0, 0.4);
   }
-  
+
   .loading-state {
     top: 6px;
     right: 6px;
     padding: 3px 6px;
     font-size: 11px;
   }
-  
+
   .spinner {
     width: 14px;
     height: 14px;
     border-width: 1.5px;
   }
-  
+
   .error-indicator {
     bottom: 6px;
     right: 6px;
@@ -573,23 +599,25 @@ onUnmounted(() => {
 }
 
 @media (max-width: 414px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 260px;
+    min-height: 25vh;
+    /* Reduced from 35vh */
   }
-  
+
   .content {
     padding: 8px 10px;
-    padding-top: 45px;
+    padding-top: 10vh;
   }
-  
+
   .title {
     font-size: 20px;
     margin-bottom: 8px;
   }
-  
+
   .subtitle {
     font-size: 13px;
     margin-bottom: 5px;
@@ -597,23 +625,25 @@ onUnmounted(() => {
 }
 
 @media (max-width: 375px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 240px;
+    min-height: 22vh;
+    /* Reduced from 30vh */
   }
-  
+
   .content {
     padding: 6px 8px;
-    padding-top: 40px;
+    padding-top: 8vh;
   }
-  
+
   .title {
     font-size: 18px;
     margin-bottom: 6px;
   }
-  
+
   .subtitle {
     font-size: 12px;
     margin-bottom: 4px;
@@ -621,11 +651,13 @@ onUnmounted(() => {
 }
 
 @media (max-width: 360px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 220px;
+    min-height: 20vh;
+    /* Reduced from 28vh */
   }
 
   .title {
@@ -637,31 +669,33 @@ onUnmounted(() => {
     font-size: 11px;
     margin-bottom: 3px;
   }
-  
+
   .content {
     padding: 4px 6px;
-    padding-top: 35px;
+    padding-top: 6vh;
   }
 }
 
 @media (max-width: 320px) {
+
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 200px;
+    min-height: 18vh;
+    /* Reduced from 25vh */
   }
-  
+
   .content {
     padding: 2px 4px;
-    padding-top: 30px;
+    padding-top: 5vh;
   }
-  
+
   .title {
     font-size: 16px;
     margin-bottom: 4px;
   }
-  
+
   .subtitle {
     font-size: 10px;
     margin-bottom: 2px;
@@ -677,11 +711,11 @@ onUnmounted(() => {
   .banner-content-link:hover .content {
     transform: none;
   }
-  
+
   .banner-content-link:hover .overlay {
     background: rgba(0, 0, 0, 0.3);
   }
-  
+
   .banner-content-link:hover .banner-image {
     transform: none;
   }

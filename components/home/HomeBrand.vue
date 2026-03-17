@@ -8,18 +8,6 @@
           <h5 class="mb-0 text-lg text-md-xl">Shop by Brands</h5>
 
           <div class="flex-align gap-12">
-            <NuxtLink to="/shop-all" class="text-sm fw-medium text-gray-700 hover-text-main-600">
-              View All
-            </NuxtLink>
-
-            <div class="flex-align gap-6">
-              <button class="brand-prev nav-btn">
-                <i class="ph ph-caret-left"></i>
-              </button>
-              <button class="brand-next nav-btn">
-                <i class="ph ph-caret-right"></i>
-              </button>
-            </div>
           </div>
         </div>
 
@@ -31,17 +19,34 @@
 
         <!-- MOBILE VIEW -->
         <div class="mobile-brands-view d-md-none">
-          <div class="mobile-brands-grid">
-            <div v-for="brand in displayedBrands.slice(0, 6)" :key="brand.id" class="mobile-brand-tile">
-              <NuxtLink :to="`/shop-all?brand=${encodeURIComponent(brand.name)}`" class="mobile-brand-card">
-                <img :src="brand.logo" :alt="brand.name" loading="lazy" class="brand-logo-img" @error="handleImageError"
-                  decoding="async" />
-                <div class="brand-info">
-                  <h3 class="brand-title">{{ brand.name }}</h3>
-                </div>
-              </NuxtLink>
-            </div>
-          </div>
+          <ClientOnly>
+            <Swiper :modules="[]" :slides-per-view="2" :space-between="12" :breakpoints="{
+              320: {
+                slidesPerView: 2,
+                spaceBetween: 8
+              },
+              480: {
+                slidesPerView: 3,
+                spaceBetween: 12
+              },
+              576: {
+                slidesPerView: 3,
+                spaceBetween: 12
+              }
+            }" class="mobile-brand-swiper">
+              <SwiperSlide v-for="brand in displayedBrands" :key="brand.id">
+                <NuxtLink :to="`/shop-all?brand=${encodeURIComponent(brand.name)}`" class="mobile-brand-card">
+                  <div class="mobile-brand-tile">
+                    <img :src="brand.logo" :alt="brand.name" loading="lazy" class="brand-logo-img"
+                      @error="handleImageError" decoding="async" />
+                    <div class="brand-info">
+                      <h3 class="brand-title">{{ brand.name }}</h3>
+                    </div>
+                  </div>
+                </NuxtLink>
+              </SwiperSlide>
+            </Swiper>
+          </ClientOnly>
         </div>
 
         <!-- DESKTOP VIEW -->
@@ -556,6 +561,49 @@ onMounted(() => {
 
 .mobile-brand-card:hover .brand-title {
   color: #ffffff;
+}
+
+/* Mobile Swiper Container */
+.mobile-brand-swiper {
+  padding: 0 8px;
+}
+
+.mobile-brand-swiper .swiper-slide {
+  height: auto;
+}
+
+.mobile-brand-swiper .mobile-brand-card {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-brand-swiper .mobile-brand-tile {
+  width: 100%;
+  height: 120px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.mobile-brand-swiper .brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.mobile-brand-swiper .brand-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), transparent);
+  padding: 8px;
+  text-align: center;
 }
 
 /* Responsive adjustments */
