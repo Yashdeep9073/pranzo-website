@@ -410,6 +410,9 @@
               <span v-if="filters.category" class="active-filter-tag">
                 in {{ filters.category }}
               </span>
+              <span v-if="filters.search" class="active-filter-tag">
+                for "{{ filters.search }}"
+              </span>
               <span v-if="filters.brand" class="active-filter-tag">
                 from {{ filters.brand }}
               </span>
@@ -1084,6 +1087,7 @@ const clearAllFilters = async () => {
 const updateURL = () => {
   const query = {}
 
+  if (filters.value.search) query.search = filters.value.search
   if (filters.value.category) query.category = filters.value.category
   if (filters.value.brand) query.brand = filters.value.brand
   if (filters.value.color) query.color = filters.value.color

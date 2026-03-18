@@ -32,6 +32,7 @@ export const useProductStore = defineStore('productStore', () => {
 
     // Current filters for GraphQL queries
     filters: {
+      search: '',
       category: '',
       sortBy: 'popularity',
       page: 1,
@@ -207,7 +208,7 @@ export const useProductStore = defineStore('productStore', () => {
 
   const hasActiveFilters = computed(() => {
     const f = state.value.filters
-    return f.category || f.color || f.size || f.brand ||
+    return f.search || f.category || f.color || f.size || f.brand ||
       f.minPrice > 0 || f.maxPrice < defaultMaxPrice.value ||
       f.sortBy !== 'popularity'
   })
@@ -298,6 +299,22 @@ export const useProductStore = defineStore('productStore', () => {
 
   const applyFiltersToProducts = (products: StoreProduct[], filters: Partial<typeof state.value.filters>) => {
     let filteredProducts = [...products]
+
+    // Apply text search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase().trim()
+      filteredProducts = filteredProducts.filter(product => {
+        const productName = getProductName(product)?.toLowerCase() || ''
+        const description = getDescription(product)?.toLowerCase() || ''
+        const category = getProductCategory(product)?.toLowerCase() || ''
+        const brand = getProductBrand(product)?.toLowerCase() || ''
+
+        return productName.includes(searchTerm) ||
+          description.includes(searchTerm) ||
+          category.includes(searchTerm) ||
+          brand.includes(searchTerm)
+      })
+    }
 
     // Apply color filter
     if (filters.color) {
@@ -687,6 +704,21 @@ export const useProductStore = defineStore('productStore', () => {
     let filtered = [...state.value.allProducts]
     const currentFilters = state.value.filters
 
+    if (currentFilters.search) {
+      const searchTerm = currentFilters.search.toLowerCase().trim()
+      filtered = filtered.filter(product => {
+        const productName = getProductName(product)?.toLowerCase() || ''
+        const description = getDescription(product)?.toLowerCase() || ''
+        const category = getProductCategory(product)?.toLowerCase() || ''
+        const brand = getProductBrand(product)?.toLowerCase() || ''
+
+        return productName.includes(searchTerm) ||
+          description.includes(searchTerm) ||
+          category.includes(searchTerm) ||
+          brand.includes(searchTerm)
+      })
+    }
+
     // Apply price filter (client-side) - DISABLED to show all products
     // Temporarily disabling price filtering to ensure all products are shown
     // if (currentFilters.minPrice > 0 || currentFilters.maxPrice < defaultMaxPrice.value) {
@@ -728,6 +760,7 @@ export const useProductStore = defineStore('productStore', () => {
     const query = route.query
 
     const newFilters = {
+      search: '',
       category: '',
       sortBy: 'popularity',
       page: 1,
@@ -740,6 +773,19 @@ export const useProductStore = defineStore('productStore', () => {
     }
 
     // Parse from URL - SINGLE DECODE ONLY
+    if (query.search) {
+      const searchValue = Array.isArray(query.search) ? query.search[0] : query.search
+      if (searchValue && typeof searchValue === 'string' && !searchValue.includes('%')) {
+        newFilters.search = searchValue.trim()
+      } else if (searchValue && typeof searchValue === 'string') {
+        try {
+          newFilters.search = decodeURIComponent(searchValue).trim()
+        } catch (error) {
+          newFilters.search = searchValue.trim()
+        }
+      }
+    }
+
     if (query.category) {
       // Handle both string and array cases
       const categoryValue = Array.isArray(query.category) ? query.category[0] : query.category
@@ -822,6 +868,10 @@ export const useProductStore = defineStore('productStore', () => {
     const query: Record<string, any> = {}
 
     // Only add to URL if filter is active - SINGLE ENCODE ONLY
+    if (filters.search) {
+      query.search = encodeURIComponent(filters.search)
+    }
+
     if (filters.category && filters.category !== 'all') {
       // Encode only once and replace spaces with %20 (not +)
       const encodedCategory = encodeURIComponent(filters.category)
@@ -866,6 +916,7 @@ export const useProductStore = defineStore('productStore', () => {
 
       // Base filters
       const baseFilters = {
+        search: '',
         category: '',
         sortBy: 'popularity',
         page: 1,
@@ -1312,6 +1363,7 @@ export const useProductStore = defineStore('productStore', () => {
   const clearAllFilters = async () => {
     // Reset all filters
     const resetFilters = {
+      search: '',
       category: '',
       sortBy: 'popularity',
       page: 1,
@@ -1331,6 +1383,8 @@ export const useProductStore = defineStore('productStore', () => {
 
     if (filterName === 'category') {
       newFilters.category = ''
+    } else if (filterName === 'search') {
+      newFilters.search = ''
     } else if (filterName === 'color') {
       newFilters.color = ''
     } else if (filterName === 'size') {

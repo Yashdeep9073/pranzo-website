@@ -124,7 +124,7 @@ const handleImageError = (e: Event) => {
   position: relative;
   width: min(100%, 1000px);
   height: 150px;
-  margin: 120px auto 25px;
+  margin: 85px auto 25px;
   overflow: hidden;
   border-radius: 30px;
   z-index: 10;

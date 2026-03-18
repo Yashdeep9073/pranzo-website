@@ -293,14 +293,14 @@
         <div class="search-container" v-if="!isMobile">
           <div class="search-wrapper">
             <input type="text" v-model="searchQuery" @input="handleSearchInput" @focus="showSearchDropdown = true"
-              @blur="onInputBlur" @keydown.enter="performSearch" class="search-input"
+              @blur="onInputBlur" @keydown.enter.prevent="submitSearch" class="search-input"
               placeholder="Search for products..." autocomplete="off" aria-label="Search products">
 
             <div v-if="searchLoading" class="search-loading">
               <div class="spinner"></div>
             </div>
 
-            <button type="button" @click="performSearch" class="search-button" :disabled="searchLoading"
+            <button type="button" @click="submitSearch" class="search-button" :disabled="searchLoading"
               aria-label="Search">
               <i class="search-icon"></i>
             </button>
@@ -321,6 +321,36 @@
                     <p class="product-category">{{ getCategoryName(product) }}</p>
                     <p class="product-price">₹{{ formatPrice(product.price) }}</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Search Bar -->
+        <div class="mobile-search-container" v-if="isMobile">
+          <div class="mobile-search-wrapper">
+            <input type="text" v-model="mobileSearchQuery" @input="handleMobileSearchInput"
+              @keydown.enter.prevent="performMobileSearchSubmit" class="mobile-search-input" placeholder="Search products..."
+              autocomplete="off" aria-label="Search products">
+
+            <button type="button" @click="performMobileSearchSubmit" class="mobile-search-button"
+              :disabled="mobileSearchLoading" aria-label="Search">
+              <i class="search-icon"></i>
+            </button>
+          </div>
+
+          <!-- Mobile Search Results -->
+          <div v-if="mobileSearchResults.length > 0" class="mobile-header-search-results">
+            <div class="mobile-header-results-list">
+              <div v-for="product in mobileSearchResults" :key="product.id" @click="selectMobileProduct(product)"
+                class="mobile-header-product-result">
+                <div class="mobile-header-product-image">
+                  <img :src="getProductImage(product)" :alt="product.name" @error="handleProductImageError">
+                </div>
+                <div class="mobile-header-product-info">
+                  <h6>{{ product.name }}</h6>
+                  <p class="mobile-header-product-price">₹{{ formatPrice(product.price) }}</p>
                 </div>
               </div>
             </div>
@@ -413,11 +443,11 @@
 
       <div class="search-sidebar-content">
         <div class="search-sidebar-input-wrapper">
-          <input type="text" v-model="searchQuery" @input="handleSearchInput" @keydown.enter="performSearch"
+          <input type="text" v-model="searchQuery" @input="handleSearchInput" @keydown.enter.prevent="submitSearch"
             class="search-sidebar-input" placeholder="Search for products..." autocomplete="off"
             aria-label="Search products" ref="sidebarSearchInput">
 
-          <button type="button" @click="performSearch" class="search-sidebar-button" :disabled="searchLoading"
+          <button type="button" @click="submitSearch" class="search-sidebar-button" :disabled="searchLoading"
             aria-label="Search">
             <i class="search-icon"></i>
           </button>
@@ -478,7 +508,7 @@
           </button>
 
           <input type="text" ref="mobileSearchInput" v-model="mobileSearchQuery" @input="handleMobileSearchInput"
-            @keydown.enter="performMobileSearchSubmit" class="mobile-modal-search-input"
+            @keydown.enter.prevent="performMobileSearchSubmit" class="mobile-modal-search-input"
             placeholder="Search for products..." autocomplete="off" aria-label="Search products">
 
           <button v-if="mobileSearchQuery" @click="clearMobileSearch" class="clear-button" aria-label="Clear search">
@@ -622,8 +652,6 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from '#imports'
 const config = useRuntimeConfig()
-const API_URL = config.public.api.MEDIA_API_URL
-const API_URL_CATEGORIES = config.public.api.categories
 
 const router = useRouter()
 const route = useRoute()
@@ -1269,7 +1297,7 @@ const selectRecentSearch = (search) => {
 }
 
 const performMobileSearch = debounce(async (searchTerm) => {
-  if (!searchTerm || !searchTerm.trim()) {
+  if (!searchTerm || typeof searchTerm !== 'string' || !searchTerm.trim()) {
     mobileSearchResults.value = []
     mobileSearchLoading.value = false
     return
@@ -1284,7 +1312,7 @@ const performMobileSearch = debounce(async (searchTerm) => {
 
   try {
     const response = await fetch(
-      API_URL_CATEGORIES,
+      `${config.public.apiBase}/common/product/read`,
       {
         signal: AbortSignal.timeout(3000)
       }
@@ -1321,11 +1349,24 @@ const handleMobileSearchInput = debounce(() => {
   }
 }, 300)
 
-const performMobileSearchSubmit = () => {
-  if (mobileSearchQuery.value.trim()) {
-    addToRecentSearches(mobileSearchQuery.value)
-    performMobileSearch(mobileSearchQuery.value)
+const performMobileSearchSubmit = async () => {
+  const trimmedQuery = mobileSearchQuery.value.trim()
+
+  if (!trimmedQuery) {
+    mobileSearchResults.value = []
+    return
   }
+
+  addToRecentSearches(trimmedQuery)
+  closeMobileSearch()
+  window.scrollTo(0, 0)
+
+  await router.push({
+    path: '/shop-all',
+    query: {
+      search: trimmedQuery
+    }
+  })
 }
 
 const selectMobileProduct = (product) => {
@@ -1641,6 +1682,26 @@ const performSearch = debounce(async (query) => {
 const handleSearchInput = debounce(() => {
   performSearch(searchQuery.value)
 }, 300)
+
+const submitSearch = async () => {
+  const trimmedQuery = searchQuery.value.trim()
+
+  if (!trimmedQuery) {
+    showSearchDropdown.value = false
+    return
+  }
+
+  showSearchDropdown.value = false
+  showSearchSidebar.value = false
+  window.scrollTo(0, 0)
+
+  await router.push({
+    path: '/shop-all',
+    query: {
+      search: trimmedQuery
+    }
+  })
+}
 
 const selectProduct = (product) => {
   showSearchDropdown.value = false
@@ -2271,7 +2332,13 @@ watch(() => route.path, () => {
 /* Search */
 .search-container {
   flex: 1;
-  max-width: 400px;
+  max-width: 520px;
+}
+
+.mobile-search-container {
+  flex: 1;
+  max-width: none;
+  margin: 0 0.1rem;
 }
 
 .search-wrapper {
@@ -2327,17 +2394,138 @@ watch(() => route.path, () => {
   height: 32px;
   background: none;
   border: none;
+  color: #6b7280;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.mobile-search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mobile-search-input {
+  width: 100%;
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  color: #374151;
+}
+
+.mobile-search-input::placeholder {
+  color: #6b7280;
+  opacity: 1;
+  font-size: 12px;
+}
+
+.mobile-search-input:focus {
+  outline: none;
+  border-color: #CA2D52;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(202, 45, 82, 0.1);
+}
+
+.mobile-search-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+/* Mobile Header Search Results */
+.mobile-header-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.mobile-header-results-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.mobile-header-product-result {
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-header-product-result:hover {
+  background-color: #f8fafc;
+}
+
+.mobile-header-product-result:last-child {
+  border-bottom: none;
+}
+
+.mobile-header-product-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.mobile-header-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-header-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-header-product-info h6 {
+  margin: 0 0 4px 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-header-product-price {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #059669;
 }
 
 .search-icon {
+  display: block;
   width: 18px;
   height: 18px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%236b7280' d='M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z'%3E%3C/path%3E%3C/svg%3E");
   background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .search-button:hover .search-icon {
@@ -3474,6 +3662,10 @@ watch(() => route.path, () => {
     display: flex;
   }
 
+  .mobile-search-container {
+    display: block;
+  }
+
   .search-container {
     display: none;
   }
@@ -3567,6 +3759,10 @@ watch(() => route.path, () => {
     display: flex;
   }
 
+  .mobile-search-container {
+    display: block;
+  }
+
   .search-container {
     display: none;
   }
@@ -3658,6 +3854,10 @@ watch(() => route.path, () => {
 
   .mobile-toggle {
     display: flex;
+  }
+
+  .mobile-search-container {
+    display: block;
   }
 
   .search-container {

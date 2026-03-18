@@ -9,10 +9,6 @@
           </div>
           <h3 class="mb-0">{{ title }}</h3>
         </div>
-        <NuxtLink to="/shop-all" class="btn btn-main btn-sm">
-          View All
-          <i class="ph ph-arrow-right ms-2"></i>
-        </NuxtLink>
       </div>
     </div>
 

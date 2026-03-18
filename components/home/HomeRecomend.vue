@@ -43,72 +43,79 @@
         <div class="loading-spinner"></div>
       </div>
 
-      <!-- Products Swiper Carousel -->
-      <div v-else-if="filteredProducts.length > 0" class="products-swiper-container">
-        <Swiper
-          class="products-swiper"
-          :modules="swiperModules"
-          :slides-per-view="2"
-          :space-between="10"
-          :breakpoints="swiperBreakpoints"
-          :watch-overflow="true"
-        >
-        <SwiperSlide v-for="(product, index) in filteredProducts" :key="product.groupId || `product-${index}`" class="h-auto">
-          <div class="product-card">
-            <NuxtLink :to="getProductLink(product)" class="product-image-container">
-              <img :src="getProductImage(product, index)" :alt="getProductName(product)" class="product-image"
-                @error="handleImageError($event, index)" loading="lazy" width="280" height="210" />
-            </NuxtLink>
+      <!-- Products Swiper Carousel (Desktop) -->
+      <div v-else-if="filteredProducts.length > 0" class="products-swiper-container desktop-only">
+        <Swiper class="products-swiper" :modules="swiperModules" :slides-per-view="2" :space-between="8"
+          :breakpoints="swiperBreakpoints" :watch-overflow="true">
+          <SwiperSlide v-for="(product, index) in filteredProducts" :key="product.groupId || `product-${index}`"
+            class="h-auto">
+            <div class="product-card">
+              <NuxtLink :to="getProductLink(product)" class="product-image-container">
+                <img :src="getProductImage(product, index)" :alt="getProductName(product)" class="product-image"
+                  @error="handleImageError($event, index)" loading="lazy" width="280" height="210" />
+              </NuxtLink>
 
-            <div class="product-content">
-              <h6 class="product-title">
-                <NuxtLink :to="getProductLink(product)" class="product-link">
-                  {{ getProductName(product) }}
-                </NuxtLink>
-              </h6>
+              <div class="product-content">
+                <h6 class="product-title">
+                  <NuxtLink :to="getProductLink(product)" class="product-link">
+                    {{ getProductName(product) }}
+                  </NuxtLink>
+                </h6>
 
-              <div class="price-review-row">
-                <div class="price-section">
-                  <span class="current-price">
-                    ₹{{ Math.floor(getDiscountedPrice(product)) }}
-                    <span class="per-unit">/Qty</span>
-                  </span>
-                  <span class="original-price" v-if="hasDiscount(product)">
-                    ₹{{ Math.floor(getOriginalPrice(product)) }}
-                  </span>
+                <div class="price-review-row">
+                  <div class="price-section">
+                    <span class="current-price">
+                      ₹{{ Math.floor(getDiscountedPrice(product)) }}
+                      <span class="per-unit">/Qty</span>
+                    </span>
+                    <span class="original-price" v-if="hasDiscount(product)">
+                      ₹{{ Math.floor(getOriginalPrice(product)) }}
+                    </span>
+                  </div>
+
+                  <div class="review-section">
+                    <span class="rating">{{ getProductRating(product).toFixed(1) }}</span>
+                    <i class="ph-fill ph-star rating-star"></i>
+                    <span class="review-count">({{ getReviewCount(product) }})</span>
+                  </div>
                 </div>
 
-                <div class="review-section">
-                  <span class="rating">{{ getProductRating(product).toFixed(1) }}</span>
-                  <i class="ph-fill ph-star rating-star"></i>
-                  <span class="review-count">({{ getReviewCount(product) }})</span>
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                  <div class="progress-info">
+                    <span>Sold: {{ Math.floor(Math.random() * 30) + 70 }}%</span>
+                    <span>Available: {{ Math.floor(Math.random() * 20) + 5 }}</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: (Math.floor(Math.random() * 30) + 70) + '%' }"></div>
+                  </div>
                 </div>
+
+                <button class="add-cart-btn" @click="handleAddToCart(product)"
+                  :disabled="getProductStock(product) === 0 || isAddingToCart">
+                  <template v-if="getProductStock(product) === 0">
+                    Out of Stock
+                  </template>
+                  <template v-else>
+                    <i v-if="!isAddingToCart" class="ph ph-shopping-cart"></i>
+                    {{ isAddingToCart ? 'Adding...' : 'Add' }}
+                  </template>
+                </button>
               </div>
-
-              <!-- Progress Bar -->
-              <div class="progress-section">
-                <div class="progress-info">
-                  <span>Sold: {{ Math.floor(Math.random() * 30) + 70 }}%</span>
-                  <span>Available: {{ Math.floor(Math.random() * 20) + 5 }}</span>
-                </div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{ width: (Math.floor(Math.random() * 30) + 70) + '%' }"></div>
-                </div>
-              </div>
-
-              <button class="add-cart-btn" @click="handleAddToCart(product)" :disabled="getProductStock(product) === 0 || isAddingToCart">
-                <template v-if="getProductStock(product) === 0">
-                  Out of Stock
-                </template>
-                <template v-else>
-                  <i v-if="!isAddingToCart" class="ph ph-shopping-cart"></i>
-                  {{ isAddingToCart ? 'Adding...' : 'Add' }}
-                </template>
-              </button>
             </div>
-          </div>
-        </SwiperSlide>
+          </SwiperSlide>
         </Swiper>
+      </div>
+
+      <!-- Mobile 3x3 Grid -->
+      <div v-if="filteredProducts.length > 0" class="mobile-grid-container mobile-only">
+        <div class="mobile-grid">
+          <NuxtLink v-for="(product, index) in mobileGridProducts" :key="product.groupId || `product-${index}`"
+            :to="getProductLink(product)" class="mobile-product-card">
+            <img :src="getProductImage(product, index)" :alt="getProductName(product)" class="mobile-product-image"
+              @error="handleImageError($event, index)" loading="lazy" width="120" height="120" />
+          </NuxtLink>
+        </div>
       </div>
 
       <!-- Error State -->
@@ -198,6 +205,10 @@ const filteredProducts = computed(() => {
 })
 
 const pagination = computed(() => recommendStore.pagination || { total: 0, perPage: productsPerPage })
+
+const mobileGridProducts = computed(() => {
+  return filteredProducts.value.slice(0, 9)
+})
 
 // Handle image error with fallback
 const handleImageError = (event, index) => {
@@ -642,7 +653,7 @@ onUnmounted(() => {
   flex-direction: column;
   height: 100%;
   width: 100%;
-  min-width: 0;
+  max-width: 240px;
   position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -1140,17 +1151,17 @@ onUnmounted(() => {
   .container {
     padding: 0 12px;
   }
-  
+
   .section-heading {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .section-heading h2 {
     font-size: 1.25rem;
   }
-  
+
   .category-tabs-container {
     width: 100%;
   }
@@ -1160,65 +1171,66 @@ onUnmounted(() => {
   .recommended-section {
     padding: 16px 0;
   }
-  
+
   .container {
     padding: 0 8px;
   }
-  
+
   .section-heading {
     margin-bottom: 16px;
     gap: 12px;
   }
-  
+
   .section-heading h2 {
     font-size: 1.125rem;
   }
-  
+
   .category-tabs-container {
     gap: 6px;
   }
-  
+
   .scroll-btn {
     width: 28px;
     height: 28px;
     font-size: 0.875rem;
   }
-  
+
   .tab-button {
     padding: 5px 12px;
     font-size: 0.8rem;
     min-height: 28px;
   }
-  
+
   .products-swiper-container {
     padding: 8px 0;
   }
-  
+
   .products-swiper {
     padding: 0 8px 4px;
   }
-  
-  .error-state, .empty-state {
+
+  .error-state,
+  .empty-state {
     padding: 40px 16px;
   }
-  
+
   .error-message {
     font-size: 16px;
   }
-  
+
   .loading-container {
     padding: 60px 0;
   }
-  
+
   .loading-spinner {
     width: 40px;
     height: 40px;
   }
-  
+
   .view-more-container {
     margin-top: 24px;
   }
-  
+
   .view-more-btn {
     padding: 10px 20px;
     font-size: 13px;
@@ -1229,76 +1241,77 @@ onUnmounted(() => {
   .recommended-section {
     padding: 12px 0;
   }
-  
+
   .container {
     padding: 0 6px;
   }
-  
+
   .section-heading {
     margin-bottom: 12px;
     gap: 8px;
   }
-  
+
   .section-heading h2 {
     font-size: 1rem;
   }
-  
+
   .category-tabs-container {
     gap: 4px;
   }
-  
+
   .scroll-btn {
     width: 24px;
     height: 24px;
     font-size: 0.75rem;
   }
-  
+
   .tab-button {
     padding: 4px 10px;
     font-size: 0.75rem;
     min-height: 24px;
   }
-  
+
   .category-tabs {
     padding: 6px 2px 8px;
     gap: 6px;
   }
-  
+
   .products-swiper-container {
     padding: 6px 0;
   }
-  
+
   .products-swiper {
     padding: 0 6px 2px;
   }
-  
-  .error-state, .empty-state {
+
+  .error-state,
+  .empty-state {
     padding: 30px 12px;
   }
-  
+
   .error-message {
     font-size: 14px;
   }
-  
+
   .retry-btn {
     padding: 8px 16px;
     font-size: 12px;
   }
-  
+
   .loading-container {
     padding: 40px 0;
   }
-  
+
   .loading-spinner {
     width: 32px;
     height: 32px;
     border-width: 2px;
   }
-  
+
   .view-more-container {
     margin-top: 20px;
   }
-  
+
   .view-more-btn {
     padding: 8px 16px;
     font-size: 12px;
@@ -1310,11 +1323,11 @@ onUnmounted(() => {
   .container {
     padding: 0 4px;
   }
-  
+
   .section-heading h2 {
     font-size: 0.875rem;
   }
-  
+
   .tab-button {
     padding: 3px 8px;
     font-size: 0.7rem;
@@ -1330,5 +1343,83 @@ onUnmounted(() => {
 :deep(.swiper-slide > *) {
   height: 100% !important;
   width: 100% !important;
+}
+
+/* Mobile Grid Styles */
+.mobile-grid-container {
+  padding: 16px 0;
+}
+
+.mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.mobile-product-card {
+  display: block;
+  text-decoration: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  aspect-ratio: 1;
+}
+
+.mobile-product-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #CA2D52;
+}
+
+.mobile-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.mobile-product-card:hover .mobile-product-image {
+  transform: scale(1.1);
+}
+
+/* Responsive visibility classes */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .mobile-grid {
+    gap: 10px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-grid {
+    gap: 8px;
+    padding: 0 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .mobile-grid {
+    gap: 6px;
+    padding: 0 4px;
+  }
 }
 </style>
