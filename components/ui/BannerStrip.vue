@@ -8,7 +8,7 @@ const { offers: festivalOffers, loading, error, refresh } = useOffersApi({
 })
 
 // Pick best festival offer
- 
+
 const festivalOffer = computed<Offer | null>(() => {
   if (!festivalOffers.value.length) return null
 
@@ -63,10 +63,7 @@ const handleImageError = (e: Event) => {
 </script>
 
 <template>
-  <NuxtLink 
-    :to="`/shop-all?offer=${festivalOffer?.slug ?? 'all'}`"
-    class="banner-link"
-  >
+  <NuxtLink :to="`/shop-all?offer=${festivalOffer?.slug ?? 'all'}`" class="banner-link">
     <div class="banner-wrapper" :class="{ loading }">
       <!-- Offer strip -->
       <div class="offer-strip">
@@ -92,23 +89,15 @@ const handleImageError = (e: Event) => {
         </div>
 
         <div class="images-section">
-          <img
-            v-if="!festivalOffer?.images?.length"
-            src="/assets/images/bg/shirt-removebg-preview.png"
-            alt="Shirt"
-            class="main-img"
-          />
+          <img v-if="!festivalOffer?.images?.length" src="/assets/images/bg/shirt-removebg-preview.png" alt="Shirt"
+            class="main-img" />
         </div>
       </div>
 
       <!-- Background banner -->
       <div class="banner-bg-wrapper">
-        <img
-          :src="primaryImageUrl"
-          class="banner-bg"
-          :alt="festivalOffer?.name || 'Festival Offer Banner'"
-          @error="handleImageError"
-        />
+        <img :src="primaryImageUrl" class="banner-bg" :alt="festivalOffer?.name || 'Festival Offer Banner'"
+          @error="handleImageError" />
         <div class="bg-overlay"></div>
       </div>
     </div>
@@ -135,7 +124,7 @@ const handleImageError = (e: Event) => {
   position: relative;
   width: min(100%, 1000px);
   height: 150px;
-  margin: 78px auto 25px;
+  margin: 120px auto 25px;
   overflow: hidden;
   border-radius: 30px;
   z-index: 10;
@@ -257,8 +246,8 @@ const handleImageError = (e: Event) => {
 
 @media (max-width: 768px) {
   .banner-wrapper {
-    height: 120px;
-    margin-top: 60px;
+    height: 150px;
+    margin-top: 76px;
     margin-bottom: 16px;
     border-radius: 18px;
   }
@@ -295,8 +284,8 @@ const handleImageError = (e: Event) => {
 
 @media (max-width: 480px) {
   .banner-wrapper {
-    height: 112px;
-    margin-top: 56px;
+    height: 130px;
+    margin-top: 72px;
     margin-bottom: 12px;
     border-radius: 14px;
   }
@@ -337,7 +326,8 @@ const handleImageError = (e: Event) => {
 @media (max-width: 360px) {
   .banner-wrapper {
     height: 100px;
-    margin-bottom: 0;
+    margin-top: 80px;
+    margin-bottom: 8px;
   }
 
   .banner-content {
@@ -348,6 +338,7 @@ const handleImageError = (e: Event) => {
     font-size: 9.5px;
   }
 }
+
 :global(header) {
   position: fixed !important;
   top: 0 !important;

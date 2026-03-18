@@ -3747,6 +3747,7 @@ watch(() => route.path, () => {
   z-index: 1000;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
 }
 
 .header-inner {
