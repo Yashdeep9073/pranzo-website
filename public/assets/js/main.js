@@ -7,6 +7,12 @@
   $(document).ready(function () {
   var isMobileViewport = window.matchMedia('(max-width: 991px)').matches;
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (isMobileViewport && $.fn.slick && $.fn.slick.defaults) {
+    // Let vertical page scroll win on mobile instead of carousel swipe capture.
+    $.fn.slick.defaults.swipe = false;
+    $.fn.slick.defaults.touchMove = false;
+  }
     
   // ============== Mobile Menu Sidebar & Offcanvas Js Start ========
   $('.toggle-mobileMenu').on('click', function () {
@@ -188,7 +194,7 @@
     fade: true,
     cssEase: 'linear',
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     infinite: true,
     nextArrow: '#banner-next',
@@ -231,7 +237,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -314,7 +320,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -383,7 +389,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -447,7 +453,7 @@
     dots: true,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -477,7 +483,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -505,7 +511,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -548,7 +554,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -598,7 +604,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -641,7 +647,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -698,7 +704,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -755,7 +761,7 @@
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -799,7 +805,7 @@ if(copyCouponBtn && copyText) {
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -871,7 +877,7 @@ if(copyCouponBtn && copyText) {
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -900,7 +906,7 @@ if(copyCouponBtn && copyText) {
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -942,7 +948,7 @@ if(copyCouponBtn && copyText) {
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -962,7 +968,7 @@ if(copyCouponBtn && copyText) {
     dots: false,
     pauseOnHover: true,
     arrows: true,
-    draggable: true,
+    draggable: !isMobileViewport,
     rtl: $('html').attr('dir') === 'rtl' ? true : false,
     speed: 900,
     infinite: true,
@@ -1225,7 +1231,7 @@ if(copyCouponBtn && copyText) {
       dots: false,
       pauseOnHover: true,
       arrows: true,
-      draggable: true,
+      draggable: !isMobileViewport,
       rtl: $('html').attr('dir') === 'rtl' ? true : false,
       speed: 900,
       infinite: true,
@@ -1288,7 +1294,7 @@ if(copyCouponBtn && copyText) {
       dots: false,
       pauseOnHover: true,
       arrows: true,
-      draggable: true,
+      draggable: !isMobileViewport,
       rtl: $('html').attr('dir') === 'rtl' ? true : false,
       speed: 900,
       infinite: true,
@@ -1399,3 +1405,4 @@ if(copyCouponBtn && copyText) {
     // ========================= Header Sticky Js End===================
 
 })(jQuery);
+

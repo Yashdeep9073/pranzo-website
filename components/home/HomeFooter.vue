@@ -3,7 +3,7 @@
     <div class="container container-lg">
       <div class="row g-4">
         <!-- Company Info - Takes more space on desktop -->
-        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="200">
+        <div class="col-lg-3 col-md-6 col-12 footer-brand-col">
           <div class="footer-item">
             <div class="footer-item__logo mb-3">
               <NuxtLink to="/">
@@ -34,7 +34,7 @@
         </div>
         
         <!-- Information -->
-        <div class="col-lg-2 col-md-6 col-6" data-aos="fade-up" data-aos-duration="400">
+        <div class="col-lg-2 col-md-6 col-6 footer-grid-col">
           <div class="footer-item">
             <h6 class="footer-item__title mb-3">Information</h6>
             <ul class="footer-menu list-unstyled">
@@ -58,7 +58,7 @@
         </div>
         
         <!-- Customer Support -->
-        <div class="col-lg-2 col-md-6 col-6" data-aos="fade-up" data-aos-duration="600">
+        <div class="col-lg-2 col-md-6 col-6 footer-grid-col">
           <div class="footer-item">
             <h6 class="footer-item__title mb-3">Customer Support</h6>
             <ul class="footer-menu list-unstyled">
@@ -85,7 +85,7 @@
         </div>
         
         <!-- My Account -->
-        <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-duration="800">
+        <div class="col-lg-2 col-md-6 col-6 footer-grid-col">
           <div class="footer-item">
             <h6 class="footer-item__title mb-3">My Account</h6>
             <ul class="footer-menu list-unstyled">
@@ -112,7 +112,7 @@
         </div>
         
         <!-- Popular Searches -->
-        <div class="col-lg-2 col-md-6" data-aos="fade-up" data-aos-duration="1000">
+        <div class="col-lg-2 col-md-6 col-6 footer-grid-col">
           <div class="footer-item">
             <h6 class="footer-item__title mb-3">Popular Searches</h6>
             <ul class="footer-menu list-unstyled">
@@ -176,5 +176,45 @@ const logoSrc = computed(() =>
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
   border-left: 6px solid currentColor;
+}
+
+@media (max-width: 1024px) {
+  .footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-bottom: 84px;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer {
+    padding-top: 20px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .footer :deep(.row.g-4) {
+    row-gap: 18px !important;
+  }
+
+  .footer :deep(.footer-brand-col) {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  .footer :deep(.footer-grid-col) {
+    width: 50% !important;
+    max-width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+
+  .footer-item__title {
+    margin-bottom: 10px !important;
+  }
+
+  .footer-menu li {
+    margin-bottom: 8px !important;
+  }
 }
 </style>

@@ -436,12 +436,22 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .slide-fade-enter-active,
+  .slide-fade-leave-active,
+  .slide-content-fade-enter-active,
+  .slide-content-fade-leave-active {
+    transition: none !important;
+  }
+
+  .banner-image {
+    filter: none;
+  }
 
   .hero-banner,
   .banner-main,
   .slide,
   .content {
-    min-height: 30vh;
+    min-height: 27vh;
     /* Reduced from 35vh */
   }
 
@@ -454,7 +464,7 @@ onUnmounted(() => {
 
   .banner-image {
     object-position: center;
-    height: 30vh;
+    height: 27vh;
     object-fit: cover;
   }
 
@@ -502,7 +512,7 @@ onUnmounted(() => {
   .banner-main,
   .slide,
   .content {
-    min-height: 25vh;
+    min-height: 22vh;
     /* Reduced from 30vh */
   }
 
@@ -511,7 +521,7 @@ onUnmounted(() => {
   }
 
   .banner-image {
-    height: 25vh;
+    height: 22vh;
     object-fit: cover;
   }
 
@@ -541,7 +551,7 @@ onUnmounted(() => {
   .banner-main,
   .slide,
   .content {
-    min-height: 20vh;
+    min-height: 17vh;
     /* Reduced from 25vh */
   }
 
@@ -550,7 +560,7 @@ onUnmounted(() => {
   }
 
   .banner-image {
-    height: 20vh;
+    height: 17vh;
     object-fit: cover;
   }
 
@@ -604,7 +614,7 @@ onUnmounted(() => {
   .banner-main,
   .slide,
   .content {
-    min-height: 25vh;
+    min-height: 22vh;
     /* Reduced from 35vh */
   }
 
@@ -630,7 +640,7 @@ onUnmounted(() => {
   .banner-main,
   .slide,
   .content {
-    min-height: 22vh;
+    min-height: 19vh;
     /* Reduced from 30vh */
   }
 
@@ -656,7 +666,7 @@ onUnmounted(() => {
   .banner-main,
   .slide,
   .content {
-    min-height: 20vh;
+    min-height: 17vh;
     /* Reduced from 28vh */
   }
 
@@ -682,7 +692,8 @@ onUnmounted(() => {
   .banner-main,
   .slide,
   .content {
-    min-height: 18vh;
+    min-height: 15vh;
+    /* Reduced from 25vh */
     /* Reduced from 25vh */
   }
 

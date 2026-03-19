@@ -288,6 +288,7 @@ useHead({ title: "Home" })
 
 .mobile-home-search {
   display: none;
+  z-index: 2;
 }
 
 /* Add consistent spacing between sections */
@@ -376,7 +377,7 @@ useHead({ title: "Home" })
     margin: 78px 0 12px;
     width: 100%;
     position: relative;
-    z-index: 10;
+    z-index: 900;
   }
 
   .banner-strip-section :deep(.banner-wrapper) {
@@ -386,7 +387,7 @@ useHead({ title: "Home" })
   .mobile-home-search__field {
     position: relative;
     width: 100%;
-    z-index: 11;
+    z-index: 901;
   }
 
   .mobile-home-search__input {
@@ -453,7 +454,7 @@ useHead({ title: "Home" })
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
     max-height: 320px;
     overflow-y: auto;
-    z-index: 12;
+    z-index: 902;
   }
 
   .mobile-home-search__state {

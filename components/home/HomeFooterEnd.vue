@@ -2,7 +2,7 @@
   <div class="bottom-footer py-12">
     <div class="container container-lg">
       <div class="bottom-footer__inner flex-between flex-wrap gap-16 py-16 border-top border-neutral-50">
-<p class="bottom-footer__text text-heading wow fadeInLeft fw-medium">
+<p class="bottom-footer__text text-heading fw-medium">
   Copyright &copy; 
   <span class=" fw-semibold">2025 </span> &nbsp;
   <span class="fw-semibold text-gradient">
@@ -10,7 +10,7 @@
   </span>
 .
 </p>
-       <div class="flex-align gap-8 flex-wrap wow fadeInRight">
+       <div class="flex-align gap-8 flex-wrap">
   <ul class="flex-align gap-16 social-icons">
     
     <!-- Facebook -->
@@ -110,4 +110,13 @@
  color: black;
 }
 /* Scoped styles if any overrides needed; global CSS already handles classes. */
+
+@media (max-width: 1024px) {
+  .bottom-footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding-bottom: 84px;
+  }
+}
 </style> 
