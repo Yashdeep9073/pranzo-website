@@ -98,7 +98,7 @@
                       <template v-for="subCategory in category.subCategories" :key="subCategory.id">
                         <div class="mega-column">
                           <!-- Sub Category -->
-                          <NuxtLink :to="getCategoryLink(subCategory)" class="subcategory-title"
+                          <NuxtLink :to="getCategoryLink({ ...subCategory, parentCategory: category.name })" class="subcategory-title"
                             @click="handleSubCategoryClick">
                             {{ subCategory.name }}
                           </NuxtLink>
@@ -106,7 +106,7 @@
                           <!-- Sub Sub Categories -->
                           <div v-if="subCategory.subSubCategories?.length" class="subsubcategory-list">
                             <NuxtLink v-for="subSubCategory in subCategory.subSubCategories" :key="subSubCategory.id"
-                              :to="getCategoryLink(subSubCategory)" class="subsubcategory-item"
+                              :to="getCategoryLink({ ...subSubCategory, parentCategory: category.name })" class="subsubcategory-item"
                               @click="handleSubCategoryClick">
                               {{ subSubCategory.name }}
                             </NuxtLink>
@@ -1487,10 +1487,32 @@ const hasSubCategories = (category) => {
 }
 
 const getCategoryLink = (category) => {
-  if (category.link) {
+  const categoryName = category?.name || ''
+  const hasChildren = (category?.subCategories?.length > 0) || (category?.subCategoriesFallback?.length > 0)
+  const parentCategory = category?.parentCategory || (hasChildren ? categoryName : '')
+
+  if (category?.link) {
+    if (category.link.startsWith('/shop-all')) {
+      const [path, queryString = ''] = category.link.split('?')
+      const params = new URLSearchParams(queryString)
+
+      if (!params.get('category') && categoryName) {
+        params.set('category', categoryName)
+      }
+      if (parentCategory) {
+        params.set('parent_category', parentCategory)
+      }
+
+      return `${path}?${params.toString()}`
+    }
+
     return category.link
   }
-  return `/shop-all?category=${encodeURIComponent(category.name)}`
+
+  const params = new URLSearchParams()
+  if (categoryName) params.set('category', categoryName)
+  if (parentCategory) params.set('parent_category', parentCategory)
+  return `/shop-all?${params.toString()}`
 }
 
 const isActiveCategory = (category) => {

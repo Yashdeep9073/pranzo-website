@@ -4,12 +4,39 @@ import { ref, computed } from 'vue'
 // Create a reactive cart state
 const cartItems = ref([])
 
+const toNumber = (value: any, fallback = 0) => {
+  const normalized = String(value ?? '').replace(/[^0-9.-]/g, '')
+  const parsed = Number.parseFloat(normalized)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+const normalizeItem = (item: any, index = 0) => {
+  const price = toNumber(item?.price, 0)
+  const quantity = Math.max(1, Math.floor(toNumber(item?.quantity, 1)))
+  const stock = Math.max(0, Math.floor(toNumber(item?.stock, 999)))
+  const id = item?.id ?? item?.productId ?? item?.mainProduct?.id ?? item?.groupId ?? `cart-item-${index}`
+
+  return {
+    ...item,
+    id,
+    productId: item?.productId ?? id,
+    price,
+    quantity,
+    stock
+  }
+}
+
+const normalizeCart = (items: any) => {
+  if (!Array.isArray(items)) return []
+  return items.map((item, index) => normalizeItem(item, index))
+}
+
 // Load cart from localStorage initially
 if (process.client) {
   const savedCart = localStorage.getItem('shopping_cart')
   if (savedCart) {
     try {
-      cartItems.value = JSON.parse(savedCart)
+      cartItems.value = normalizeCart(JSON.parse(savedCart))
     } catch (error) {
       console.error('Error parsing cart from localStorage:', error)
       cartItems.value = []
@@ -19,15 +46,34 @@ if (process.client) {
 
 // Computed properties
 const cartCount = computed(() => {
-  return cartItems.value.reduce((total, item) => total + (item.quantity || 1), 0)
+  return cartItems.value.reduce((total, item) => total + Math.max(1, Math.floor(toNumber(item.quantity, 1))), 0)
 })
 
 const cartTotal = computed(() => {
-  return cartItems.value.reduce((total, item) => total + (parseFloat(item.price) * (item.quantity || 1)), 0)
+  return cartItems.value.reduce((total, item) => {
+    const price = toNumber(item.price, 0)
+    const quantity = Math.max(1, Math.floor(toNumber(item.quantity, 1)))
+    return total + (price * quantity)
+  }, 0)
 })
 
 // Cart functions
 export function useCart() {
+  const resolveProductId = (product: any) => {
+    return product?.id ?? product?.productId ?? product?.mainProduct?.id ?? product?.groupId ?? null
+  }
+
+  const resolveProductPrice = (product: any) => {
+    return toNumber(
+      product?.price ??
+      product?.discountedPrice ??
+      product?.finalPrice ??
+      product?.mainProduct?.price ??
+      product?.variant?.price,
+      0
+    )
+  }
+
   // Get cart items
   const getCartItems = () => {
     return cartItems.value
@@ -35,25 +81,30 @@ export function useCart() {
 
   // Add item to cart
   const addToCart = (product) => {
-    if (!product || !product.id) {
+    const productId = resolveProductId(product)
+
+    if (!product || !productId) {
       console.error('Invalid product:', product)
       return
     }
 
-    const existingIndex = cartItems.value.findIndex(item => item.id === product.id)
+    const existingIndex = cartItems.value.findIndex(item => String(item.id) === String(productId))
     
     if (existingIndex > -1) {
       // Update quantity if exists
       cartItems.value[existingIndex].quantity += product.quantity || 1
+      cartItems.value[existingIndex].price = resolveProductPrice(cartItems.value[existingIndex])
     } else {
       // Add new item
       cartItems.value.push({
-        id: product.id,
-        name: product.name,
-        price: parseFloat(product.price) || 0, // Ensure price is a number
+        id: productId,
+        productId,
+        groupId: product.groupId || product?.mainProduct?.groupId,
+        name: product.name || product?.mainProduct?.name || 'Product',
+        price: resolveProductPrice(product),
         image: product.images?.[0]?.imageUrl || product.image,
         quantity: product.quantity || 1,
-        stock: product.stock,
+        stock: product.stock || product?.mainProduct?.stock,
         category: product.category
       })
     }
@@ -95,6 +146,7 @@ export function useCart() {
   // Save cart to localStorage
   const saveCart = () => {
     if (process.client) {
+      cartItems.value = normalizeCart(cartItems.value)
       localStorage.setItem('shopping_cart', JSON.stringify(cartItems.value))
     }
   }
@@ -127,7 +179,7 @@ export function useCart() {
         const savedCart = localStorage.getItem('shopping_cart')
         if (savedCart) {
           try {
-            cartItems.value = JSON.parse(savedCart)
+            cartItems.value = normalizeCart(JSON.parse(savedCart))
             window.dispatchEvent(new CustomEvent('cart-updated', {
               detail: { count: cartCount.value, items: cartItems.value }
             }))

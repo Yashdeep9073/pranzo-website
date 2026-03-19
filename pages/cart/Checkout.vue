@@ -427,12 +427,37 @@ const currentPaymentId = ref(null)
 // Payment method
 const selectedPayment = ref('cod') // Default to COD
 
+const toNumber = (value, fallback = 0) => {
+  const normalized = String(value ?? '').replace(/[^0-9.-]/g, '')
+  const parsed = Number.parseFloat(normalized)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+const normalizeCartItem = (item, index = 0) => {
+  const price = toNumber(item?.price, 0)
+  const quantity = Math.max(1, Math.floor(toNumber(item?.quantity, 1)))
+  const stock = Math.max(0, Math.floor(toNumber(item?.stock, 999)))
+
+  return {
+    ...item,
+    id: item?.id ?? `${item?.productId ?? item?.groupId ?? 'cart-item'}-${index}`,
+    price,
+    quantity,
+    stock
+  }
+}
+
+const normalizeCart = (items = []) => {
+  if (!Array.isArray(items)) return []
+  return items.map((item, index) => normalizeCartItem(item, index))
+}
+
 // Load cart from localStorage
 const loadCartFromStorage = () => {
   try {
     const cartData = localStorage.getItem('shopping_cart')
     if (cartData) {
-      cartItems.value = JSON.parse(cartData)
+      cartItems.value = normalizeCart(JSON.parse(cartData))
     } else {
       cartItems.value = []
     }
@@ -464,7 +489,11 @@ const errors = reactive({})
 // Calculate order totals
 const subtotal = computed(() => {
   if (cartItems.value.length === 0) return 0
-  return cartItems.value.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  return cartItems.value.reduce((sum, item) => {
+    const price = toNumber(item.price, 0)
+    const quantity = Math.max(1, Math.floor(toNumber(item.quantity, 1)))
+    return sum + (price * quantity)
+  }, 0)
 })
 
 const shippingCharge = computed(() => {

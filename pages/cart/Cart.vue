@@ -5,16 +5,8 @@
   
   <section class="cart py-80">
     <div class="container container-lg">
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center py-80">
-        <div class="spinner-border text-main-600" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-16">Loading cart...</p>
-      </div>
-
       <!-- Empty Cart State -->  
-      <div v-else-if="cartItems.length === 0" class="text-center py-80">
+      <div v-if="cartItems.length === 0" class="text-center py-80">
         <div class="mb-32">
           <i class="ph ph-shopping-cart text-6xl text-gray-300"></i>
         </div>
@@ -64,7 +56,7 @@
                     <td>
                       <div class="table-product d-flex align-items-center gap-24">
                         <NuxtLink 
-                          :to="`/shop-all/--${item.groupId}`" 
+                          :to="getProductLink(item)" 
                           class="table-product__thumb border border-gray-100 rounded-8 flex-center"
                           style="width: 100px; height: 100px;"
                         >
@@ -78,7 +70,7 @@
                         <div class="table-product__content text-start">
                           <h6 class="title text-lg fw-semibold mb-8">
                             <NuxtLink 
-                              :to="`/shop-all/--${item.groupId}`" 
+                              :to="getProductLink(item)" 
                               class="link text-line-2"
                             > 
                               {{ item.name }}
@@ -97,20 +89,20 @@
 </div>
 
 
-                          <div class="flex-align gap-16 mb-16">
+                          <div v-if="item.rating || item.reviewCount" class="flex-align gap-16 mb-16">
                             <div class="flex-align gap-6">
                               <span class="text-md fw-medium text-warning-600 d-flex">
                                 <i class="ph-fill ph-star"></i>
                               </span>
-                              <span class="text-md fw-semibold text-gray-900">4.8</span>
+                              <span class="text-md fw-semibold text-gray-900">{{ item.rating }}</span>
                             </div>
-                            <span class="text-sm fw-medium text-gray-200">|</span>
-                            <span class="text-neutral-600 text-sm">128 Reviews</span>
+                            <span v-if="item.reviewCount" class="text-sm fw-medium text-gray-200">|</span>
+                            <span v-if="item.reviewCount" class="text-neutral-600 text-sm">{{ item.reviewCount }} Reviews</span>
                           </div>
 
-                          <div class="flex-align gap-16">
+                          <div v-if="Array.isArray(item.tags) && item.tags.length" class="flex-align gap-16">
                             <span 
-                              v-for="tag in item.tags || ['Fashion', 'Clothing']" 
+                              v-for="tag in item.tags" 
                               :key="tag"
                               class="product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium"
                             >
@@ -122,9 +114,9 @@
                     </td>
                     <td>
                       <div class="d-flex flex-column gap-4">
-                        <span class="text-lg h6 mb-0 fw-semibold">₹{{ parseFloat(item.price).toFixed(2) }}</span>
+                        <span class="text-lg h6 mb-0 fw-semibold">₹{{ formatCurrency(item.price) }}</span>
                         <span v-if="item.discounted" class="text-sm text-gray-500 text-decoration-line-through">
-                          ₹{{ item.originalPrice ? parseFloat(item.originalPrice).toFixed(2) : parseFloat(item.price).toFixed(2) }}
+                          ₹{{ formatCurrency(item.originalPrice ?? item.price) }}
                         </span>
                       </div>
                     </td>
@@ -145,25 +137,25 @@
                           v-model.number="item.quantity"
                           @change="updateQuantity(item.id, $event)"
                           :min="1"
-                          :max="item.stock || 999"
+                          :max="getMaxQuantity(item) || undefined"
                         />
                         <button 
                           type="button" 
                           class="quantity__plus border border-end border-gray-100 flex-shrink-0 h-48 w-48 text-neutral-600 flex-center hover-bg-main-600 hover-text-white transition-colors"
                           @click="increaseQuantity(item.id)"
-                          :disabled="item.quantity >= (item.stock || 999)"
-                          :class="item.quantity >= (item.stock || 999) ? 'opacity-50 cursor-not-allowed' : ''"
+                          :disabled="getMaxQuantity(item) ? item.quantity >= getMaxQuantity(item) : false"
+                          :class="getMaxQuantity(item) && item.quantity >= getMaxQuantity(item) ? 'opacity-50 cursor-not-allowed' : ''"
                         >
                           <i class="ph ph-plus"></i>
                         </button>
                       </div>
-                      <div class="text-xs text-gray-500 mt-4">
-                        Stock: {{ item.stock || 999 }}
+                      <div v-if="getMaxQuantity(item)" class="text-xs text-gray-500 mt-4">
+                        Stock: {{ getMaxQuantity(item) }}
                       </div>
                     </td>
                     <td>
                       <span class="text-lg h6 mb-0 fw-semibold text-main-600">
-                        ₹{{ (parseFloat(item.price) * item.quantity).toFixed(2) }}
+                        ₹{{ formatCurrency(itemSubtotal(item)) }}
                       </span>
                     </td>
                   </tr>
@@ -309,7 +301,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from '#app'
 import CartBreakcrumb from '~/components/cart/CartBreakcrumb.vue'
 import CartShop from '~/components/cart/CartShop.vue'
@@ -325,18 +317,75 @@ definePageMeta({
 
 // State
 const cartItems = ref([])
-const loading = ref(true)
 const couponCode = ref('')
 const appliedCoupon = ref(null)
 const couponDiscount = ref(0)
 
+const toNumber = (value, fallback = 0) => {
+  const normalized = String(value ?? '').replace(/[^0-9.-]/g, '')
+  const parsed = Number.parseFloat(normalized)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
+const normalizeCartItem = (item, index = 0) => {
+  const price = toNumber(item?.price, 0)
+  const originalPrice = item?.originalPrice != null ? toNumber(item.originalPrice, price) : null
+  const quantity = Math.max(1, Math.floor(toNumber(item?.quantity, 1)))
+  const parsedStock = toNumber(item?.stock, NaN)
+  const stock = Number.isFinite(parsedStock) && parsedStock > 0 ? Math.floor(parsedStock) : null
+
+  return {
+    ...item,
+    id: item?.id ?? `${item?.productId ?? item?.groupId ?? 'cart-item'}-${index}`,
+    price,
+    originalPrice,
+    quantity,
+    stock
+  }
+}
+
+const getMaxQuantity = (item) => {
+  const stock = toNumber(item?.stock, NaN)
+  return Number.isFinite(stock) && stock > 0 ? Math.floor(stock) : null
+}
+
+const itemSubtotal = (item) => {
+  return toNumber(item?.price, 0) * Math.max(1, Math.floor(toNumber(item?.quantity, 1)))
+}
+
+const formatCurrency = (amount) => {
+  return toNumber(amount, 0).toFixed(2)
+}
+
+const slugify = (text) => {
+  return String(text || 'product')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'product'
+}
+
+const getProductLink = (item) => {
+  const groupId = item?.groupId || item?.productId || item?.id
+  if (!groupId) return '/shop-all'
+  return `/shop-all/${slugify(item?.name)}/${groupId}`
+}
+
+const normalizeCart = (items = []) => {
+  if (!Array.isArray(items)) return []
+  return items.map((item, index) => normalizeCartItem(item, index))
+}
+
 // Computed Properties
 const cartItemCount = computed(() => {
-  return cartItems.value.reduce((total, item) => total + item.quantity, 0)
+  return cartItems.value.reduce((total, item) => total + Math.max(1, Math.floor(toNumber(item.quantity, 1))), 0)
 })
 
 const subtotal = computed(() => {
-  return cartItems.value.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
+  return cartItems.value.reduce((sum, item) => {
+    const price = toNumber(item.price, 0)
+    const quantity = Math.max(1, Math.floor(toNumber(item.quantity, 1)))
+    return sum + (price * quantity)
+  }, 0)
 })
 
 const deliveryCharge = computed(() => {
@@ -361,23 +410,17 @@ function decodeId(encoded) {
   }
 }
 
-function generateSlug(name) {
-  return name.toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .trim()
-}
-
 // Cart Functions
 const loadCartFromStorage = () => {
   try {
     //console.log('Loading cart from localStorage...')
     const cartData = localStorage.getItem('shopping_cart')
     if (cartData) {
-      const cart = JSON.parse(cartData)
-      //console.log('Cart loaded:', cart)
-      cartItems.value = cart
+      const parsed = JSON.parse(cartData)
+      const cart = Array.isArray(parsed)
+        ? parsed
+        : (Array.isArray(parsed?.items) ? parsed.items : [])
+      cartItems.value = normalizeCart(cart)
     } else {
       //console.log('No cart found in localStorage')
       cartItems.value = []
@@ -385,14 +428,16 @@ const loadCartFromStorage = () => {
   } catch (error) {
     console.error('Error loading cart from storage:', error)
     cartItems.value = []
-  } finally {
-    loading.value = false
   }
 }
 
 const saveCartToStorage = () => {
   try {
+    cartItems.value = normalizeCart(cartItems.value)
     localStorage.setItem('shopping_cart', JSON.stringify(cartItems.value))
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cart-updated'))
+    }
     //console.log('Cart saved to localStorage')
   } catch (error) {
     console.error('Error saving cart to storage:', error)
@@ -421,7 +466,8 @@ const increaseQuantity = (itemId) => {
   const itemIndex = cartItems.value.findIndex(item => item.id === itemId)
   if (itemIndex > -1) {
     const item = cartItems.value[itemIndex]
-    if (item.quantity < (item.stock || 999)) {
+    const maxQuantity = getMaxQuantity(item)
+    if (!maxQuantity || item.quantity < maxQuantity) {
       item.quantity++
       saveCartToStorage()
     }
@@ -443,11 +489,11 @@ const updateQuantity = (itemId, event) => {
   const value = parseInt(event.target.value)
   const itemIndex = cartItems.value.findIndex(item => item.id === itemId)
   
-  if (itemIndex > -1 && value >= 1) {
+  if (itemIndex > -1 && Number.isFinite(value) && value >= 1) {
     const item = cartItems.value[itemIndex]
-    const maxStock = item.stock || 999
+    const maxStock = getMaxQuantity(item)
     
-    if (value <= maxStock) {
+    if (!maxStock || value <= maxStock) {
       item.quantity = value
       saveCartToStorage()
     } else {
@@ -473,6 +519,9 @@ const clearCart = () => {
     if (result.isConfirmed) {
       cartItems.value = []
       localStorage.removeItem('shopping_cart')
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('cart-updated'))
+      }
       
       // Show success message
       Swal.fire({
@@ -533,15 +582,8 @@ const removeCoupon = () => {
   couponCode.value = ''
 }
 
-// Watch for cart changes to auto-save
-watch(cartItems, () => {
-  saveCartToStorage()
-}, { deep: true })
-
 // Load cart when component mounts
 onMounted(() => {
-  loadCartFromStorage()
-  
   // Check for product ID in URL (from Add to Cart)
   const encodedId = route.query.pid
   if (encodedId) {
@@ -554,19 +596,24 @@ onMounted(() => {
   
   // Listen for storage changes (for cross-tab updates)
   if (typeof window !== 'undefined') {
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'shopping_cart') {
-        //console.log('Cart updated in another tab, reloading...')
-        loadCartFromStorage()
-      }
-    })
+    window.addEventListener('storage', handleStorageUpdate)
   }
 })
+
+const handleStorageUpdate = (event) => {
+  if (event.key === 'shopping_cart') {
+    loadCartFromStorage()
+  }
+}
+
+if (process.client) {
+  loadCartFromStorage()
+}
 
 // Cleanup event listener
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
-    window.removeEventListener('storage', () => {})
+    window.removeEventListener('storage', handleStorageUpdate)
   }
 })
 </script>

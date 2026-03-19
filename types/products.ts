@@ -140,6 +140,7 @@ export interface StoreProduct {
 }
 
 export interface GraphQLFilters {
+  search?: string
   color?: string
   size?: string
   category?: string

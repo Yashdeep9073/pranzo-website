@@ -1863,30 +1863,52 @@ const submitReview = () => {
   console.log('Review submitted:', { rating: rating.value, title: reviewTitle.value, content: reviewContent.value })
 }
 
-const addToCart = (product: any) => {
-  if (!product) return
+const addToCart = () => {
+  const baseProduct = selectedVariant.value || mainProduct.value
+  if (!baseProduct) return
+
+  const discountType = String(mainProduct.value?.discount || '').toUpperCase()
+  const discountValue = Number.parseFloat(String(mainProduct.value?.discountValue ?? 0)) || 0
+  const rawPrice = Number.parseFloat(String(baseProduct.price ?? mainProduct.value?.price ?? 0)) || 0
+  const finalPrice = discountType === 'PERCENTAGE' && discountValue > 0
+    ? +(rawPrice - (rawPrice * discountValue) / 100).toFixed(2)
+    : rawPrice
+
+  const stock = Number.parseInt(String(baseProduct.stock ?? mainProduct.value?.stock ?? 999), 10) || 999
+  const qtyToAdd = Math.max(1, Math.min(Number(quantity.value) || 1, stock))
 
   const cart = [...cartItems.value]
+  const productId = baseProduct.id || mainProduct.value?.id
+  const variantId = baseProduct.id && mainProduct.value?.id && baseProduct.id !== mainProduct.value.id
+    ? baseProduct.id
+    : null
 
   const existing = cart.find(
     item =>
-      item.productId === product.id &&
-      (!product.variantId || item.variantId === product.variantId)
+      String(item.productId) === String(productId) &&
+      String(item.variantId || '') === String(variantId || '')
   )
 
   if (existing) {
-    existing.quantity += 1
+    const currentQty = Number(existing.quantity) || 1
+    existing.quantity = Math.min(currentQty + qtyToAdd, stock)
+    existing.price = Number.parseFloat(String(existing.price ?? finalPrice)) || finalPrice
+    existing.stock = stock
   } else {
     cart.push({
       id: Date.now().toString(),
-      productId: product.id,
-      variantId: product.variantId || null,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image: product.images?.[0]?.imageUrl || '/assets/images/nowcategory/p1.jpg',
-      color: product.color?.name || product.color,
-      size: product.size?.name || product.size
+      productId,
+      groupId: groupID.value,
+      variantId,
+      name: mainProduct.value?.name || baseProduct.name || 'Product',
+      price: finalPrice,
+      originalPrice: rawPrice,
+      discounted: finalPrice < rawPrice,
+      quantity: qtyToAdd,
+      stock,
+      image: mainImages.value?.[0] || '/assets/images/nowcategory/p1.jpg',
+      color: selectedColor.value,
+      size: selectedSize.value
     })
   }
 

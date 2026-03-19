@@ -461,6 +461,25 @@
             </div>
           </div>
 
+          <!-- Category Explorer -->
+          <div v-if="categorySubCategories.length > 0" class="shop-sidebar__box mb-24">
+            <div class="flex-between mb-12">
+              <h6>Subcategories in {{ selectedParentCategory || filters.category }}</h6>
+            </div>
+            <div class="size-filters mb-12">
+              <button class="size-btn" :class="{ 'size-btn-active': filters.category === selectedCategoryNode?.name }"
+                @click="selectedCategoryNode && toggleCategoryFilter(selectedCategoryNode.name)" :disabled="isLoading">
+                All in {{ selectedCategoryNode?.name }}
+              </button>
+              <button v-for="subCategory in categorySubCategories" :key="subCategory.id || subCategory.name"
+                class="size-btn" :class="{ 'size-btn-active': filters.category === subCategory.name }"
+                @click="selectSubCategoryFromPage(subCategory.name)" :disabled="isLoading">
+                {{ subCategory.name }}
+              </button>
+            </div>
+            
+          </div>
+
           <!-- Active Filters Bar -->
           <div v-if="hasActiveFilters" class="active-filters-bar">
             <div class="filters-header">
@@ -777,6 +796,7 @@ const isSortDropdownOpen = ref(false)
 const isSortDropdownOpenMobile = ref(false)
 const showInitialLoading = ref(true)
 const priceRange = ref({ min: 0, max: 50000 })
+const selectedParentCategory = ref('')
 
 // Sort options
 const sortOptions = [
@@ -808,6 +828,19 @@ const defaultMaxPrice = computed(() => productStore.defaultMaxPrice || 50000)
 const isPriceFilterApplied = computed(() => {
   const f = filters.value
   return f.minPrice > 0 || f.maxPrice < defaultMaxPrice.value
+})
+const selectedCategoryNode = computed(() => {
+  const parentName = selectedParentCategory.value || filters.value.category
+  if (!parentName) return null
+  return categories.value.find(cat => cat?.name?.toLowerCase() === String(parentName).toLowerCase()) || null
+})
+const categorySubCategories = computed(() => {
+  if (!selectedCategoryNode.value?.subCategories) return []
+  return selectedCategoryNode.value.subCategories
+})
+const relatedOfferProducts = computed(() => {
+  if (!filters.value.category) return []
+  return products.value.filter(product => getDiscountValue(product) > 0).slice(0, 6)
 })
 
 // Helper functions
@@ -1006,11 +1039,28 @@ const applyMobileFilters = () => {
 // Filter functions with URL update
 const toggleCategoryFilter = async (category) => {
   await productStore.toggleCategoryFilter(category)
+  if (!filters.value.category) {
+    selectedParentCategory.value = ''
+  } else {
+    const matchingParent = categories.value.find(cat =>
+      cat?.name?.toLowerCase() === String(category).toLowerCase()
+    )
+    if (matchingParent?.subCategories?.length) {
+      selectedParentCategory.value = matchingParent.name
+    }
+  }
   updateURL()
 }
 
 const clearCategoryFilter = async () => {
   await productStore.clearFilter('category')
+  selectedParentCategory.value = ''
+  updateURL()
+}
+
+const selectSubCategoryFromPage = async (subCategory) => {
+  if (!subCategory) return
+  await productStore.updateFilters({ category: subCategory, page: 1 })
   updateURL()
 }
 
@@ -1079,6 +1129,7 @@ const resetPriceFilter = async () => {
 const clearAllFilters = async () => {
   priceRange.value = { min: 0, max: defaultMaxPrice.value }
   await productStore.clearAllFilters()
+  selectedParentCategory.value = ''
   updateURL()
   closeMobileSidebar()
 }
@@ -1095,6 +1146,7 @@ const updateURL = () => {
   if (filters.value.sortBy && filters.value.sortBy !== 'popularity') query.sort = filters.value.sortBy
   if (filters.value.minPrice > 0) query.min_price = filters.value.minPrice
   if (filters.value.maxPrice < defaultMaxPrice.value) query.max_price = filters.value.maxPrice
+  if (selectedParentCategory.value) query.parent_category = selectedParentCategory.value
   if (filters.value.page > 1) query.page = filters.value.page
 
   // Update URL without adding to history
@@ -1213,7 +1265,53 @@ const addToCart = (product) => {
     toast.warning('Product is out of stock')
     return
   }
-  toast.success('Added to cart')
+
+  try {
+    const existingCartRaw = localStorage.getItem('shopping_cart')
+    const cart = existingCartRaw ? JSON.parse(existingCartRaw) : []
+
+    const productId = getProductId(product)
+    const price = Number(getDiscountedPrice(product) || 0)
+    const stock = Number(getProductStock(product) || 0)
+    const image = getPrimaryImage(product) || '/assets/images/placeholder.jpg'
+
+    if (!productId) {
+      toast.error('Unable to add this product to cart')
+      return
+    }
+
+    const existingIndex = cart.findIndex(item =>
+      String(item.productId || item.id) === String(productId)
+    )
+
+    if (existingIndex > -1) {
+      const currentQty = Number(cart[existingIndex].quantity || 1)
+      cart[existingIndex].quantity = Math.min(currentQty + 1, stock || 999)
+      cart[existingIndex].price = Number(cart[existingIndex].price || price)
+      cart[existingIndex].stock = stock || 999
+    } else {
+      cart.push({
+        id: String(productId),
+        productId: String(productId),
+        groupId: product?.groupId || productId,
+        name: getProductName(product),
+        price,
+        quantity: 1,
+        stock: stock || 999,
+        image,
+        color: getProductColor(product),
+        size: getProductSize(product),
+        category: getProductCategory(product)
+      })
+    }
+
+    localStorage.setItem('shopping_cart', JSON.stringify(cart))
+    window.dispatchEvent(new CustomEvent('cart-updated'))
+    toast.success('Added to cart')
+  } catch (error) {
+    console.error('Error adding to cart:', error)
+    toast.error('Failed to add to cart')
+  }
 }
 
 const quickView = (product) => {
@@ -1240,11 +1338,18 @@ watch(() => filters.value, (newFilters) => {
   };
 }, { deep: true, immediate: true });
 
+watch(() => route.query.parent_category, (parentCategory) => {
+  selectedParentCategory.value = typeof parentCategory === 'string' ? parentCategory : ''
+})
+
 // Initialize
 onMounted(async () => {
   try {
     // Just initialize the store - it will handle URL syncing internally
     await productStore.initialize();
+    selectedParentCategory.value = typeof route.query.parent_category === 'string'
+      ? route.query.parent_category
+      : ''
 
     // Sync price range with current filters
     priceRange.value = {

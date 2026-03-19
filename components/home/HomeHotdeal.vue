@@ -47,11 +47,11 @@
         <div class="products-column">
           <div class="products-container h-100">
             <div class="row g-12 h-100">
-              <div v-for="product in products" :key="product.id" class="col-6 col-md-4 col-lg-4 col-xl-3">
+              <div v-for="product in displayProducts" :key="product.id || product.groupId" class="col-6 col-md-4 col-lg-4 col-xl-3">
                 <div class="product-card border rounded-16 overflow-hidden h-100">
                   <div class="product-image-container">
                     <NuxtLink :to="getProductLink(product)" class="product-link">
-                      <img :src="product.images?.[0]?.imageUrl || '/assets/images/thumbs/product-img26.png'" :alt="product.name" class="product-img w-100" />
+                      <img :src="getProductImage(product)" :alt="product.name" class="product-img w-100" />
                       <div class="product-overlay">
                         <button class="quick-view-btn">
                           <i class="ph ph-eye"></i>
@@ -88,7 +88,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useOffersApi } from '@/composables/api/useOffersApi'
-import { useProductsApi } from '@/composables/api/useProductsApi'
 import { useCart } from '~/composables/api/useCart'
 
 /* ---------------- FETCH HOT DEALS ---------------- */
@@ -99,19 +98,25 @@ const { offers, loading: offersLoading, error } = useOffersApi({
   limit: 10
 })
 
-/* (optional) you still asked 2 hooks — products not used for UI,
-   but you can keep it for later add-to-cart or caching */
-const { products } = useProductsApi({
-  limit: 5,
-  inStock: true,
-  hasDiscount: true
-})
-
 /* ---------------- CART FUNCTIONALITY ---------------- */
 const { addToCart } = useCart()
 
 const handleAddToCart = (product: any) => {
-  addToCart(product)
+  const normalizedProduct = {
+    id: product?.id ?? product?.productId ?? product?.mainProduct?.id ?? product?.groupId,
+    productId: product?.productId ?? product?.id ?? product?.mainProduct?.id ?? product?.groupId,
+    groupId: product?.groupId ?? product?.id,
+    name: product?.name ?? product?.mainProduct?.name ?? 'Product',
+    price: Number(product?.price ?? product?.mainProduct?.price ?? 0),
+    image: product?.images?.[0]?.imageUrl || product?.image || '/assets/images/thumbs/product-img26.png',
+    images: Array.isArray(product?.images)
+      ? product.images
+      : [{ imageUrl: product?.image || '/assets/images/thumbs/product-img26.png' }],
+    stock: Number(product?.stock ?? product?.mainProduct?.stock ?? 999) || 999,
+    quantity: 1
+  }
+
+  addToCart(normalizedProduct)
 }
 
 /* ---------------- GLOBAL STATE ---------------- */
@@ -156,11 +161,16 @@ const displayProducts = computed(() => {
     .filter((item: any) => item.product)
     .map((item: any) => {
       const p = item.product
+      const productId = p.id || p.productId || p.groupId || p.mainProduct?.id
       return {
-        id: p.id,
-        name: p.name,
-        image: p.images?.[0]?.imageUrl,
-        price: p.price
+        id: productId,
+        productId,
+        groupId: p.groupId || productId,
+        name: p.name || p.mainProduct?.name || 'Product',
+        images: p.images || [],
+        image: p.images?.[0]?.imageUrl || '/assets/images/thumbs/product-img26.png',
+        price: Number(p.price ?? p.mainProduct?.price ?? 0),
+        stock: Number(p.stock ?? p.mainProduct?.stock ?? 999)
       }
     })
 })
@@ -171,10 +181,11 @@ const showSection = computed(() =>
   !loading.value &&
   !error.value &&
   activeOffer.value &&
-  products.value.length > 0
+  displayProducts.value.length > 0
 )
 
 const getProductImage = (product: any) => {
+  if (product?.image) return product.image
   if (!product?.images?.length) return '/assets/images/thumbs/product-img26.png'
 
   const primary = product.images.find((img: any) => img.isPrimary)

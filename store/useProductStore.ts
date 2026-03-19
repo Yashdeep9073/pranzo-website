@@ -348,6 +348,8 @@ export const useProductStore = defineStore('productStore', () => {
       })
     }
 
+    const maxPriceBoundary = defaultMaxPrice.value
+
     // Apply price filter
     if (filters.minPrice > 0) {
       filteredProducts = filteredProducts.filter(product => {
@@ -356,7 +358,7 @@ export const useProductStore = defineStore('productStore', () => {
       })
     }
 
-    if (filters.maxPrice < 1000000) {
+    if (typeof filters.maxPrice === 'number' && filters.maxPrice < maxPriceBoundary) {
       filteredProducts = filteredProducts.filter(product => {
         const price = getDiscountedPrice(product)
         return price <= filters.maxPrice!
@@ -719,14 +721,18 @@ export const useProductStore = defineStore('productStore', () => {
       })
     }
 
-    // Apply price filter (client-side) - DISABLED to show all products
-    // Temporarily disabling price filtering to ensure all products are shown
-    // if (currentFilters.minPrice > 0 || currentFilters.maxPrice < defaultMaxPrice.value) {
-    //   filtered = filtered.filter(product => {
-    //     const price = getDiscountedPrice(product)
-    //     return price >= currentFilters.minPrice && price <= currentFilters.maxPrice
-    //   })
-    // }
+    // Apply price filter client-side so range filter works consistently.
+    const normalizedMinPrice = Math.min(currentFilters.minPrice || 0, currentFilters.maxPrice || 0)
+    const normalizedMaxPrice = Math.max(currentFilters.minPrice || 0, currentFilters.maxPrice || 0)
+    const maxPriceBoundary = defaultMaxPrice.value
+    const hasPriceFilter = normalizedMinPrice > 0 || normalizedMaxPrice < maxPriceBoundary
+
+    if (hasPriceFilter) {
+      filtered = filtered.filter(product => {
+        const price = getDiscountedPrice(product)
+        return price >= normalizedMinPrice && price <= normalizedMaxPrice
+      })
+    }
 
     // Apply sorting (client-side)
     filtered = applySorting(filtered, currentFilters.sortBy)
