@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer py-48">
+  <footer class="footer py-28 ">
     <div class="container container-lg">
       <div class="row g-4">
         <!-- Company Info - Takes more space on desktop -->
@@ -154,4 +154,27 @@ const logoSrc = computed(() =>
 
 <style scoped>
 /* Scoped styles if any overrides needed; global CSS already handles classes. */
+.footer{
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.12);
+  margin-bottom: 20px;
+}
+
+.footer-menu li > a {
+  position: relative;
+  display: inline-block;
+  padding-left: 14px;
+}
+
+.footer-menu li > a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+}
 </style>

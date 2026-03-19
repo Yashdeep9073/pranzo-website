@@ -43,7 +43,7 @@
   </div>
 
   <!-- Main Content -->
-  <section v-show="!showInitialLoading" class="shop py-80">
+  <section v-show="!showInitialLoading" class="shop pt-80 py-80">
     <!-- Mobile Filter Overlay -->
     <div v-if="showMobileSidebar" class="mobile-filter-overlay d-lg-none" @click="closeMobileSidebar"></div>
 
@@ -201,7 +201,7 @@
       </div>
     </div>
 
-    <div class="container container-lg">
+    <div class="container container-lg" style="margin-top: 30px;">
       <div class="row">
         <!-- Desktop Sidebar -->
         <div class="col-lg-3 d-none d-lg-block">
@@ -1572,7 +1572,7 @@ definePageMeta({
   z-index: 500;
   border-bottom: 1px solid #f0f0f0;
   margin-top: 50px;
-  padding: 10px 0;
+  padding: 24px 0;
 }
 
 .mobile-filter-summary {
@@ -1603,7 +1603,7 @@ definePageMeta({
 
 .mobile-sort-btn,
 .mobile-filter-btn {
-  padding: 10px 16px;
+  padding: 14px 16px;
   border: 1px solid var(--main-200);
   border-radius: 8px;
   background: white;

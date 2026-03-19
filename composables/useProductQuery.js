@@ -136,8 +136,17 @@ export function useProductQuery(state, config) {
   }
 
   // ==================== GRAPHQL QUERY ====================
+  const escapeGraphQLString = (value) => {
+    return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  }
+
   const buildGraphQLQuery = (filters) => {
     let filterParams = []
+
+    // Add text search filter if selected
+    if (filters.search && filters.search.trim()) {
+      filterParams.push(`search: "${escapeGraphQLString(filters.search.trim())}"`)
+    }
 
     // Add color filter if selected
     if (filters.color) {

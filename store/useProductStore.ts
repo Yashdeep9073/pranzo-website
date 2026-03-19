@@ -869,20 +869,18 @@ export const useProductStore = defineStore('productStore', () => {
 
     // Only add to URL if filter is active - SINGLE ENCODE ONLY
     if (filters.search) {
-      query.search = encodeURIComponent(filters.search)
+      query.search = filters.search
     }
 
     if (filters.category && filters.category !== 'all') {
-      // Encode only once and replace spaces with %20 (not +)
-      const encodedCategory = encodeURIComponent(filters.category)
-      query.category = encodedCategory
+      query.category = filters.category
     }
 
     if (filters.color) query.color = filters.color
     if (filters.size) query.size = filters.size
 
     if (filters.brand) {
-      query.brand = encodeURIComponent(filters.brand)
+      query.brand = filters.brand
     }
 
     if (filters.sortBy !== 'popularity') query.sort = filters.sortBy
@@ -999,9 +997,24 @@ export const useProductStore = defineStore('productStore', () => {
 
   // ==================== BUILD GRAPHQL QUERY WITH MULTIPLE FILTERS ====================
 
-  const buildGraphQLQuery = (filters: GraphQLFilters) => {
+  const escapeGraphQLString = (value: string) => {
+    return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  }
+
+  const buildGraphQLQuery = (
+    filters: GraphQLFilters,
+    options: { includeSearch?: boolean; limitOverride?: number } = {}
+  ) => {
+    const includeSearch = options.includeSearch !== false
+    const queryLimit = options.limitOverride ?? filters.limit
+
     // Start building filter parameters
     let filterParams = []
+
+    // Add text search filter if selected
+    if (includeSearch && filters.search && filters.search.trim()) {
+      filterParams.push(`search: "${escapeGraphQLString(filters.search.trim())}"`)
+    }
 
     // Add color filter if selected
     if (filters.color) {
@@ -1043,7 +1056,7 @@ export const useProductStore = defineStore('productStore', () => {
     // Build complete GraphQL query
     const query = `
       query ProductFilter {
-        productFilter(page: ${filters.page}, limit: ${filters.limit}${filterString}) {
+        productFilter(page: ${filters.page}, limit: ${queryLimit}${filterString}) {
           data {
             groupId
             name
@@ -1145,7 +1158,7 @@ export const useProductStore = defineStore('productStore', () => {
       }
 
       // Build GraphQL query with all active filters
-      const query = buildGraphQLQuery(mergedFilters)
+      let query = buildGraphQLQuery(mergedFilters)
 
 
       let response: GraphQLResponse | undefined;
@@ -1163,6 +1176,28 @@ export const useProductStore = defineStore('productStore', () => {
         })
       } catch (apiError) {
         apiFailed = true
+      }
+
+      // Fallback: if backend search filter fails/returns empty, fetch broader data and filter client-side
+      if (
+        (apiFailed || !response?.data?.productFilter?.data?.length) &&
+        mergedFilters.search &&
+        mergedFilters.search.trim()
+      ) {
+        try {
+          apiFailed = false
+          query = buildGraphQLQuery(mergedFilters, { includeSearch: false, limitOverride: 1000 })
+          response = await $fetch(API_ENDPOINTS.graphql, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query }),
+            timeout: 10000
+          })
+        } catch (fallbackError) {
+          apiFailed = true
+        }
       }
 
       // Check if API failed or returned empty

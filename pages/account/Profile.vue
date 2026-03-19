@@ -1,6 +1,6 @@
 <template>
-  <div class=" pt-20 up">
-    <Breadcrumbprofile/>
+  <div class="pt-20 up">
+    <BreadcrumbProfile />
   </div>
   <section class="account-section py-5 py-md-120"> 
     <div class="container">
@@ -244,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import CartShop from '~/components/cart/CartShop.vue'
 useHead({
   title: "Profile"  
@@ -252,7 +252,7 @@ useHead({
 // API Endpoints
 const API_BASE_URL = 'https://kartmania-api.vibrantick.org'
 const REGISTER_API = `${API_BASE_URL}/customer/auth/register`
-// Note: Login API endpoint not provided, you need to add it
+const LOGIN_API = `${API_BASE_URL}/customer/auth/login`
 
 // UI State
 const showRegister = ref(false)
@@ -303,6 +303,14 @@ const clearErrors = () => {
   errors.name = ''
   errors.email = ''
   errors.password = ''
+}
+
+const parseResponseJson = async (response) => {
+  try {
+    return await response.json()
+  } catch {
+    return null
+  }
 }
 
 // Validate register form
@@ -420,10 +428,10 @@ const handleRegister = async () => {
       body: JSON.stringify(payload)
     })
     
-    const data = await response.json()
+    const data = await parseResponseJson(response)
     
     if (!response.ok) {
-      throw new Error(data.message || 'Registration failed. Please try again.')
+      throw new Error(data?.message || 'Registration failed. Please try again.')
     }
     
     // Registration successful
@@ -443,7 +451,9 @@ const handleRegister = async () => {
     
   } catch (error) {
     console.error('Registration error:', error)
-    errorMessage.value = error.message || 'An error occurred. Please try again.'
+    errorMessage.value = error instanceof Error
+      ? error.message
+      : 'An error occurred. Please try again.'
     
     // Auto-hide error message
     setTimeout(() => {
@@ -454,11 +464,11 @@ const handleRegister = async () => {
   }
 }
 
-// Handle Login (You need to implement this with your login API)
+// Handle Login
 const handleLogin = async () => {
   clearMessages()
   
-  if (!loginForm.email || !loginForm.password) {
+  if (!loginForm.email.trim() || !loginForm.password) {
     errorMessage.value = 'Please enter email and password'
     return
   }
@@ -466,36 +476,48 @@ const handleLogin = async () => {
   isLoading.value = true
   
   try {
-    // TODO: Add your login API endpoint here
-    // Example:
-    // const response = await fetch(`${API_BASE_URL}/customer/auth/login`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     email: loginForm.email,
-    //     password: loginForm.password
-    //   })
-    // })
-    
-    // Simulate API call for demo
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // Simulate successful login
+    const response = await fetch(LOGIN_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        email: loginForm.email.trim(),
+        password: loginForm.password
+      })
+    })
+
+    const data = await parseResponseJson(response)
+
+    if (!response.ok) {
+      throw new Error(data?.message || 'Login failed. Please check your credentials.')
+    }
+
     successMessage.value = 'Login successful! Redirecting...'
     
-    // Store login info if remember me is checked
+    // Save email based on remember-me preference
     if (loginForm.remember) {
-      localStorage.setItem('userEmail', loginForm.email)
+      localStorage.setItem('userEmail', loginForm.email.trim())
+    } else {
+      localStorage.removeItem('userEmail')
+    }
+
+    // Persist token if backend returns one
+    const token = data?.token || data?.accessToken || data?.data?.token
+    if (token) {
+      localStorage.setItem('authToken', token)
     }
     
-    // Redirect to dashboard/home
     setTimeout(() => {
-      window.location.href = '/'
-    }, 2000)
+      navigateTo('/')
+    }, 1200)
     
   } catch (error) {
     console.error('Login error:', error)
-    errorMessage.value = 'Invalid email or password'
+    errorMessage.value = error instanceof Error
+      ? error.message
+      : 'Invalid email or password'
     
     setTimeout(() => {
       errorMessage.value = ''
@@ -521,14 +543,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-  .up{
-  margin-top: 50px;
+.up{
+  margin-top: 0px;
 }
 .account-section {
   min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+  margin-top: 80px !important;
 }
 
 .account-card {
@@ -715,9 +738,3 @@ onMounted(() => {
   }  
 }
 </style>
-
-
-
-
-
-

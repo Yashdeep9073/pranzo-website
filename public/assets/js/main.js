@@ -5,6 +5,8 @@
   //      Start Document Ready function
   // ==========================================
   $(document).ready(function () {
+  var isMobileViewport = window.matchMedia('(max-width: 991px)').matches;
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
   // ============== Mobile Menu Sidebar & Offcanvas Js Start ========
   $('.toggle-mobileMenu').on('click', function () {
@@ -45,34 +47,36 @@
     
   // ===================== Scroll Back to Top Js Start ======================
   var progressPath = document.querySelector('.progress-wrap path');
-  var pathLength = progressPath.getTotalLength();
-  progressPath.style.transition = progressPath.style.WebkitTransition = 'none';
-  progressPath.style.strokeDasharray = pathLength + ' ' + pathLength;
-  progressPath.style.strokeDashoffset = pathLength;
-  progressPath.getBoundingClientRect();
-  progressPath.style.transition = progressPath.style.WebkitTransition = 'stroke-dashoffset 10ms linear';
-  var updateProgress = function () {
-    var scroll = $(window).scrollTop();
-    var height = $(document).height() - $(window).height();
-    var progress = pathLength - (scroll * pathLength / height);
-    progressPath.style.strokeDashoffset = progress;
-  }
-  updateProgress();
-  $(window).scroll(updateProgress);
-  var offset = 50;
-  var duration = 550;
-  jQuery(window).on('scroll', function() {
-    if (jQuery(this).scrollTop() > offset) {
-      jQuery('.progress-wrap').addClass('active-progress');
-    } else {
-      jQuery('.progress-wrap').removeClass('active-progress');
+  if (!isMobileViewport && progressPath) {
+    var pathLength = progressPath.getTotalLength();
+    progressPath.style.transition = progressPath.style.WebkitTransition = 'none';
+    progressPath.style.strokeDasharray = pathLength + ' ' + pathLength;
+    progressPath.style.strokeDashoffset = pathLength;
+    progressPath.getBoundingClientRect();
+    progressPath.style.transition = progressPath.style.WebkitTransition = 'stroke-dashoffset 10ms linear';
+    var updateProgress = function () {
+      var scroll = $(window).scrollTop();
+      var height = $(document).height() - $(window).height();
+      var progress = pathLength - (scroll * pathLength / height);
+      progressPath.style.strokeDashoffset = progress;
     }
-  });
-  jQuery('.progress-wrap').on('click', function(event) {
-    event.preventDefault();
-    jQuery('html, body').animate({scrollTop: 0}, duration);
-    return false;
-  })
+    updateProgress();
+    $(window).scroll(updateProgress);
+    var offset = 50;
+    var duration = 550;
+    jQuery(window).on('scroll', function() {
+      if (jQuery(this).scrollTop() > offset) {
+        jQuery('.progress-wrap').addClass('active-progress');
+      } else {
+        jQuery('.progress-wrap').removeClass('active-progress');
+      }
+    });
+    jQuery('.progress-wrap').on('click', function(event) {
+      event.preventDefault();
+      jQuery('html, body').animate({scrollTop: 0}, duration);
+      return false;
+    })
+  }
   // ===================== Scroll Back to Top Js End ======================
 
   // ========================== add active class to ul>li top Active current page Js Start =====================
@@ -1325,16 +1329,20 @@ if(copyCouponBtn && copyText) {
     // ========================== Testimonials Thumbs Slider Js End =====================
     
   // ========================= Wow Js Start ===================
-  new WOW().init();
+  if (!isMobileViewport && !prefersReducedMotion) {
+    new WOW().init();
+  }
   // ========================= Wow Js End ===================
 
   // ========================= AOS Animation Js Start ===================
-  AOS.init({
-    offset: 40,
-    duration: 1000,
-    once: true,
-    easing: 'ease',
-  });
+  if (!isMobileViewport && !prefersReducedMotion) {
+    AOS.init({
+      offset: 40,
+      duration: 1000,
+      once: true,
+      easing: 'ease',
+    });
+  }
   // ========================= AOS Animation Js End ===================
 
   // ========================= Counter Up Js End ===================
@@ -1378,14 +1386,16 @@ if(copyCouponBtn && copyText) {
     // ========================= Preloader Js End=====================
 
     // ========================= Header Sticky Js Start ==============
-    $(window).on('scroll', function() {
-      if ($(window).scrollTop() >= 260) {
-        $('.header').addClass('fixed-header');
-      }
-      else {
-          $('.header').removeClass('fixed-header');
-      }
-    }); 
+    if (!window.matchMedia('(max-width: 991px)').matches) {
+      $(window).on('scroll', function() {
+        if ($(window).scrollTop() >= 260) {
+          $('.header').addClass('fixed-header');
+        }
+        else {
+            $('.header').removeClass('fixed-header');
+        }
+      });
+    }
     // ========================= Header Sticky Js End===================
 
 })(jQuery);

@@ -508,7 +508,7 @@
       </div>
 
       <!-- Product Tabs Section -->
-      <div v-if="!loading && !error && mainProduct" class="pt-80">
+      <div v-if="!loading && !error && mainProduct" class="pt-24 product-tabs-wrap">
         <div class="product-dContent border border-gray-100 rounded-24 shadow-sm">
           <div class="product-dContent__header border-bottom border-gray-100 flex-between flex-wrap gap-16 p-24">
             <ul class="nav common-tab nav-pills mb-3" role="tablist">
@@ -1961,6 +1961,24 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.product-details {
+  padding-bottom: 25px !important;
+}
+
+.product-tabs-wrap {
+  padding-top: 20px !important;
+}
+
+@media (max-width: 768px) {
+  .product-details {
+    padding-bottom: 28px !important;
+  }
+
+  .product-tabs-wrap {
+    padding-top: 12px !important;
+  }
+}
+
 /* Cart item label colors */
 .cart-label-text {
   color: #CA2D52 !important;

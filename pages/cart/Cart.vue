@@ -825,6 +825,11 @@ onUnmounted(() => {
   transition-duration: 150ms;
 }
 
+/* Spacing Utilities */
+.space-y-16 > * + * {
+  margin-top: 16px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .cart-table {

@@ -685,6 +685,7 @@ const sidebarSearchInput = ref(null)
 // New State Variables for Category Dropdown
 const showCategoryDropdown = ref(false)
 const keepCategoryDropdownOpen = ref(false)
+let clickOutsideHandler = null
 
 // ==================== FALLBACK CATEGORIES ====================
 const fallbackCategories = ref([
@@ -1227,7 +1228,7 @@ const handleFallbackCategoryClick = (category) => {
 // ==================== MOBILE SEARCH FUNCTIONS ====================
 const openMobileSearch = () => {
   showMobileSearchModal.value = true
-  document.body.style.overflow = 'hidden'
+  disableBodyScroll()
   loadRecentSearches()
   setTimeout(() => {
     if (mobileSearchInput.value) {
@@ -1240,7 +1241,9 @@ const closeMobileSearch = () => {
   showMobileSearchModal.value = false
   mobileSearchQuery.value = ''
   mobileSearchResults.value = []
-  document.body.style.overflow = ''
+  if (!showMobileMenu.value) {
+    enableBodyScroll()
+  }
 
   // Abort any ongoing search
   if (mobileSearchController.value) {
@@ -1591,29 +1594,41 @@ const closeAllMenus = () => {
   closeCategoryMenu()
   showSearchDropdown.value = false
   showMobileMenu.value = false
-  enableBodyScroll()
+  if (!showMobileSearchModal.value) {
+    enableBodyScroll()
+  }
 }
 
 // ==================== SCROLL MANAGEMENT FUNCTIONS ====================
+const clearLegacyScrollLocks = () => {
+  document.body.classList.remove('scroll-hide-sm', 'scroll-hide', 'no-scroll')
+}
+
 const disableBodyScroll = () => {
   const scrollY = window.scrollY
+  document.body.dataset.lockedScrollY = String(scrollY)
   document.body.style.position = 'fixed'
   document.body.style.top = `-${scrollY}px`
   document.body.style.width = '100%'
   document.body.style.overflow = 'hidden'
-  sessionStorage.setItem('scrollPosition', scrollY)
+  clearLegacyScrollLocks()
 }
 
 const enableBodyScroll = () => {
-  if (document.body.style.position === 'fixed') {
-    const scrollY = parseInt(document.body.style.top || '0') * -1
-    document.body.style.position = ''
-    document.body.style.top = ''
-    document.body.style.width = ''
-    document.body.style.overflow = ''
+  const hasFixedLock = document.body.style.position === 'fixed'
+  const topValue = parseInt(document.body.style.top || '0', 10)
+  const savedScroll = parseInt(document.body.dataset.lockedScrollY || '0', 10)
+  const scrollY = Number.isNaN(savedScroll) ? (Number.isNaN(topValue) ? 0 : topValue * -1) : savedScroll
 
+  document.body.style.position = ''
+  document.body.style.top = ''
+  document.body.style.width = ''
+  document.body.style.overflow = ''
+  delete document.body.dataset.lockedScrollY
+  clearLegacyScrollLocks()
+
+  if (hasFixedLock) {
     window.scrollTo(0, scrollY)
-    sessionStorage.removeItem('scrollPosition')
   }
 }
 
@@ -1772,6 +1787,8 @@ const getProductImage = (product) => {
 let cleanupCartSystem = null
 
 onMounted(() => {
+  clearLegacyScrollLocks()
+  enableBodyScroll()
   initialize()
   cleanupCartSystem = setupCartSystem()
 
@@ -1784,7 +1801,7 @@ onMounted(() => {
   }
 
   // Click outside handler
-  document.addEventListener('click', (e) => {
+  clickOutsideHandler = (e) => {
     if (!e.target.closest('.category-dropdown-wrapper') &&
       !e.target.closest('.search-wrapper') &&
       !e.target.closest('.search-results') &&
@@ -1798,13 +1815,19 @@ onMounted(() => {
         keepCategoryDropdownOpen.value = false
       }
     }
-  })
+  }
+
+  document.addEventListener('click', clickOutsideHandler)
 })
 
 onUnmounted(() => {
   if (categoryMenuTimeout.value) clearTimeout(categoryMenuTimeout.value)
   if (cleanupCartSystem) cleanupCartSystem()
+  if (clickOutsideHandler) {
+    document.removeEventListener('click', clickOutsideHandler)
+  }
   window.removeEventListener('resize', handleResize)
+  closeMobileSearch()
   enableBodyScroll()
 })
 
@@ -4417,6 +4440,18 @@ watch(() => route.path, () => {
 
   .search-sidebar-product-price {
     font-size: 13px;
+  }
+}
+
+/* Mobile: remove search UI from header/menu sidebar.
+   Home page now provides a dedicated search bar below header. */
+@media (max-width: 1024px) {
+  .mobile-search-container,
+  .mobile-search-trigger,
+  .search-sidebar-overlay,
+  .search-sidebar,
+  .mobile-search-modal {
+    display: none !important;
   }
 }
 </style>
