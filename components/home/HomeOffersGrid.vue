@@ -51,13 +51,89 @@ import { computed } from 'vue'
 import { useOffersApi } from '@/composables/api/useOffersApi'
 import OfferTypeSection from './OfferTypeSection.vue'
 
+const route = useRoute()
 const { offers, loading, error, refresh } = useOffersApi({ isActive: true })
+
+const normalize = (value: unknown) => String(value || '').trim().toLowerCase()
+
+const selectedCategory = computed(() => {
+  const queryValue = Array.isArray(route.query.category)
+    ? route.query.category[0]
+    : route.query.category
+  return normalize(queryValue)
+})
+
+const selectedSubCategory = computed(() => {
+  const queryValue = Array.isArray(route.query.subcategory)
+    ? route.query.subcategory[0]
+    : route.query.subcategory
+  return normalize(queryValue)
+})
+
+const hasCategoryFilter = computed(() => {
+  return Boolean(selectedCategory.value || selectedSubCategory.value)
+})
+
+const getOfferProducts = (offer: any) => {
+  const source = offer?.products?.length ? offer.products : (offer?.OfferProducts || [])
+  return source
+    .map((item: any) => item?.product || item?.Product || item)
+    .filter(Boolean)
+}
+
+const getOfferCategoryNames = (offer: any) => {
+  return [
+    offer?.category?.name,
+    offer?.categoryName,
+    offer?.subcategory?.name,
+    offer?.subCategory?.name,
+    offer?.subCategoryName
+  ]
+    .map(normalize)
+    .filter(Boolean)
+}
+
+const getProductCategoryNames = (product: any) => {
+  return [
+    product?.category?.name,
+    product?.subCategory?.name,
+    product?.subcategory?.name,
+    product?.subSubCategory?.name,
+    product?.subsubcategory?.name,
+    product?.mainProduct?.category?.name,
+    product?.mainProduct?.subCategory?.name,
+    product?.mainProduct?.subcategory?.name
+  ]
+    .map(normalize)
+    .filter(Boolean)
+}
+
+const offerMatchesFilters = (offer: any) => {
+  if (!selectedCategory.value && !selectedSubCategory.value) return true
+
+  const products = getOfferProducts(offer)
+  const explicitOfferNames = getOfferCategoryNames(offer)
+  const productNames = products.flatMap((product: any) => getProductCategoryNames(product))
+  const names = [...explicitOfferNames, ...productNames]
+  if (!names.length) return false
+
+  const categoryMatched = !selectedCategory.value || names.includes(selectedCategory.value)
+  const subCategoryMatched = !selectedSubCategory.value || names.includes(selectedSubCategory.value)
+  return categoryMatched && subCategoryMatched
+}
+
+const activeOffers = computed(() => {
+  return offers.value
+    .filter(offer => offer.isActive !== false)
+    // When user chooses a category from Browse Categories, keep only category-specific offers.
+    .filter(offer => !hasCategoryFilter.value || offer.offerType === 'CATEGORY')
+    .filter(offerMatchesFilters)
+})
 
 // Computed properties
 const offersByType = computed(() => {
   const grouped: { [key: string]: any[] } = {}
-  const active = offers.value.filter(offer => offer.isActive !== false)
-  active.forEach(offer => {
+  activeOffers.value.forEach(offer => {
     const type = offer.offerType || 'OTHER'
     if (!grouped[type]) {
       grouped[type] = []
@@ -65,10 +141,6 @@ const offersByType = computed(() => {
     grouped[type].push(offer)
   })
   return grouped
-})
-
-const activeOffers = computed(() => {
-  return offers.value.filter(offer => offer.isActive !== false)
 })
 
 // Get offers that are not in predefined types

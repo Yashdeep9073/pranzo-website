@@ -27,11 +27,13 @@
 
             <!-- Category Dropdown -->
             <div v-if="showCategoryDropdown" class="category-dropdown" @mouseenter="keepCategoryDropdownOpen = true"
-              @mouseleave="closeCategoryDropdown">
-              <div class="category-grid">
+              @mouseleave="closeCategoryDropdown" @click.stop>
+
+              <!-- Categories Grid View -->
+              <div v-if="!showSubcategories" class="category-grid">
                 <template v-if="categories.length > 0">
-                  <a v-for="category in limitedCategories" :key="category.id" :href="getCategoryLink(category)"
-                    class="category-card" @click.prevent="handleCategoryDropdownClick(category)">
+                  <a v-for="category in limitedCategories" :key="category.id" href="#" class="category-card"
+                    @click.prevent.stop="handleCategoryDropdownClick(category)">
                     <span class="category-card-icon">
                       <img :src="getCategoryImage(category)" :alt="category.name" class="category-card-image"
                         @error="handleImageError" />
@@ -42,9 +44,8 @@
 
                 <!-- Fallback Categories when API fails -->
                 <template v-else>
-                  <a v-for="category in limitedFallbackCategories" :key="category.id"
-                    :href="getFallbackCategoryLink(category)" class="category-card"
-                    @click.prevent="handleFallbackCategoryClick(category)">
+                  <a v-for="category in limitedFallbackCategories" :key="category.id" href="#" class="category-card"
+                    @click.prevent.stop="handleCategoryDropdownClick(category)">
                     <span class="category-card-icon">
                       <img :src="category.image" :alt="category.name" class="category-card-image"
                         @error="handleImageError" />
@@ -54,8 +55,56 @@
                 </template>
               </div>
 
-              <!-- View All Button (Optional) -->
-              <div v-if="categories.length > 9 || fallbackCategories.length > 0" class="view-all-container">
+              <!-- Subcategories and Offers View -->
+              <div v-else-if="showSubcategories && selectedCategory" class="subcategory-offers-view">
+                <!-- Back Button and Category Header -->
+                <div class="subcategory-header">
+                  <button class="back-button" @click.stop="handleBackToCategories">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                      <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                    </svg>
+                    Back to Categories
+                  </button>
+                  <h3 class="selected-category-name">{{ selectedCategory.name }}</h3>
+                </div>
+
+                <div class="subcategory-offers-content">
+                  <!-- Subcategories Section -->
+                  <div v-if="getCategorySubCategories(selectedCategory).length > 0" class="subcategories-section">
+                    <h4 class="section-title">Shop by Subcategory</h4>
+                    <div class="subcategories-grid">
+                      <NuxtLink v-for="subCategory in getCategorySubCategories(selectedCategory)" :key="subCategory.id"
+                        :to="subCategory.link || getCategoryLink(subCategory)" class="subcategory-card"
+                        @click.prevent.stop="handleDropdownSubCategoryClick(subCategory, selectedCategory)">
+                        <span class="subcategory-card-icon">
+                          <img :src="getCategoryImage(subCategory)" :alt="subCategory.name"
+                            class="subcategory-card-image" @error="handleImageError" />
+                        </span>
+                        <span class="subcategory-name">{{ subCategory.name }}</span>
+                      </NuxtLink>
+                    </div>
+                  </div>
+
+                  <!-- Offers Section -->
+                  <div v-if="getCategoryOffers(selectedCategory).length > 0" class="offers-section">
+                    <h4 class="section-title">Hot Deals & Offers</h4>
+                    <div class="offers-grid">
+                      <NuxtLink v-for="offer in getCategoryOffers(selectedCategory)" :key="offer.id" :to="offer.link"
+                        class="offer-card" @click.prevent.stop="handleOfferClick(offer)">
+                        <div class="offer-discount">{{ offer.discount }}</div>
+                        <div class="offer-content">
+                          <h5 class="offer-title">{{ offer.title }}</h5>
+                          <p class="offer-description">{{ offer.description }}</p>
+                        </div>
+                      </NuxtLink>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- View All Button (Only show on categories view) -->
+              <div v-if="!showSubcategories && (categories.length > 9 || fallbackCategories.length > 0)"
+                class="view-all-container">
                 <NuxtLink to="/shop-all" class="view-all-button" @click="closeCategoryDropdown">
                   <span>View All Categories</span>
                   <svg viewBox="0 0 256 256" width="16" height="16">
@@ -98,16 +147,16 @@
                       <template v-for="subCategory in category.subCategories" :key="subCategory.id">
                         <div class="mega-column">
                           <!-- Sub Category -->
-                          <NuxtLink :to="getCategoryLink({ ...subCategory, parentCategory: category.name })" class="subcategory-title"
-                            @click="handleSubCategoryClick">
+                          <NuxtLink :to="getCategoryLink({ ...subCategory, parentCategory: category.name })"
+                            class="subcategory-title" @click="handleSubCategoryClick">
                             {{ subCategory.name }}
                           </NuxtLink>
 
                           <!-- Sub Sub Categories -->
                           <div v-if="subCategory.subSubCategories?.length" class="subsubcategory-list">
                             <NuxtLink v-for="subSubCategory in subCategory.subSubCategories" :key="subSubCategory.id"
-                              :to="getCategoryLink({ ...subSubCategory, parentCategory: category.name })" class="subsubcategory-item"
-                              @click="handleSubCategoryClick">
+                              :to="getCategoryLink({ ...subSubCategory, parentCategory: category.name })"
+                              class="subsubcategory-item" @click="handleSubCategoryClick">
                               {{ subSubCategory.name }}
                             </NuxtLink>
                           </div>
@@ -331,8 +380,8 @@
         <div class="mobile-search-container" v-if="isMobile">
           <div class="mobile-search-wrapper">
             <input type="text" v-model="mobileSearchQuery" @input="handleMobileSearchInput"
-              @keydown.enter.prevent="performMobileSearchSubmit" class="mobile-search-input" placeholder="Search products..."
-              autocomplete="off" aria-label="Search products">
+              @keydown.enter.prevent="performMobileSearchSubmit" class="mobile-search-input"
+              placeholder="Search products..." autocomplete="off" aria-label="Search products">
 
             <button type="button" @click="performMobileSearchSubmit" class="mobile-search-button"
               :disabled="mobileSearchLoading" aria-label="Search">
@@ -685,6 +734,8 @@ const sidebarSearchInput = ref(null)
 // New State Variables for Category Dropdown
 const showCategoryDropdown = ref(false)
 const keepCategoryDropdownOpen = ref(false)
+const selectedCategory = ref(null)
+const showSubcategories = ref(false)
 let clickOutsideHandler = null
 
 // ==================== FALLBACK CATEGORIES ====================
@@ -694,15 +745,37 @@ const fallbackCategories = ref([
     name: 'Electronics',
     image: '/assets/images/categories/electronics.png',
     link: '/shop-all?category=Electronics',
+    offers: [
+      {
+        id: 1001,
+        title: 'Up to 50% Off on Smartphones',
+        description: 'Get amazing deals on latest smartphones',
+        discount: '50%',
+        link: '/shop-all?category=Smartphones&offer=smartphones50'
+      },
+      {
+        id: 1002,
+        title: 'Buy 1 Get 1 on Laptops',
+        description: 'Special offer on gaming laptops',
+        discount: 'BOGO',
+        link: '/shop-all?category=Laptops&offer=bogo'
+      },
+      {
+        id: 1003,
+        title: '30% Off on Smart TVs',
+        description: 'Big savings on premium TVs',
+        discount: '30%',
+        link: '/shop-all?category=Smart TVs&offer=tv30'
+      }
+    ],
     subCategoriesFallback: [
       {
         id: 101,
-        name: 'Mobiles',
-        link: '/shop-all?category=Mobiles',
+        name: 'Smartphones',
+        link: '/shop-all?category=Smartphones',
         subSubCategories: [
-          { id: 1001, name: 'Smartphones', link: '/shop-all?category=Smartphones' },
-          { id: 1002, name: 'Feature Phones', link: '/shop-all?category=Feature Phones' },
-          { id: 1003, name: 'Tablets', link: '/shop-all?category=Tablets' }
+          { id: 1001, name: 'Feature Phones', link: '/shop-all?category=Feature Phones' },
+          { id: 1002, name: 'Tablets', link: '/shop-all?category=Tablets' }
         ]
       },
       {
@@ -710,9 +783,8 @@ const fallbackCategories = ref([
         name: 'Laptops',
         link: '/shop-all?category=Laptops',
         subSubCategories: [
-          { id: 1004, name: 'Gaming Laptops', link: '/shop-all?category=Gaming Laptops' },
-          { id: 1005, name: 'Ultrabooks', link: '/shop-all?category=Ultrabooks' },
-          { id: 1006, name: 'Business Laptops', link: '/shop-all?category=Business Laptops' }
+          { id: 2001, name: 'Gaming Laptops', link: '/shop-all?category=Gaming Laptops' },
+          { id: 2002, name: 'Business Laptops', link: '/shop-all?category=Business Laptops' }
         ]
       },
       {
@@ -720,9 +792,8 @@ const fallbackCategories = ref([
         name: 'TVs',
         link: '/shop-all?category=TVs',
         subSubCategories: [
-          { id: 1007, name: 'Smart TVs', link: '/shop-all?category=Smart TVs' },
-          { id: 1008, name: 'LED TVs', link: '/shop-all?category=LED TVs' },
-          { id: 1009, name: 'OLED TVs', link: '/shop-all?category=OLED TVs' }
+          { id: 3001, name: 'Smart TVs', link: '/shop-all?category=Smart TVs' },
+          { id: 3002, name: 'LED TVs', link: '/shop-all?category=LED TVs' }
         ]
       },
       {
@@ -762,41 +833,68 @@ const fallbackCategories = ref([
     name: 'Fashion',
     image: '/assets/images/categories/fashion.png',
     link: '/shop-all?category=Fashion',
+    offers: [
+      {
+        id: 2001,
+        title: 'Flat 40% Off on T-Shirts',
+        description: 'Stylish collection for men',
+        discount: '40%',
+        link: '/shop-all?category=T-Shirts&offer=tshirts40'
+      },
+      {
+        id: 2002,
+        title: 'Buy 2 Get 1 on Jeans',
+        description: 'Latest fashion trends',
+        discount: 'B2G1',
+        link: '/shop-all?category=Jeans&offer=jeansb2g1'
+      },
+      {
+        id: 2003,
+        title: 'Up to 60% Off on Casual Shoes',
+        description: 'Comfortable and stylish',
+        discount: '60%',
+        link: '/shop-all?category=Casual Shoes&offer=shoes60'
+      }
+    ],
     subCategoriesFallback: [
       {
         id: 201,
-        name: 'Men',
-        link: '/shop-all?category=Men',
+        name: 'T-Shirts',
+        link: '/shop-all?category=T-Shirts',
         subSubCategories: [
-          { id: 2001, name: 'T-Shirts', link: '/shop-all?category=T-Shirts' },
-          { id: 2002, name: 'Shirts', link: '/shop-all?category=Shirts' },
-          { id: 2003, name: 'Jeans', link: '/shop-all?category=Jeans' },
-          { id: 2004, name: 'Footwear', link: '/shop-all?category=Footwear' }
+          { id: 2001, name: 'Kurtas', link: '/shop-all?category=Kurtas' },
+          { id: 2002, name: 'Sweatshirts', link: '/shop-all?category=Sweatshirts' }
         ]
       },
       {
         id: 202,
-        name: 'Women',
-        link: '/shop-all?category=Women',
+        name: 'Jeans',
+        link: '/shop-all?category=Jeans',
         subSubCategories: [
-          { id: 2005, name: 'Dresses', link: '/shop-all?category=Dresses' },
-          { id: 2006, name: 'Tops', link: '/shop-all?category=Tops' },
-          { id: 2007, name: 'Jeans', link: '/shop-all?category=Jeans' },
-          { id: 2008, name: 'Footwear', link: '/shop-all?category=Footwear' }
+          { id: 2005, name: 'Trousers', link: '/shop-all?category=Trousers' },
+          { id: 2006, name: 'Shorts', link: '/shop-all?category=Shorts' }
         ]
       },
       {
         id: 203,
-        name: 'Kids',
-        link: '/shop-all?category=Kids',
+        name: 'Casual Shoes',
+        link: '/shop-all?category=Casual Shoes',
         subSubCategories: [
-          { id: 2009, name: 'Boys Clothing', link: '/shop-all?category=Boys Clothing' },
-          { id: 2010, name: 'Girls Clothing', link: '/shop-all?category=Girls Clothing' },
-          { id: 2011, name: 'Toys', link: '/shop-all?category=Toys' }
+          { id: 2009, name: 'Sports Shoes', link: '/shop-all?category=Sports Shoes' },
+          { id: 2010, name: 'Sandals', link: '/shop-all?category=Sandals' }
         ]
       },
       {
         id: 204,
+        name: 'Watches',
+        link: '/shop-all?category=Watches',
+        subSubCategories: [
+          { id: 2011, name: 'Sunglasses', link: '/shop-all?category=Sunglasses' },
+          { id: 2012, name: 'Belts', link: '/shop-all?category=Belts' }
+        ]
+      },
+      {
+        id: 205,
         name: 'Accessories',
         link: '/shop-all?category=Accessories',
         subSubCategories: [
@@ -833,68 +931,55 @@ const fallbackCategories = ref([
     name: 'Home & Kitchen',
     image: '/assets/images/categories/home-kitchen.png',
     link: '/shop-all?category=Home%20%26%20Kitchen',
+    offers: [
+      {
+        id: 3001,
+        title: '35% Off on Winterwear',
+        description: 'Premium winter collection',
+        discount: '35%',
+        link: '/shop-all?category=Jackets&offer=jackets35'
+      },
+      {
+        id: 3002,
+        title: 'Activewear Mega Sale',
+        description: 'Sports and fitness essentials',
+        discount: '45%',
+        link: '/shop-all?category=Activewear&offer=activewear45'
+      },
+      {
+        id: 3003,
+        title: 'Buy 1 Get 1 on Accessories',
+        description: 'Fashion accessories',
+        discount: 'BOGO',
+        link: '/shop-all?category=Watches&offer=watchesbogo'
+      }
+    ],
     subCategoriesFallback: [
       {
         id: 301,
-        name: 'Furniture',
-        link: '/shop-all?category=Furniture',
+        name: 'Jackets',
+        link: '/shop-all?category=Jackets',
         subSubCategories: [
-          { id: 3001, name: 'Sofas', link: '/shop-all?category=Sofas' },
-          { id: 3002, name: 'Beds', link: '/shop-all?category=Beds' },
-          { id: 3003, name: 'Dining Tables', link: '/shop-all?category=Dining Tables' },
-          { id: 3004, name: 'Wardrobes', link: '/shop-all?category=Wardrobes' }
+          { id: 3001, name: 'Sweaters', link: '/shop-all?category=Sweaters' },
+          { id: 3002, name: 'Thermals', link: '/shop-all?category=Thermals' }
         ]
       },
       {
         id: 302,
-        name: 'Kitchen Appliances',
-        link: '/shop-all?category=Kitchen Appliances',
+        name: 'Activewear',
+        link: '/shop-all?category=Activewear',
         subSubCategories: [
-          { id: 3005, name: 'Mixer Grinder', link: '/shop-all?category=Mixer Grinder' },
-          { id: 3006, name: 'Cookware', link: '/shop-all?category=Cookware' },
-          { id: 3007, name: 'Microwave', link: '/shop-all?category=Microwave' },
-          { id: 3008, name: 'Refrigerator', link: '/shop-all?category=Refrigerator' }
+          { id: 3005, name: 'Gym Wear', link: '/shop-all?category=Gym Wear' },
+          { id: 3006, name: 'Sports Accessories', link: '/shop-all?category=Sports Accessories' }
         ]
       },
       {
         id: 303,
-        name: 'Home Decor',
-        link: '/shop-all?category=Home Decor',
+        name: 'Watches',
+        link: '/shop-all?category=Watches',
         subSubCategories: [
-          { id: 3009, name: 'Wall Art', link: '/shop-all?category=Wall Art' },
-          { id: 3010, name: 'Curtains', link: '/shop-all?category=Curtains' },
-          { id: 3011, name: 'Cushions', link: '/shop-all?category=Cushions' },
-          { id: 3012, name: 'Lighting', link: '/shop-all?category=Lighting' }
-        ]
-      },
-      {
-        id: 304,
-        name: 'Bed & Bath',
-        link: '/shop-all?category=Bed & Bath',
-        subSubCategories: [
-          { id: 3013, name: 'Bed Sheets', link: '/shop-all?category=Bed Sheets' },
-          { id: 3014, name: 'Towels', link: '/shop-all?category=Towels' },
-          { id: 3015, name: 'Mattresses', link: '/shop-all?category=Mattresses' }
-        ]
-      },
-      {
-        id: 305,
-        name: 'Home Appliances',
-        link: '/shop-all?category=Home Appliances',
-        subSubCategories: [
-          { id: 3016, name: 'Air Conditioner', link: '/shop-all?category=Air Conditioner' },
-          { id: 3017, name: 'Washing Machine', link: '/shop-all?category=Washing Machine' },
-          { id: 3018, name: 'Vacuum Cleaner', link: '/shop-all?category=Vacuum Cleaner' }
-        ]
-      },
-      {
-        id: 306,
-        name: 'Storage',
-        link: '/shop-all?category=Storage',
-        subSubCategories: [
-          { id: 3019, name: 'Containers', link: '/shop-all?category=Containers' },
-          { id: 3020, name: 'Organizers', link: '/shop-all?category=Organizers' },
-          { id: 3021, name: 'Shelves', link: '/shop-all?category=Shelves' }
+          { id: 3009, name: 'Sunglasses', link: '/shop-all?category=Sunglasses' },
+          { id: 3010, name: 'Wallets', link: '/shop-all?category=Wallets' }
         ]
       }
     ]
@@ -904,6 +989,88 @@ const fallbackCategories = ref([
     name: 'Beauty',
     image: '/assets/images/categories/beauty.png',
     link: '/shop-all?category=Beauty',
+    offers: [
+      {
+        id: 4001,
+        title: '25% Off on Face Care',
+        description: 'Premium skincare products',
+        discount: '25%',
+        link: '/shop-all?category=Face Care&offer=face25'
+      },
+      {
+        id: 4002,
+        title: 'Buy 2 Get 1 on Makeup',
+        description: 'Cosmetics and beauty essentials',
+        discount: 'B2G1',
+        link: '/shop-all?category=Makeup&offer=makeupb2g1'
+      },
+      {
+        id: 4003,
+        title: '40% Off on Hair Care',
+        description: 'Hair styling and care products',
+        discount: '40%',
+        link: '/shop-all?category=Hair Care&offer=hair40'
+      }
+    ],
+    subCategoriesFallback: [
+      {
+        id: 401,
+        name: 'Face Care',
+        link: '/shop-all?category=Face Care',
+        subSubCategories: [
+          { id: 4001, name: 'Cleansers', link: '/shop-all?category=Cleansers' },
+          { id: 4002, name: 'Moisturizers', link: '/shop-all?category=Moisturizers' }
+        ]
+      },
+      {
+        id: 402,
+        name: 'Makeup',
+        link: '/shop-all?category=Makeup',
+        subSubCategories: [
+          { id: 4005, name: 'Foundation', link: '/shop-all?category=Foundation' },
+          { id: 4006, name: 'Lipstick', link: '/shop-all?category=Lipstick' }
+        ]
+      },
+      {
+        id: 403,
+        name: 'Hair Care',
+        link: '/shop-all?category=Hair Care',
+        subSubCategories: [
+          { id: 4009, name: 'Shampoo', link: '/shop-all?category=Shampoo' },
+          { id: 4010, name: 'Conditioner', link: '/shop-all?category=Conditioner' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 5,
+    id: 4,
+    name: 'Beauty',
+    image: '/assets/images/categories/beauty.png',
+    link: '/shop-all?category=Beauty',
+    offers: [
+      {
+        id: 4001,
+        title: 'Buy 2 Get 1 on Skincare',
+        description: 'Premium skincare products',
+        discount: 'B2G1',
+        link: '/shop-all?category=Skincare&offer=skincareb2g1'
+      },
+      {
+        id: 4002,
+        title: 'Flat 50% Off on Makeup',
+        description: 'Top makeup brands',
+        discount: '50%',
+        link: '/shop-all?category=Makeup&offer=makeup50'
+      },
+      {
+        id: 4003,
+        title: '30% Off on Haircare',
+        description: 'Professional hair care products',
+        discount: '30%',
+        link: '/shop-all?category=Haircare&offer=haircare30'
+      }
+    ],
     subCategoriesFallback: [
       {
         id: 401,
@@ -975,6 +1142,29 @@ const fallbackCategories = ref([
     name: 'Sports',
     image: '/assets/images/categories/sports.png',
     link: '/shop-all?category=Sports',
+    offers: [
+      {
+        id: 5001,
+        title: '40% Off on Fitness Equipment',
+        description: 'Home gym essentials',
+        discount: '40%',
+        link: '/shop-all?category=Fitness Equipment&offer=fitness40'
+      },
+      {
+        id: 5002,
+        title: 'Buy 1 Get 1 on Sports Shoes',
+        description: 'Running and training shoes',
+        discount: 'BOGO',
+        link: '/shop-all?category=Sports Shoes&offer=shoesbogo'
+      },
+      {
+        id: 5003,
+        title: 'Up to 55% Off on Sports Apparel',
+        description: 'Performance wear for athletes',
+        discount: '55%',
+        link: '/shop-all?category=Sports Apparel&offer=apparel55'
+      }
+    ],
     subCategoriesFallback: [
       {
         id: 501,
@@ -1558,6 +1748,8 @@ const closeCategoryDropdown = () => {
   setTimeout(() => {
     if (!keepCategoryDropdownOpen.value) {
       showCategoryDropdown.value = false
+      selectedCategory.value = null
+      showSubcategories.value = false
     }
   }, 10)
 }
@@ -1566,14 +1758,61 @@ const onCategoryBlur = () => {
   setTimeout(() => {
     if (!keepCategoryDropdownOpen.value) {
       showCategoryDropdown.value = false
+      selectedCategory.value = null
+      showSubcategories.value = false
     }
   }, 100)
 }
 
 const handleCategoryDropdownClick = (category) => {
+  selectedCategory.value = category
+  showSubcategories.value = true
+}
+
+const handleBackToCategories = () => {
+  selectedCategory.value = null
+  showSubcategories.value = false
+}
+
+const handleDropdownSubCategoryClick = (subCategory, parentCategory = null) => {
   showCategoryDropdown.value = false
   keepCategoryDropdownOpen.value = false
-  router.push(getCategoryLink(category))
+  selectedCategory.value = null
+  showSubcategories.value = false
+  const parentCategoryName = parentCategory?.name || ''
+  const subCategoryName = subCategory?.name || ''
+
+  // Use parent category as the primary shop filter to avoid empty results for nested categories.
+  if (parentCategoryName) {
+    router.push({
+      path: '/shop-all',
+      query: {
+        category: parentCategoryName,
+        parent_category: parentCategoryName,
+        ...(subCategoryName ? { subcategory: subCategoryName } : {})
+      }
+    })
+    return
+  }
+
+  const link = getCategoryLink(subCategory)
+  router.push(link)
+}
+
+const handleOfferClick = (offer) => {
+  showCategoryDropdown.value = false
+  keepCategoryDropdownOpen.value = false
+  selectedCategory.value = null
+  showSubcategories.value = false
+  router.push(offer.link)
+}
+
+const getCategoryOffers = (category) => {
+  return category.offers || []
+}
+
+const getCategorySubCategories = (category) => {
+  return category.subCategories || category.subCategoriesFallback || []
 }
 
 // ==================== MENU MANAGEMENT - FIXED HOVER ISSUE ====================
@@ -1612,6 +1851,8 @@ const closeCategoryMenu = () => {
 
 const closeAllMenus = () => {
   showCategoryDropdown.value = false
+  selectedCategory.value = null
+  showSubcategories.value = false
   keepCategoryDropdownOpen.value = false
   closeCategoryMenu()
   showSearchDropdown.value = false
@@ -1965,15 +2206,220 @@ watch(() => route.path, () => {
   top: 100%;
   left: 0;
   margin-top: 8px;
-  width: 400px;
-  max-width: 400px;
-  background: white;
+  width: 520px;
+  max-width: 520px;
+  background: #f7f7f7;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   z-index: 9999;
-  padding: 1rem;
+  padding: 0;
   animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Subcategories and Offers View */
+.subcategory-offers-view {
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Scrollbar Styling for Subcategory/Offers View */
+.subcategory-offers-view::-webkit-scrollbar {
+  width: 4px;
+}
+
+.subcategory-offers-view::-webkit-scrollbar-track {
+  background: #ecedeb;
+  border-radius: 2px;
+}
+
+.subcategory-offers-view::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.subcategory-offers-view::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.subcategory-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+.selected-category-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subcategory-offers-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.subcategories-section,
+.offers-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--main-600);
+  display: inline-block;
+}
+
+.subcategories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.subcategory-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.subcategory-card:hover {
+  background: var(--main-50);
+  border-color: var(--main-300);
+  color: var(--main-700);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.15);
+}
+
+.subcategory-card-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f9fafb;
+}
+
+.subcategory-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.subcategory-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.offer-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #374151;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.offer-card:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.offer-discount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--main-600), var(--main-700));
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.3);
+}
+
+.offer-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.offer-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.offer-description {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .category-grid {
@@ -1982,41 +2428,47 @@ watch(() => route.path, () => {
   gap: 0.5rem;
   max-height: 350px;
   overflow-y: auto;
-  padding-right: 0.25rem;
+  padding: 16px;
 }
 
 .category-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem 0.5rem;
+  padding: 12px 8px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
   color: inherit;
+  background: white;
+  border: 1px solid #e5e7eb;
 }
 
 .category-card:hover {
-  background: white;
-  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.15);
+  background: var(--main-50);
+  border-color: var(--main-300);
   transform: translateY(-2px);
-  border: 1px solid var(--main-200);
+  box-shadow: 0 4px 12px rgba(202, 45, 82, 0.15);
 }
 
 .category-card-icon {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f9fafb;
 }
 
 .category-card-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .category-card-name {
@@ -3079,6 +3531,13 @@ watch(() => route.path, () => {
   flex: 1;
   overflow-y: auto;
   padding: 16px;
+}
+
+/* View All Button Container */
+.view-all-container {
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+  background: white;
 }
 
 /* Recent Searches */
@@ -4468,6 +4927,7 @@ watch(() => route.path, () => {
 /* Mobile: remove search UI from header/menu sidebar.
    Home page now provides a dedicated search bar below header. */
 @media (max-width: 1024px) {
+
   .mobile-search-container,
   .mobile-search-trigger,
   .search-sidebar-overlay,
