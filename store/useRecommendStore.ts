@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useProductGroupApi } from '~/composables/api/useProductGroupApi'
 import type { ProductSort } from '~/types/products'
+import { useRuntimeConfig } from '#app'
 
 // Interface for product filters
 interface ProductFilters {
@@ -13,21 +14,21 @@ interface ProductFilters {
 
 export const useRecommendStore = defineStore('recommend', () => {
   const config = useRuntimeConfig()
-  const graphql = config.public.api?.graphql || null
-  const API_URL_CATEGORY = config.public.api?.categories || null
+  const graphql = (config.public.api as any)?.graphql || null
+  const API_URL_CATEGORY = (config.public.api as any)?.categories || null
 
   // State
   const products = ref([])
   const categories = ref([])
   const isLoading = ref(false)
   const error = ref(null)
-  const pagination = ref({  
+  const pagination = ref({
     currentPage: 1,
     lastPage: 1,
     total: 0,
     perPage: 12
   })
-  
+
   // Cache
   const productsCache = ref({})
   const categoryCache = ref(null)
@@ -37,11 +38,11 @@ export const useRecommendStore = defineStore('recommend', () => {
   // Computed
   const hasProducts = computed(() => products.value.length > 0)
   const hasCategories = computed(() => categories.value.length > 0)
-  
+
   const getAllCategories = computed(() => {
     return categories.value
   })
-  
+
   const getCategoriesWithProducts = computed(() => {
     const cats = categories.value
     return cats.filter(cat => (cat.productCount || 0) > 0)
@@ -128,7 +129,7 @@ export const useRecommendStore = defineStore('recommend', () => {
       timestamp: Date.now()
     }
     lastFetchTime.value[cacheKey] = Date.now()
-    
+
     try {
       localStorage.setItem(`products_cache_${cacheKey}`, JSON.stringify({
         products: data,
@@ -143,23 +144,23 @@ export const useRecommendStore = defineStore('recommend', () => {
   // Main fetch function using useProductGroupApi hook
   const fetchProducts = async (filters: ProductFilters = {}, forceRefresh = false) => {
     const { page = 1, limit = 10, category = null, sortBy = 'popularity' } = filters
-    
+
     try {
       isLoading.value = true
       error.value = null
-      
+
       // Use the product groups API hook to get main products with variants
       // We call it without parameters to get all product groups
       const { data: apiData, loading: apiLoading, error: apiError, refresh } = useProductGroupApi()
-      
+
       // Call the fetch function
       await refresh()
-      
+
       // Wait for loading to complete
       while (apiLoading.value) {
         await new Promise(resolve => setTimeout(resolve, 100))
       }
-      
+
       // Check if we got product group data
       if (apiData.value && Array.isArray(apiData.value) && apiData.value.length > 0) {
         // Process product groups - these are already main products with variants
@@ -172,9 +173,9 @@ export const useRecommendStore = defineStore('recommend', () => {
             productGroup.product?.id,
             `group-${index}` // fallback
           ]
-          
+
           const validId = possibleIds.find(id => id !== undefined && id !== null)
-          
+
           const processed = {
             groupId: validId?.toString() || `group-${index}`,
             name: productGroup.name || productGroup.mainProduct?.name || productGroup.product?.name || 'Unnamed Product',
@@ -193,23 +194,23 @@ export const useRecommendStore = defineStore('recommend', () => {
             },
             variants: productGroup.variants || []
           }
-          
+
           return processed
         })
-        
+
         // Apply category filter if specified
         let filteredProducts = processedProducts
         if (category && typeof category === 'string') {
-          filteredProducts = processedProducts.filter(product => 
+          filteredProducts = processedProducts.filter(product =>
             product.category?.name?.toLowerCase() === category.toLowerCase()
           )
         }
-        
+
         // Apply pagination
         const startIndex = (page - 1) * limit
         const endIndex = startIndex + limit
         const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
-        
+
         products.value = paginatedProducts
         pagination.value = {
           currentPage: page,
@@ -217,8 +218,7 @@ export const useRecommendStore = defineStore('recommend', () => {
           total: filteredProducts.length,
           perPage: limit
         }
-        
-        console.log(`Product groups fetched for category "${category || 'all'}": ${paginatedProducts.length} items`)
+
       } else {
         console.warn('API returned empty product groups array')
         products.value = []
@@ -234,7 +234,7 @@ export const useRecommendStore = defineStore('recommend', () => {
     } catch (err) {
       error.value = err.message
       console.error('Error fetching product groups:', err)
-      
+
       // Set empty state on error
       products.value = []
       pagination.value = {
@@ -243,7 +243,7 @@ export const useRecommendStore = defineStore('recommend', () => {
         total: 0,
         perPage: limit
       }
-      
+
       return products.value
     } finally {
       isLoading.value = false
@@ -262,7 +262,6 @@ export const useRecommendStore = defineStore('recommend', () => {
 
       // Check cache first
       if (!forceRefresh && categoryCache.value && isCacheValid('categories')) {
-        console.log('Using cached categories')
         categories.value = categoryCache.value
         return categories.value
       }
@@ -270,21 +269,19 @@ export const useRecommendStore = defineStore('recommend', () => {
       isLoading.value = true
       error.value = null
 
-      console.log('Fetching categories from API...', API_URL_CATEGORY)
-      
       let response;
       try {
         // Create AbortController for timeout
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
-        response = await fetch(API_URL_CATEGORY, { 
-          signal: controller.signal 
+
+        response = await fetch(API_URL_CATEGORY, {
+          signal: controller.signal
         });
-        
+
         // Clear timeout if request completes
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
@@ -313,13 +310,11 @@ export const useRecommendStore = defineStore('recommend', () => {
           .filter(category => category.name && category.id)
           .sort((a, b) => b.productCount - a.productCount)
 
-        console.log('Processed categories:', allCategories.length)
-        
+
         categories.value = allCategories
         categoryCache.value = allCategories
         lastFetchTime.value['categories'] = Date.now()
-        
-        console.log(`Categories fetched: ${allCategories.length} items`)
+
       } else {
         console.warn('No valid categories data in response')
         categories.value = []
@@ -329,7 +324,7 @@ export const useRecommendStore = defineStore('recommend', () => {
     } catch (err) {
       error.value = err.message
       console.error('Error fetching categories:', err)
-      
+
       categories.value = []
       return categories.value
     } finally {
@@ -340,13 +335,13 @@ export const useRecommendStore = defineStore('recommend', () => {
   // ==================== PRODUCT GETTERS ====================
   const getProductName = (product) => {
     if (!product) return 'Product Name'
-    
+
     return product.name || product.mainProduct?.name || 'Unnamed Product'
   }
 
   const getProductImage = (product, index = 0) => {
     if (!product) return '/assets/images/placeholder.jpg'
-    
+
     // Try API image first
     const primaryImage = product?.mainProduct?.images?.find(img => img.isPrimary)
     if (primaryImage?.imageUrl) {
@@ -381,16 +376,16 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   const getOriginalPrice = (product) => {
     if (!product) return 0
-    
+
     const price = product?.mainProduct?.price || product?.price || 0
     return parseFloat(price) || 0
   }
 
   const getDiscountedPrice = (product) => {
     const originalPrice = getOriginalPrice(product)
-    
+
     const discountValue = product?.mainProduct?.discountValue || product?.discountValue || 0
-    
+
     if (discountValue > 0 && discountValue <= 100) {
       const discounted = originalPrice - (originalPrice * discountValue / 100)
       return Math.max(0, Math.round(discounted))
@@ -400,10 +395,10 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   const getProductRating = (product) => {
     if (!product) return 4.0
-    
+
     const reviews = product?.mainProduct?.reviews || []
     if (reviews.length === 0) return 4.0 + Math.random() * 0.5
-    
+
     const totalRating = reviews.reduce((sum, review) => sum + (parseFloat(review.rating) || 0), 0)
     const average = totalRating / reviews.length
     return parseFloat(average.toFixed(1))
@@ -411,13 +406,13 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   const getReviewCount = (product) => {
     if (!product) return Math.floor(Math.random() * 100) + 5
-    
+
     return product?.mainProduct?.reviews?.length || Math.floor(Math.random() * 100) + 5
   }
 
   const getProductStock = (product) => {
     if (!product) return Math.floor(Math.random() * 50) + 10
-    
+
     return product?.mainProduct?.stock || product?.stock || Math.floor(Math.random() * 50) + 10
   }
 
@@ -430,7 +425,7 @@ export const useRecommendStore = defineStore('recommend', () => {
   const getDiscountPercentage = (product) => {
     const originalPrice = getOriginalPrice(product)
     const discountedPrice = getDiscountedPrice(product)
-    
+
     if (originalPrice > 0 && discountedPrice < originalPrice) {
       const discount = ((originalPrice - discountedPrice) / originalPrice) * 100
       return Math.round(discount)
@@ -440,7 +435,7 @@ export const useRecommendStore = defineStore('recommend', () => {
 
   const isBestSeller = (product) => {
     if (!product) return false
-    
+
     const popularity = product?.mainProduct?.popularity || product?.popularity || Math.floor(Math.random() * 100)
     return popularity > 80
   }
@@ -450,17 +445,17 @@ export const useRecommendStore = defineStore('recommend', () => {
     try {
       // Fetch categories first
       await fetchCategories()
-      
+
       // Load initial products
       await fetchProducts({ sortBy: 'popularity' })
-      
-      return { 
+
+      return {
         success: true
       }
     } catch (err) {
       console.error('Initialize failed:', err)
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: err.message
       }
     }
@@ -473,7 +468,7 @@ export const useRecommendStore = defineStore('recommend', () => {
     isLoading,
     error,
     pagination,
-    
+
     // Computed
     hasProducts,
     hasCategories,
@@ -483,7 +478,7 @@ export const useRecommendStore = defineStore('recommend', () => {
     // Actions
     fetchProducts,
     fetchCategories,
-    
+
     // Product Getters
     getProductName,
     getProductImage,
@@ -495,7 +490,7 @@ export const useRecommendStore = defineStore('recommend', () => {
     hasDiscount,
     getDiscountPercentage,
     isBestSeller,
-    
+
     // Initialization
     initialize
   }

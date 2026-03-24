@@ -84,21 +84,6 @@
                       </NuxtLink>
                     </div>
                   </div>
-
-                  <!-- Offers Section -->
-                  <div v-if="getCategoryOffers(selectedCategory).length > 0" class="offers-section">
-                    <h4 class="section-title">Hot Deals & Offers</h4>
-                    <div class="offers-grid">
-                      <NuxtLink v-for="offer in getCategoryOffers(selectedCategory)" :key="offer.id" :to="offer.link"
-                        class="offer-card" @click.prevent.stop="handleOfferClick(offer)">
-                        <div class="offer-discount">{{ offer.discount }}</div>
-                        <div class="offer-content">
-                          <h5 class="offer-title">{{ offer.title }}</h5>
-                          <p class="offer-description">{{ offer.description }}</p>
-                        </div>
-                      </NuxtLink>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -1251,6 +1236,12 @@ const mobileTabs = [
     icon: 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'
   },
   {
+    name: 'offers',
+    label: 'Offers',
+    route: '/offers',
+    icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'
+  },
+  {
     name: 'cart',
     label: 'Cart',
     route: '/cart',
@@ -1282,6 +1273,12 @@ const desktopTabs = [
     label: 'Shop',
     route: '/shop-all',
     icon: 'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'
+  },
+  {
+    name: 'offers',
+    label: 'Offers',
+    route: '/offers',
+    icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'
   },
   {
     name: 'cart',
@@ -1765,8 +1762,18 @@ const onCategoryBlur = () => {
 }
 
 const handleCategoryDropdownClick = (category) => {
-  selectedCategory.value = category
-  showSubcategories.value = true
+  showCategoryDropdown.value = false
+  keepCategoryDropdownOpen.value = false
+  selectedCategory.value = null
+  showSubcategories.value = false
+
+  // Redirect to offers page with category filter
+  router.push({
+    path: '/offers',
+    query: {
+      category: category.slug || category.name
+    }
+  })
 }
 
 const handleBackToCategories = () => {
@@ -1779,33 +1786,17 @@ const handleDropdownSubCategoryClick = (subCategory, parentCategory = null) => {
   keepCategoryDropdownOpen.value = false
   selectedCategory.value = null
   showSubcategories.value = false
-  const parentCategoryName = parentCategory?.name || ''
-  const subCategoryName = subCategory?.name || ''
 
-  // Use parent category as the primary shop filter to avoid empty results for nested categories.
-  if (parentCategoryName) {
-    router.push({
-      path: '/shop-all',
-      query: {
-        category: parentCategoryName,
-        parent_category: parentCategoryName,
-        ...(subCategoryName ? { subcategory: subCategoryName } : {})
-      }
-    })
-    return
-  }
-
-  const link = getCategoryLink(subCategory)
-  router.push(link)
+  // Redirect to offers page with category and subcategory filters
+  router.push({
+    path: '/offers',
+    query: {
+      category: parentCategory?.slug || parentCategory?.name || subCategory.slug || subCategory.name,
+      subcategory: subCategory.slug || subCategory.name
+    }
+  })
 }
 
-const handleOfferClick = (offer) => {
-  showCategoryDropdown.value = false
-  keepCategoryDropdownOpen.value = false
-  selectedCategory.value = null
-  showSubcategories.value = false
-  router.push(offer.link)
-}
 
 const getCategoryOffers = (category) => {
   return category.offers || []

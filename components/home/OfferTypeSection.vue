@@ -16,7 +16,19 @@
     <div class="row g-16 d-none d-md-flex">
       <div v-for="(offer, index) in validOffers.slice(0, showAll ? validOffers.length : 4)" :key="offer.id"
         class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <OfferCard :offer="offer" :theme="theme" />
+        <div class="offer-card-desktop">
+          <NuxtLink :to="`/shop-all?offer=${encodeURIComponent(offer.name)}`" class="offer-card-link">
+            <div class="offer-card-image">
+              <img v-if="getOfferImage(offer)" :src="getOfferImage(offer)" :alt="offer.name" class="offer-full-image" />
+              <div v-else class="offer-full-placeholder">
+                <i class="ph ph-gift"></i>
+              </div>
+            </div>
+            <div class="offer-card-name">
+              {{ offer.name }}
+            </div>
+          </NuxtLink>
+        </div>
       </div>
     </div>
 
@@ -53,7 +65,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Offer } from '~/types/offers'
-import OfferCard from './OfferCard.vue'
 
 interface Props {
   type: string
@@ -208,6 +219,75 @@ const formatDiscountText = (offer: any) => {
     height: 40px;
     font-size: 1.25rem;
   }
+}
+
+/* Desktop Offer Card Styles */
+.offer-card-desktop {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  height: 100%;
+}
+
+.offer-card-desktop:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: #CA2D52;
+}
+
+.offer-card-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.offer-card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.offer-card-image {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.offer-full-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.offer-card-desktop:hover .offer-full-image {
+  transform: scale(1.05);
+}
+
+.offer-full-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #94a3b8;
+  font-size: 2rem;
+}
+
+.offer-card-name {
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+  background: white;
 }
 
 /* Mobile Section Grid Styles */

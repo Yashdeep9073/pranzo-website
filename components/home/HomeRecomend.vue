@@ -155,15 +155,21 @@ import { useRecommendStore } from '../../store/useRecommendStore'
 import { useWishlistStore } from '../../store/useWishlistStore'
 import { useToast } from "vue-toastification"
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { useCart } from '~/composables/api/useCart'
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 
 /* Import Swiper styles */
 import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+import { useCart } from '~/composables/api/useCart'
 
 const toast = useToast()
 const recommendStore = useRecommendStore()
 const wishlistStore = useWishlistStore()
 const { addToCart } = useCart()
+
+// Swiper modules
+const swiperModules = [Navigation, Pagination, Autoplay]
 
 // State
 const activeTab = ref('all')

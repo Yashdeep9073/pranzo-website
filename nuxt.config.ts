@@ -110,7 +110,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE,
+      apiBase: process.env.NUXT_PUBLIC_API_BASE, // top‑level API base
       api: {
         media: process.env.VITE_API_MEDIA,
         categories: process.env.VITE_API_CATEGORIES,

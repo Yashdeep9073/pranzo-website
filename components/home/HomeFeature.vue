@@ -16,36 +16,18 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Categories Swiper - Show ALL Categories (Desktop) -->
-        <swiper 
-          v-else
-          ref="swiperRef"
-          :modules="modules"
-          :slides-per-view="slidesPerView"
-          :space-between="10"
-          :loop="categories.length > slidesPerView"
-          :navigation="{
+        <swiper v-else ref="swiperRef" :modules="modules" :slides-per-view="slidesPerView" :space-between="10"
+          :loop="categories.length > slidesPerView" :navigation="{
             nextEl: '.slick-next',
             prevEl: '.slick-prev'
-          }"
-          :breakpoints="breakpoints"
-          class="feature-item-wrapper desktop-categories"
-        >
+          }" :breakpoints="breakpoints" class="feature-item-wrapper desktop-categories">
           <!-- Category Slides - ALL categories -->
-          <swiper-slide
-            v-for="category in categories"
-            :key="category.id"
-            class="feature-item text-center"
-          >
+          <swiper-slide v-for="category in categories" :key="category.id" class="feature-item text-center">
             <div class="feature-item__thumb rounded-circle">
               <NuxtLink :to="getCategoryLink(category)" class="w-100 h-100 flex-center">
-                <img 
-                  :src="getCategoryImage(category)"  
-                  :alt="category.name"
-                  @error="handleImageError"
-                  loading="lazy"
-                />
+                <img :src="getCategoryImage(category)" :alt="category.name" @error="handleImageError" loading="lazy" />
               </NuxtLink>
             </div>
             <div class="feature-item__content mt-16">
@@ -61,42 +43,26 @@
 
     <!-- Mobile Swiper Layout (325px and above) -->
     <div v-if="!isLoading && categories.length > 0" class="mobile-deals-swiper">
-      <swiper
-        :modules="modules"
-        :slides-per-view="3.5"
-        :space-between="12"
-        :loop="false"
-        :direction="'horizontal'"
-        :rtl="false"
-        class="deal-swiper"
-      >
+      <swiper :modules="modules" :slides-per-view="3.5" :space-between="12" :loop="false" :direction="'horizontal'"
+        :rtl="false" class="deal-swiper">
         <!-- Individual category slides -->
-        <swiper-slide
-          v-for="category in categories"
-          :key="category.id"
-        >
-         <NuxtLink
-           :to="getCategoryLink(category)"
-           class="deal-card"
-         >
-           <!-- Circular Background Image -->
-           <div
-             class="deal-bg"
-             :style="{
-               backgroundImage: `url(${getCategoryImage(category)})` 
-             }"
-           ></div>
+        <swiper-slide v-for="category in categories" :key="category.id">
+          <NuxtLink :to="getCategoryLink(category)" class="deal-card">
+            <!-- Circular Background Image -->
+            <div class="deal-bg" :style="{
+              backgroundImage: `url(${getCategoryImage(category)})`
+            }"></div>
 
-           <!-- Count badge -->
-           <div class="deal-count">
-             {{ category.productCount || 0 }}+
-           </div>
+            <!-- Count badge -->
+            <div class="deal-count">
+              {{ category.productCount || 0 }}+
+            </div>
 
-           <!-- Name -->
-           <div class="deal-name">
-             {{ category.name }}
-           </div>
-         </NuxtLink>
+            <!-- Name -->
+            <div class="deal-name">
+              {{ category.name }}
+            </div>
+          </NuxtLink>
         </swiper-slide>
       </swiper>
     </div>
@@ -132,7 +98,7 @@ const breakpoints = {
   320: { slidesPerView: 2.6 },
   576: { slidesPerView: 3.6 },
   768: { slidesPerView: 4.6 },
-  992: { slidesPerView: 5.6},
+  992: { slidesPerView: 5.6 },
   1200: { slidesPerView: 6.6 },
   1400: { slidesPerView: 7.6 }
 }
@@ -154,9 +120,9 @@ const chunkedCategories = computed(() => {
 const loadCategories = async () => {
   try {
     isLoading.value = true
-    
+
     // Fetch categories using the store method
-    const result = await productStore.fetchCategoriesWithNestedData() 
+    const result = await productStore.fetchCategoriesWithNestedData()
     if (result.categories && result.categories.length > 0) {
       // Process ALL categories - NO FILTERING
       categories.value = result.categories
@@ -170,10 +136,10 @@ const loadCategories = async () => {
           link: '/shop-all',
           fallbackImage: getFallbackImage(category.name)
         }))
-        
-      
+
+
       // Use only backend categories - no fallback additions
-      
+
     } else {
       // Use fallback categories if API fails
       categories.value = productStore.categories.map(item => ({
@@ -185,7 +151,7 @@ const loadCategories = async () => {
         fallbackImage: item.image
       }))
     }
-    
+
   } catch (error) {
     // Use fallback on error
     categories.value = productStore.categories.map(item => ({
@@ -207,14 +173,14 @@ const getCategoryImage = (category) => {
   if (category.image && category.image !== 'null') {
     return category.image
   }
-  
+
   // Second priority: Logo
   if (category.logo && category.logo !== 'null') {
     return category.logo
   }
-  
+
   // Third priority: Fallback image
-  return category.fallbackImage || getFallbackImage(category.name)
+  return category.fallbackImage || '/assets/images/categories/default-category.png'
 }
 
 // Get category link
@@ -226,8 +192,7 @@ const getCategoryLink = (category) => {
 const handleImageError = (event) => {
   const imgElement = event.target
   if (!imgElement.dataset.fallbackSet) {
-    const categoryName = imgElement.alt || ''
-    imgElement.src = getFallbackImage(categoryName)
+    imgElement.style.display = 'none'
     imgElement.dataset.fallbackSet = 'true'
   }
 }
@@ -236,8 +201,7 @@ const handleImageError = (event) => {
 const handleMobileImageError = (event) => {
   const imgElement = event.target
   if (!imgElement.dataset.fallbackSet) {
-    const categoryName = imgElement.alt || ''
-    imgElement.src = getFallbackImage(categoryName)
+    imgElement.style.display = 'none'
     imgElement.classList.add('error-fallback')
     imgElement.dataset.fallbackSet = 'true'
   }
@@ -267,7 +231,7 @@ const handleResize = () => {
 // Initialize on mount
 onMounted(async () => {
   await loadCategories()
-  
+
   if (typeof window !== 'undefined') {
     handleResize()
     window.addEventListener('resize', handleResize)
@@ -280,7 +244,7 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', handleResize)
   }
 })
-</script> 
+</script>
 
 <style scoped>
 /* Desktop Categories Styling */
@@ -379,19 +343,23 @@ onBeforeUnmount(() => {
   opacity: 0.3;
   cursor: not-allowed;
 }
+
 .skeleton-container {
   padding: 20px 0;
 }
+
 .skeleton-slider {
   display: flex;
   gap: 20px;
   overflow: hidden;
 }
+
 .skeleton-item {
   flex: 0 0 auto;
   width: 120px;
   text-align: center;
 }
+
 .skeleton-image {
   width: 120px;
   height: 120px;
@@ -399,96 +367,106 @@ onBeforeUnmount(() => {
   background: #f3f4f6;
   margin: 0 auto 16px;
 }
+
 .skeleton-text {
   height: 16px;
   background: #f3f4f6;
   border-radius: 4px;
   margin: 8px auto;
 }
+
 .skeleton-text:first-of-type {
   width: 80%;
 }
+
 .shimmer {
   background: linear-gradient(90deg, #f3f4f6 25%, #ecedeb 50%, #f3f4f6 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* MOBILE DEALS SWIPER LAYOUT - 325px and above */
 @media (min-width: 320px) and (max-width: 576px) {
+
   /* Hide desktop categories on mobile */
   .desktop-categories {
     display: none !important;
   }
-  
+
   /* Show mobile deals swiper */
   .mobile-deals-swiper {
     display: block;
     padding: 7px 0;
   }
-  
+
   /* Deal swiper styling */
-.deal-swiper {
-  padding: 7px;
-}
+  .deal-swiper {
+    padding: 7px;
+  }
 
-/* Card */
-.deal-card {
-  position: relative;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-  text-decoration: none;
-  background: transparent;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-}
+  /* Card */
+  .deal-card {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    text-decoration: none;
+    background: transparent;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+  }
 
-/* Circular image container */
-.deal-card .deal-bg {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  position: relative;
-  margin-bottom: 6px;
-}
+  /* Circular image container */
+  .deal-card .deal-bg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 6px;
+  }
 
-/* Background image */
-.deal-bg {
-  position: relative;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: brightness(0.95);
-}
+  /* Background image */
+  .deal-bg {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.95);
+  }
 
-.deal-count {
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  margin-bottom: 3px;
-  text-align: center;
-}
+  .deal-count {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-bottom: 3px;
+    text-align: center;
+  }
 
-/* Name */
-.deal-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  line-height: 1.2;
-  margin-bottom: 0;
-}
+  /* Name */
+  .deal-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 0;
+  }
 
 }
 
@@ -497,25 +475,25 @@ onBeforeUnmount(() => {
   .mobile-deals-grid {
     padding: 7px;
   }
-  
+
   /* .desktop-categories {
     display: block !important;
   } */
-  
+
   .feature-item__thumb {
     width: 80px;
     height: 80px;
   }
-  
+
   .skeleton-item {
     width: 80px;
   }
-  
+
   .skeleton-image {
     width: 80px;
     height: 80px;
   }
-  
+
   .flex-align {
     position: relative;
     top: 0;

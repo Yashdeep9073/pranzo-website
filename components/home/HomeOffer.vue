@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="header-subtitle">
-        <span class="discount-badge">Up to {{ maxDiscountPercentage }}% off</span> 
+        <span class="discount-badge">Up to {{ maxDiscountPercentage }}% off</span>
       </div>
     </div>
 
@@ -52,50 +52,32 @@
         <div ref="swiper" class="swiper">
           <div class="swiper-wrapper">
             <!-- All deals are now from displayDeals array -->
-            <div 
-              v-for="(deal, index) in displayDeals" 
-              :key="deal.id"
-              class="swiper-slide"
-            >
-              <NuxtLink
-                :to="deal.link"
-                class="deal-card"
-              >
+            <div v-for="(deal, index) in displayDeals" :key="deal.id" class="swiper-slide">
+              <NuxtLink :to="deal.link" class="deal-card">
                 <div class="deal-image-container" :class="{ 'bank-card': deal.type === 'bank' }">
                   <!-- Bank Card with Background Image -->
                   <div v-if="deal.type === 'bank'" class="bank-offer-bg">
-                    <img 
-                      :src="deal.image" 
-                      :alt="deal.title"
-                      class="bank-background-image"
-                      loading="lazy"
-                      @error="handleImageError($event, index)"
-                    />
+                    <img :src="deal.image" :alt="deal.title" class="bank-background-image" loading="lazy"
+                      @error="handleImageError($event, index)" />
                     <div class="bank-offer-overlay">
                       <div class="bank-name">{{ deal.bankName || '' }}</div>
                       <div class="bank-offer">{{ deal.offer || '' }}</div>
                     </div>
                   </div>
-                  
+
                   <!-- Regular Image Card -->
-                  <img 
-                    v-else
-                    :src="deal.image" 
-                    :alt="deal.title"
-                    class="deal-image"
-                    loading="lazy"
-                    @error="handleImageError($event, index)"
-                  /> 
-                  
+                  <img v-else :src="deal.image" :alt="deal.title" class="deal-image" loading="lazy"
+                    @error="handleImageError($event, index)" />
+
                   <!-- Overlay Gradient for Text Readability -->
                   <div class="image-overlay"></div>
-                  
+
                   <!-- Top Text -->
                   <div class="deal-top-content">
                     <div class="deal-title">{{ deal.title }}</div>
                     <div class="deal-description" v-if="deal.description">{{ deal.description }}</div>
                   </div>
-                  
+
                   <!-- Bottom Content -->
                   <div class="deal-bottom-content">
                     <div class="deal-price" :class="{ 'bank-price': deal.type === 'bank' }">
@@ -115,7 +97,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Show next card peek -->
       <div class="next-card-peek"></div>
     </div>
@@ -156,7 +138,7 @@ const swiper = ref<HTMLElement | null>(null)
 let swiperInstance: Swiper | null = null
 
 // API setup
-const { refresh: fetchOffers, offers: offersResponse } = useOffersApi({ 
+const { refresh: fetchOffers, offers: offersResponse } = useOffersApi({
   isActive: true,
   offerType: 'DEALS_REVEALED',
   limit: 10
@@ -178,24 +160,24 @@ const formatDiscountText = (offer: any) => {
 const getCountdown = (offerId: number) => {
   const offer = offers.value.find(o => o.id === offerId)
   if (!offer || !offer.endDate) return null
-  
+
   const now = new Date().getTime()
   const endTime = new Date(offer.endDate).getTime()
   const startTime = offer.startDate ? new Date(offer.startDate).getTime() : now
-  
+
   const isStarting = startTime > now
   const targetTime = isStarting ? startTime : endTime
   const difference = targetTime - now
-  
+
   if (difference <= 0) {
     return { isExpired: true, days: 0, hours: 0, minutes: 0, seconds: 0, isStarting: false }
   }
-  
+
   const days = Math.floor(difference / (1000 * 60 * 60 * 24))
   const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((difference % (1000 * 60)) / 1000)
-  
+
   return { isExpired: false, days, hours, minutes, seconds, isStarting }
 }
 
@@ -222,11 +204,11 @@ const fetchOfferData = async () => {
     loading.value = true
     error.value = null
     showStaticFallback.value = false
-    
+
     // Fetch offers using the new API
     await fetchOffers()
     offers.value = offersResponse.value
-    
+
     if (offers.value.length > 0) {
       showStaticFallback.value = false
     } else {
@@ -245,7 +227,7 @@ const fetchOfferData = async () => {
 const bestOfferCountdown = computed(() => {
   // Try to get offers from both composables for compatibility
   const allOffers = activeOffers.value || offers.value || []
-  
+
   if (allOffers.length > 0) {
     const bestOffer = allOffers.sort((a, b) => (b.priority || 0) - (a.priority || 0))[0]
     return bestOffer ? getCountdown(bestOffer.id) : null
@@ -273,20 +255,20 @@ const maxDiscountPercentage = computed(() => {
 const displayDeals = computed(() => {
   // Only show DEALS_REVEALED offers
   const filteredOffers = offers.value.filter(offer => offer.offerType === 'DEALS_REVEALED')
-  
+
   if (!showStaticFallback.value && filteredOffers.length > 0) {
     // Use filtered API data if available
     return filteredOffers.slice(0, 6).map(offer => {
       const primaryImage = offer.images?.find((img: any) => img.isPrimary)?.imageUrl || offer.images?.[0]?.imageUrl
-      
+
       // Construct full URL for backend images
       let imageUrl = primaryImage || ''
-      
+
       // If URL is relative, construct full URL
       if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/assets')) {
         imageUrl = `https://api.pranzo.in${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`
       }
-      
+
       // Handle HOT_DEALS offers (displaying as "Deals Revealed")
       return {
         id: offer.id,
@@ -303,7 +285,7 @@ const displayDeals = computed(() => {
       }
     })
   }
-  
+
   // Return empty array if no API data
   return []
 })
@@ -311,7 +293,7 @@ const displayDeals = computed(() => {
 // Handle image loading errors
 const handleImageError = (event: Event, index: number) => {
   const img = event.target as HTMLImageElement
-  
+
   // Remove broken image
   img.style.display = 'none'
 }
@@ -319,7 +301,7 @@ const handleImageError = (event: Event, index: number) => {
 // Initialize Swiper
 const initSwiper = () => {
   if (!swiper.value) return
-  
+
   swiperInstance = new Swiper(swiper.value, {
     modules: [Navigation, Mousewheel, FreeMode],
     slidesPerView: 'auto',
@@ -341,7 +323,7 @@ const initSwiper = () => {
     speed: 400,
     touchRatio: 1,
     grabCursor: true,
-    
+
     breakpoints: {
       320: {
         slidesPerView: 'auto',
@@ -379,10 +361,10 @@ const initSwiper = () => {
 const initComponent = async () => {
   // Don't show static fallback immediately - let API data load first
   showStaticFallback.value = false
-  
+
   // Try to fetch API data
   await fetchOfferData()
-  
+
   // Initialize Swiper after data is loaded
   setTimeout(() => {
     initSwiper()
@@ -392,7 +374,7 @@ const initComponent = async () => {
 // Fetch data on component mount
 onMounted(() => {
   initComponent()
-  
+
   // Set timeout to fallback if API is taking too long
   const fallbackTimeout = setTimeout(() => {
     if (loading.value) {
@@ -400,7 +382,7 @@ onMounted(() => {
       loading.value = false
     }
   }, 2000)
-  
+
   // Cleanup timeout
   return () => clearTimeout(fallbackTimeout)
 })
@@ -415,7 +397,7 @@ onMounted(() => {
     // Retry API in background every 30 seconds
     fetchOfferData()
   }, 30000)
-  
+
   return () => clearInterval(retryInterval)
 })
 
@@ -606,8 +588,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   width: 280px;
-  position: relative; 
-  border: 1px solid #e0e0e0;  
+  position: relative;
+  border: 1px solid #e0e0e0;
 }
 
 .deal-card:hover {
@@ -648,15 +630,13 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(0, 0, 0, 0.3) 30%,
-    transparent 50%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.3) 70%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.3) 30%,
+      transparent 50%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.3) 70%,
+      rgba(0, 0, 0, 0.7) 100%);
   z-index: 1;
 }
 
@@ -819,6 +799,7 @@ onUnmounted(() => {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -830,64 +811,64 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
   }
-  
+
   .swiper {
     overflow: visible !important;
   }
-  
+
   .deals-header {
     padding: 0 16px 16px;
   }
-  
+
   .section-title {
     font-size: 20px;
   }
-  
+
   .timer-display {
     gap: 2px;
   }
-  
+
   .time-unit {
     min-width: 28px;
     padding: 3px 5px;
   }
-  
+
   .time-value {
     font-size: 12px;
   }
-  
+
   .time-label {
     font-size: 10px;
   }
-  
+
   .swiper-container-wrapper {
     padding: 0 16px;
   }
-  
+
   .deal-title {
     font-size: 16px;
   }
-  
+
   .deal-description {
     font-size: 13px;
   }
-  
+
   .current-price {
     font-size: 20px;
   }
-  
+
   .deal-card {
     width: 240px;
   }
-  
+
   .deal-image-container {
     height: 300px;
   }
-  
+
   .bank-card .deal-image-container {
     height: 300px;
   }
-  
+
   .next-card-peek {
     width: 40px;
     right: 16px;
@@ -900,29 +881,29 @@ onUnmounted(() => {
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .deals-timer {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .deal-card {
     width: 220px;
   }
-  
+
   .deal-image-container {
     height: 280px;
   }
-  
+
   .bank-card .deal-image-container {
     height: 280px;
   }
-  
+
   .deal-top-content,
   .deal-bottom-content {
     padding: 16px;
   }
-  
+
   .next-card-peek {
     width: 30px;
   }
@@ -935,7 +916,7 @@ onUnmounted(() => {
 }
 
 /* Momentum scroll styles */
-.swiper-free-mode > .swiper-wrapper {
+.swiper-free-mode>.swiper-wrapper {
   transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 </style>

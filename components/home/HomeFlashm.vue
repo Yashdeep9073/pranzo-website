@@ -3,10 +3,12 @@
   <section class="flash-sales pt-40 pt-md-48 pb-8 overflow-hidden">
     <div class="container container-lg">
       <!-- Loading State -->
+      <p>kgdkgfkgbaekbfbkgbak</p>
       <div v-if="loading" class="row gy-4 arrow-style-two">
         <!-- Loading skeletons... -->
         <div class="col-lg-6">
-          <div class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px h-100">
+          <div
+            class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px h-100">
             <div class="skeleton-image position-absolute top-0 start-0 w-100 h-100"></div>
             <div class="flash-sales-item__content ms-sm-auto p-4">
               <div class="skeleton-title mb-3"></div>
@@ -21,7 +23,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Error State -->
       <div v-else-if="error" class="text-center py-20 py-md-40">
         <div class="alert alert-danger d-inline-block">
@@ -29,128 +31,92 @@
         </div>
         <button @click="fetchFlashSales" class="btn btn-main mt-3">
           Retry
-        </button> 
+        </button>
       </div>
-      
+
       <!-- Main Content -->
       <div v-else-if="displayItems.length > 0">
         <!-- Desktop View (2 cards) -->
         <div class="desktop-view d-none d-lg-block">
           <div class="row gy-4 arrow-style-two">
-            <div 
-              v-for="(advertisement, index) in displayItems" 
-              :key="advertisement.id" 
-              class="col-lg-6" 
-              :data-aos="index === 0 ? 'fade-up' : 'fade-up'"
-              :data-aos-duration="index === 0 ? '600' : '1000'"
-            >
-              <div class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px"
-              :class="imageToneMap[advertisement.id] ? 'dark-image' : 'light-image'">
-                <img 
-                  :src="advertisement.image" 
-                  :alt="advertisement.title"
+            <div v-for="(advertisement, index) in displayItems" :key="advertisement.id" class="col-lg-6"
+              :data-aos="index === 0 ? 'fade-up' : 'fade-up'" :data-aos-duration="index === 0 ? '600' : '1000'">
+              <div
+                class="flash-sales-item rounded-16 overflow-hidden z-1 position-relative flex-align flex-0 justify-content-between gap-8 ps-56-px"
+                :class="imageToneMap[advertisement.id] ? 'dark-image' : 'light-image'">
+                <img :src="advertisement.image" :alt="advertisement.title"
                   class="position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1 flash-sales-item__bg"
-                  loading="lazy"
-                >
-                <div :class="['flash-sales-item__content', index === 0 ? 'ms-sm-auto' : '']"> 
+                  loading="lazy">
+                <div :class="['flash-sales-item__content', index === 0 ? 'ms-sm-auto' : '']">
                   <h6 class="text-32 mb-8">{{ advertisement.title }}</h6>
                   <p :class="index === 0 ? 'text-neutral-500 mb-12' : 'text-heading mb-12'">
                     {{ getDescription(advertisement) }}
                   </p>
                   <div class="countdown">
                     <ul class="countdown-list flex-align flex-wrap">
-                      <li 
-                        v-for="timeUnit in timeUnits" 
-                        :key="timeUnit"
-                        :class="[
-                          'countdown-list__item py-8 px-12 flex-align gap-4 text-sm fw-medium box-shadow-4xl rounded-5',
-                          index === 1 ? 'bg-custom-countdown text-white' : 'text-heading'
-                        ]"
-                      >
-                        <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span> 
+                      <li v-for="timeUnit in timeUnits" :key="timeUnit" :class="[
+                        'countdown-list__item py-8 px-12 flex-align gap-4 text-sm fw-medium box-shadow-4xl rounded-5',
+                        index === 1 ? 'bg-custom-countdown text-white' : 'text-heading'
+                      ]">
+                        <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span>
                         {{ timeUnit.charAt(0).toUpperCase() }}
                       </li>
                     </ul>
                   </div>
-                  <NuxtLink 
-                    to="/shop-all" 
-                    :class="[
-                      'btn d-inline-flex align-items-center rounded-pill gap-8 mt-24',
-                      index === 0 ? 'btn-main' : 'bg-main-600 hover-bg-main-700'
-                    ]"
-                  >
+                  <NuxtLink to="/shop-all" :class="[
+                    'btn d-inline-flex align-items-center rounded-pill gap-8 mt-24',
+                    index === 0 ? 'btn-main' : 'bg-main-600 hover-bg-main-700'
+                  ]">
                     Shop Now
-                    <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span> 
+                    <span class="icon text-xl d-flex"><i class="ph ph-arrow-right"></i></span>
                   </NuxtLink>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Mobile View (Single Swiper) -->
         <div class="mobile-view d-block d-lg-none">
-          <Swiper
-            :modules="[SwiperAutoplay, SwiperPagination]"
-            :slides-per-view="1"
-            :space-between="16"
-            :loop="true"
+          <Swiper :modules="[SwiperAutoplay, SwiperPagination]" :slides-per-view="1" :space-between="16" :loop="true"
             :autoplay="{
               delay: 3000,
               disableOnInteraction: false,
               pauseOnMouseEnter: true
-            } as any"
-            :speed="500"
-            :grab-cursor="true"
-            :pagination="{
+            } as any" :speed="500" :grab-cursor="true" :pagination="{
               clickable: true,
               dynamicBullets: true
-            } as any"
-            class="flash-sales-swiper"
-          >
-            <SwiperSlide
-              v-for="(advertisement, index) in displayItems"
-              :key="advertisement.id"
-              class="pb-40"
-            >
+            } as any" class="flash-sales-swiper">
+            <SwiperSlide v-for="(advertisement, index) in displayItems" :key="advertisement.id" class="pb-40">
               <div class="flash-sales-item rounded-12 rounded-md-16 overflow-hidden z-1 position-relative h-100"
                 :class="imageToneMap[advertisement.id] ? 'dark-image' : 'light-image'">
-                <img 
-                  :src="advertisement.image" 
-                  :alt="advertisement.title"
+                <img :src="advertisement.image" :alt="advertisement.title"
                   class="position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 object-fit-cover z-n1 flash-sales-item__bg"
-                  loading="lazy"
-                >
+                  loading="lazy">
                 <div class="flash-sales-item__content p-16 p-md-24">
                   <h6 class="text-20 text-md-24 text-lg-32 mb-6 mb-md-8 fw-bold">{{ advertisement.title }}</h6>
-                  <p :class="index === 0 ? 'text-neutral-500 mb-8 mb-md-12' : 'text-heading mb-8 mb-md-12 text-sm text-md-base'">
-                    {{ getDescription(advertisement) }} 
+                  <p
+                    :class="index === 0 ? 'text-neutral-500 mb-8 mb-md-12' : 'text-heading mb-8 mb-md-12 text-sm text-md-base'">
+                    {{ getDescription(advertisement) }}
                   </p>
                   <div class="countdown mb-16 mb-md-24">
                     <ul class="countdown-list flex-align flex-wrap gap-4">
-                      <li 
-                        v-for="timeUnit in timeUnits" 
-                        :key="timeUnit"
-                        :class="[
-                          'countdown-list__item py-4 py-md-6 px-8 px-md-10 flex-align gap-2 gap-md-3 text-xs text-md-sm fw-medium box-shadow-4xl rounded-5',
-                          index === 1 ? 'bg-custom-countdown text-white' : 'text-heading bg-white'
-                        ]"
-                      > 
-                        <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span> 
+                      <li v-for="timeUnit in timeUnits" :key="timeUnit" :class="[
+                        'countdown-list__item py-4 py-md-6 px-8 px-md-10 flex-align gap-2 gap-md-3 text-xs text-md-sm fw-medium box-shadow-4xl rounded-5',
+                        index === 1 ? 'bg-custom-countdown text-white' : 'text-heading bg-white'
+                      ]">
+                        <span :class="timeUnit">{{ formatTime(getCountdownValue(index, timeUnit)) }}</span>
                         <span class="d-none d-md-inline">{{ timeUnit.charAt(0).toUpperCase() }}</span>
                         <span class="d-inline d-md-none">{{ timeUnit.charAt(0) }}</span>
                       </li>
                     </ul>
                   </div>
-                  <NuxtLink 
-                    to="/shop-all" 
-                    :class="[
-                      'btn d-inline-flex align-items-center justify-content-center rounded-pill gap-4 gap-md-6 px-4 px-md-5 py-2 py-md-3 text-xs text-md-sm fw-semibold',
-                      index === 0 ? 'btn-main' : 'bg-main-600 hover-bg-main-700 text-white'
-                    ]"
-                  >
+                  <NuxtLink to="/shop-all" :class="[
+                    'btn d-inline-flex align-items-center justify-content-center rounded-pill gap-4 gap-md-6 px-4 px-md-5 py-2 py-md-3 text-xs text-md-sm fw-semibold',
+                    index === 0 ? 'btn-main' : 'bg-main-600 hover-bg-main-700 text-white'
+                  ]">
                     Shop Now
-                    <span class="icon text-base text-md-lg d-flex"><i class="ph ph-arrow-right"></i></span> 
+                    <span class="icon text-base text-md-lg d-flex"><i class="ph ph-arrow-right"></i></span>
                   </NuxtLink>
                 </div>
               </div>
@@ -174,8 +140,8 @@ import 'swiper/css'
 import 'swiper/css/autoplay'
 import 'swiper/css/pagination'
 
-const config = useRuntimeConfig() 
-const API_URL = config.public.api.apiBase + '/common/offers/read?offerType=LIMITED&isActive=true'
+const config = useRuntimeConfig()
+const API_URL = config.public.apiBase + '/common/offers/read?offerType=LIMITED&isActive=true'
 
 
 // Register Swiper modules
@@ -183,7 +149,7 @@ const SwiperAutoplay = Autoplay
 const SwiperPagination = Pagination
 
 // Track dark/light image per ad (by id)
-const imageToneMap = ref<Record<number, boolean>>({}) 
+const imageToneMap = ref<Record<number, boolean>>({})
 
 // Reactive state
 const flashSales = ref<AdvertisementData[]>([])
@@ -218,14 +184,14 @@ const detectImageBrightness = (src: string): Promise<boolean> => {
       if (!data || data.length === 0) return resolve(false)
 
       let brightness = 0
-  
+
       // ensure we don't access undefined indices
       for (let i = 0; i + 2 < data.length; i += 4) {
         const r = data[i] ?? 0
         const g = data[i + 1] ?? 0
         const b = data[i + 2] ?? 0
         brightness += (r + g + b) / 3
-      } 
+      }
       const pixels = Math.max(1, data.length / 4)
       brightness /= pixels
 
@@ -277,25 +243,60 @@ const fetchFlashSales = async () => {
     loading.value = true
     error.value = null
 
-    const response = await fetch(API_URL)
-    
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`)
+    // Check if API_URL is properly configured
+    if (!API_URL || API_URL.includes('undefined')) {
+      console.error('API URL configuration issue:', { API_URL, config: config.public })
+      throw new Error('API endpoint not configured. Please check environment variables.')
     }
-    
+
+    console.log('Fetching from:', API_URL)
+    const response = await fetch(API_URL)
+
+    if (!response.ok) {
+      console.error('API response error:', { status: response.status, statusText: response.statusText, url: API_URL })
+      throw new Error(`API request failed with status ${response.status}: ${response.statusText}`)
+    }
+
+    // Check if response is JSON, not HTML
+    const contentType = response.headers.get('content-type')
+    console.log('Response content-type:', contentType)
+
+    if (!contentType || !contentType.includes('application/json')) {
+      // Get response text for debugging
+      const responseText = await response.text()
+      console.error('Non-JSON response received:', responseText.substring(0, 200))
+      throw new Error('API returned non-JSON response. Server may be down or endpoint incorrect.')
+    }
+
     const result = await response.json()
-    
+    console.log('API response data:', result)
+
     if (result.data && Array.isArray(result.data)) {
+      // Check if data array is empty
+      if (result.data.length === 0) {
+        console.warn('No offers found in API response, using fallback data')
+        useFallbackData()
+        return
+      }
+
       // Filter only ADVERTISEMENT category items (IDs 8 and 10)
-      const apiData = result.data.filter((ad: AdvertisementData) => 
+      const apiData = result.data.filter((ad: AdvertisementData) =>
         ad.category === 'ADVERTISEMENT' && !ad.isDeleted
       )
-      
+
+      // If no advertisement items found, use fallback
+      if (apiData.length === 0) {
+        console.warn('No advertisement offers found, using fallback data')
+        useFallbackData()
+        return
+      }
+
       // Sort by ID to maintain order (8, 10)
       apiData.sort((a: AdvertisementData, b: AdvertisementData) => a.id - b.id)
-      
+
       flashSales.value = apiData
-      
+      console.log('Processed flash sales data:', flashSales.value)
+
       // Detect brightness for each image
       for (const ad of flashSales.value) {
         if (ad.image) {
@@ -303,7 +304,8 @@ const fetchFlashSales = async () => {
         }
       }
     } else {
-      throw new Error('Invalid API response format')
+      console.error('Invalid API response format:', result)
+      useFallbackData()
     }
   } catch (err) {
     console.error('API fetch failed:', err)
@@ -315,9 +317,9 @@ const fetchFlashSales = async () => {
 
 // Get description with fallback
 const getDescription = (advertisement: AdvertisementData): string => {
-  if (advertisement.description && 
-      advertisement.description.trim() !== '' && 
-      advertisement.description !== advertisement.title) {
+  if (advertisement.description &&
+    advertisement.description.trim() !== '' &&
+    advertisement.description !== advertisement.title) {
     return advertisement.description.replace('\r\n', ' ')
   }
   return 'Time remaining until the end of the offer.'
@@ -373,7 +375,7 @@ const startCountdowns = () => {
       clearInterval(countdown.interval)
     }
   })
-  
+
   // Start new intervals for each countdown
   countdowns.value.forEach((countdown, index) => {
     countdown.interval = setInterval(() => {
@@ -384,13 +386,39 @@ const startCountdowns = () => {
 
 // Initialize component
 const initComponent = async () => {
-  // Fetch API data
+  // Fetch API data (includes fallback logic)
   await fetchFlashSales()
-  
+
   // Start countdowns if we have data
   if (flashSales.value.length > 0) {
     startCountdowns()
   }
+}
+
+// Fallback data for when API is unavailable
+const useFallbackData = () => {
+  flashSales.value = [
+    {
+      id: 8,
+      title: "Flash Sale - Up to 50% Off",
+      description: "Limited time offer on selected items. Don't miss out on these amazing deals!",
+      image: "/images/flash-sale-1.jpg",
+      category: "ADVERTISEMENT",
+      isDeleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      id: 10,
+      title: "Weekend Special",
+      description: "Exclusive weekend deals with huge discounts on your favorite products.",
+      image: "/images/flash-sale-2.jpg",
+      category: "ADVERTISEMENT",
+      isDeleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+  ]
 }
 
 // Fetch data on component mount
@@ -464,7 +492,7 @@ onUnmounted(() => {
 .text-20 {
   font-size: 1.25rem !important;
   font-weight: 700;
-  color: #1e293b; 
+  color: #1e293b;
   line-height: 1.3;
 }
 
@@ -475,7 +503,7 @@ onUnmounted(() => {
 .text-32 {
   font-size: 2rem !important;
   font-weight: 700;
-  color: #1e293b; 
+  color: #1e293b;
   line-height: 1.2;
 }
 
@@ -492,7 +520,7 @@ onUnmounted(() => {
   }
 }
 
-/* Countdown Styles */ 
+/* Countdown Styles */
 .countdown-list {
   list-style: none;
   padding: 0;
@@ -591,7 +619,7 @@ onUnmounted(() => {
   width: 80%;
   background: #e0e0e0;
   border-radius: 4px;
-  animation: loading 1.5s infinite; 
+  animation: loading 1.5s infinite;
 }
 
 .skeleton-text {
@@ -621,6 +649,7 @@ onUnmounted(() => {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -642,12 +671,12 @@ onUnmounted(() => {
   .flash-sales-item {
     min-height: 220px;
   }
-  
+
   .countdown-list__item {
     min-width: 45px;
     padding: 8px !important;
   }
-  
+
   .btn-main,
   .bg-main-600 {
     padding: 10px 20px !important;
@@ -659,33 +688,33 @@ onUnmounted(() => {
   .flash-sales {
     padding-top: 32px !important;
   }
-  
+
   .flash-sales-item {
     min-height: 200px;
   }
-  
+
   .text-20 {
     font-size: 1.125rem !important;
     margin-bottom: 12px !important;
   }
-  
+
   .countdown-list__item {
     min-width: 40px;
     padding: 6px 8px !important;
     font-size: 0.75rem !important;
   }
-  
+
   .btn-main,
   .bg-main-600 {
     padding: 8px 16px !important;
     font-size: 0.75rem !important;
   }
-  
+
   :deep(.swiper-pagination-bullet) {
     width: 6px;
     height: 6px;
   }
-  
+
   :deep(.swiper-pagination-bullet-active) {
     width: 20px;
     background: rgb(78, 78, 78);
@@ -697,23 +726,23 @@ onUnmounted(() => {
   .flash-sales {
     padding-top: 24px !important;
   }
-  
+
   .flash-sales-item {
     min-height: 180px;
     padding: 12px !important;
   }
-  
+
   .text-20 {
     font-size: 1rem !important;
     margin-bottom: 8px !important;
   }
-  
+
   .countdown-list__item {
     min-width: 36px;
     padding: 4px 6px !important;
     font-size: 0.6875rem !important;
   }
-  
+
   .btn-main,
   .bg-main-600 {
     padding: 6px 12px !important;
@@ -726,11 +755,11 @@ onUnmounted(() => {
   .flash-sales {
     padding-top: 40px !important;
   }
-  
+
   .flash-sales-item {
     min-height: 240px;
   }
-  
+
   .text-md-24 {
     font-size: 1.5rem !important;
   }

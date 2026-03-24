@@ -266,7 +266,7 @@ useHead({ title: "Home" })
     <LazySection :component="HomePromotion" class="home-promotion-section" root-margin="50px" />
     <LazySection :component="HomeFlash" class="home-flash-section" root-margin="50px" />
     <LazySection :component="HomeBrand" class="home-brand-section" root-margin="50px" />
-    <LazySection :component="HomeFlashm" class="home-flashm-section" root-margin="50px" /> 
+    <!-- <LazySection :component="HomeFlashm" class="home-flashm-section" root-margin="50px" />  -->
     <LazySection :component="HomeOffersGrid" class="home-offers-grid-section" root-margin="50px" />
     <LazySection :component="HomeCategory" class="home-category-section" root-margin="50px" /> 
     <LazySection :component="HomeRecomend" class="home-recomend-section" root-margin="50px" /> 

@@ -2,75 +2,45 @@
   <section class="newsletter-new">
     <div class="container container-lg">
       <div
-        class="py-20 px-80-px bg-neutral-100 rounded-12 d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap gap-32"
-      >
+        class="py-20 px-80-px bg-neutral-100 rounded-12 d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap gap-32">
         <!-- LEFT SIDE -->
-        <div
-          class="max-w-700 position-relative w-100 text-center text-sm-start"
-          ref="dropdownRef"
-        >
+        <div class="max-w-700 position-relative w-100 text-center text-sm-start" ref="dropdownRef">
           <h3 class="mb-30">
             Stay home & get your daily needs from our shop
           </h3>
 
           <!-- FORM -->
-          <form
-            class="d-flex gap-8 flex-wrap flex-sm-nowrap position-relative"
-            @submit.prevent="subscribeNewsletter"
-          >
-            <input
-              v-model="email"
-              type="email"
+          <form class="d-flex gap-8 flex-wrap flex-sm-nowrap position-relative" @submit.prevent="subscribeNewsletter">
+            <input v-model="email" type="email"
               class="form-control bg-white px-20 shadow-none py-16 rounded placeholder-text-14 flex-grow-1"
-              placeholder="Enter your mail"
-              @input="handleInput"
-              @keydown="handleKeydown"
-              ref="emailInputRef"
-              required
-            />
+              placeholder="Enter your mail" @input="handleInput" @keydown="handleKeydown" ref="emailInputRef"
+              required />
 
-            <button
-              type="submit"
-              class="btn py-20 px-32 bg-main-600 flex-shrink-0 hover-bg-main-700 flex-grow-1"
-              :disabled="loading"
-            >
+            <button type="submit" class="btn py-20 px-32 bg-main-600 flex-shrink-0 hover-bg-main-700 flex-grow-1"
+              :disabled="loading">
               {{ loading ? "Subscribing..." : "Subscribe now" }}
             </button>
 
             <!-- SUGGESTIONS -->
-            <ul
-              v-if="showSuggestions && suggestions.length"
-              class="list-group position-absolute w-100 mt-60 z-3 shadow"
-              ref="suggestionsListRef"
-            >
-              <li
-                v-for="(item, index) in suggestions"
-                :key="item"
+            <ul v-if="showSuggestions && suggestions.length" class="list-group position-absolute w-100 mt-60 z-3 shadow"
+              ref="suggestionsListRef">
+              <li v-for="(item, index) in suggestions" :key="item"
                 class="list-group-item list-group-item-action cursor-pointer"
-                :class="{ active: activeSuggestionIndex === index }"
-                @click="selectSuggestion(item)"
-                @mouseenter="activeSuggestionIndex = index"
-              >
+                :class="{ active: activeSuggestionIndex === index }" @click="selectSuggestion(item)"
+                @mouseenter="activeSuggestionIndex = index">
                 {{ item }}
               </li>
             </ul>
           </form>
 
           <!-- TYPO CORRECTION -->
-          <p
-            v-if="correctionSuggestion"
-            class="text-warning text-sm mt-8 cursor-pointer"
-            @click="selectSuggestion(correctionSuggestion)"
-          >
+          <p v-if="correctionSuggestion" class="text-warning text-sm mt-8 cursor-pointer"
+            @click="selectSuggestion(correctionSuggestion)">
             Did you mean <strong>{{ correctionSuggestion }}</strong> ?
           </p>
 
           <!-- SUCCESS / ERROR MESSAGE -->
-          <p
-            v-if="message"
-            class="text-sm mt-12 fw-medium"
-            :class="success ? 'text-success' : 'text-danger'"
-          >
+          <p v-if="message" class="text-sm mt-12 fw-medium" :class="success ? 'text-success' : 'text-danger'">
             {{ message }}
           </p>
 
@@ -81,7 +51,7 @@
 
         <!-- RIGHT SIDE IMAGE -->
         <div class="d-lg-block d-none">
-          
+
           <!-- LOADING -->
           <div v-if="mediaLoading" class="text-center">
             <div class="spinner-border text-main-600" role="status">
@@ -91,21 +61,12 @@
 
           <!-- IMAGE FROM BACKEND -->
           <div v-else-if="subscribeMedia.length">
-            <img
-              :src="subscribeMedia[0].image"
-              :alt="subscribeMedia[0].title || 'Subscribe image'"
-              class="img-fluid rounded-12"
-              @error="handleMediaError"
-            />
+            <img :src="subscribeMedia[0].image" :alt="subscribeMedia[0].title || 'Subscribe image'"
+              class="img-fluid rounded-12" @error="handleMediaError" />
           </div>
 
           <!-- FALLBACK IMAGE -->
-          <img
-            v-else
-            src="/assets/images/thumbs/newsletter-img.png"
-            alt="Newsletter"
-            class="img-fluid rounded-12"
-          />
+          <img v-else src="/assets/images/thumbs/newsletter-img.png" alt="Newsletter" class="img-fluid rounded-12" />
         </div>
       </div>
     </div>
@@ -374,16 +335,11 @@ const fetchSubscribeMedia = async () => {
 
   mediaLoading.value = true
 
-  console.log('🔍 [ProductNews] Starting media fetch...')
-  console.log('📡 [ProductNews] Using useMediaApi composable')
 
   try {
 
     const response = await fetchMedia()
 
-    console.log('✅ [ProductNews] Media API response:', response)
-    console.log('🔗 [ProductNews] API endpoint used: /common/media/read')
-    console.log('📊 [ProductNews] Response data:', response?.data)
 
     if (response?.data) {
 
@@ -392,19 +348,13 @@ const fetchSubscribeMedia = async () => {
           item => item.category === 'SUBSCRIBE'
         )
 
-      console.log('🎯 [ProductNews] Filtered SUBSCRIBE media:', subscribeMedia.value)
-
     }
+
+    mediaLoading.value = false
 
   } catch (error) {
 
-    console.error('❌ [ProductNews] Media fetch failed:', error)
-    console.error('🔗 [ProductNews] Failed API endpoint: /common/media/read')
-
-  } finally {
-
     mediaLoading.value = false
-    console.log('🏁 [ProductNews] Media fetch completed')
   }
 }
 
@@ -454,34 +404,35 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
   .newsletter-new .py-20.px-80-px {
     padding: 20px !important;
   }
-  
+
   .max-w-700 {
     text-align: center !important;
     max-width: 100% !important;
   }
-  
+
   .d-flex.align-items-center.justify-content-between {
     justify-content: center !important;
   }
-  
+
   h3.mb-30 {
     text-align: center !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }
-  
+
   form.d-flex.gap-8 {
     justify-content: center !important;
   }
-  
+
   .text-heading.text-sm.mt-20.fw-medium {
     text-align: center !important;
   }
 }
+
 .list-group-item {
   cursor: pointer;
   transition: background-color 0.2s ease;

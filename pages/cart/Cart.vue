@@ -1,11 +1,11 @@
-<template  >
+<template>
   <div class="pt-20 up">
-     <CartBreakcrumb/>
+    <CartBreakcrumb />
   </div>
-  
+
   <section class="cart py-80">
     <div class="container container-lg">
-      <!-- Empty Cart State -->  
+      <!-- Empty Cart State -->
       <div v-if="cartItems.length === 0" class="text-center py-80">
         <div class="mb-32">
           <i class="ph ph-shopping-cart text-6xl text-gray-300"></i>
@@ -17,7 +17,7 @@
         </NuxtLink>
       </div>
 
-      <!-- Cart Content -->    
+      <!-- Cart Content -->
       <div v-else class="row gy-4">
         <!-- Cart Items Table -->
         <div class="col-xl-9 col-lg-8">
@@ -28,7 +28,7 @@
                 <span class="fw-semibold">{{ cartItemCount }}</span> items in cart
               </div>
             </div>
-            
+
             <div class="overflow-x-auto scroll-sm scroll-sm-horizontal scrollbar-hide">
               <table class="table style-three">
                 <thead>
@@ -44,49 +44,37 @@
                   <!-- Cart Items from localStorage -->
                   <tr v-for="(item, index) in cartItems" :key="item.id">
                     <td>
-                      <button 
-                        type="button" 
-                        class="remove-tr-btn flex-align gap-12 hover-text-danger-600"
-                        @click="removeItem(item.id)"
-                      >
+                      <button type="button" class="remove-tr-btn flex-align gap-12 hover-text-danger-600"
+                        @click="removeItem(item.id)">
                         <i class="ph ph-x-circle text-2xl d-flex"></i>
                         Remove
                       </button>
                     </td>
                     <td>
                       <div class="table-product d-flex align-items-center gap-24">
-                        <NuxtLink 
-                          :to="getProductLink(item)" 
+                        <NuxtLink :to="getProductLink(item)"
                           class="table-product__thumb border border-gray-100 rounded-8 flex-center"
-                          style="width: 100px; height: 100px;"
-                        >
-                          <img 
-                            :src="item.image || '/assets/images/thumbs/default-product.png'" 
-                            :alt="item.name" 
-                            class="w-100 h-100 object-cover rounded-8"
-
-                          />
+                          style="width: 100px; height: 100px;">
+                          <img :src="item.image || '/assets/images/thumbs/default-product.png'" :alt="item.name"
+                            class="w-100 h-100 object-cover rounded-8" />
                         </NuxtLink>
                         <div class="table-product__content text-start">
                           <h6 class="title text-lg fw-semibold mb-8">
-                            <NuxtLink 
-                              :to="getProductLink(item)" 
-                              class="link text-line-2"
-                            > 
+                            <NuxtLink :to="getProductLink(item)" class="link text-line-2">
                               {{ item.name }}
                             </NuxtLink>
                           </h6>
 
                           <!-- Variant Info -->
-                         <div v-if="item.color || item.size" class="variant-info flex-align gap-10 mb-10">
-  <span v-if="item.color" class="variant-chip">
-    Color: {{ item.color }}
-  </span>
+                          <div v-if="item.color || item.size" class="variant-info flex-align gap-10 mb-10">
+                            <span v-if="item.color" class="variant-chip">
+                              Color: {{ item.color }}
+                            </span>
 
-  <span v-if="item.size" class="variant-chip">
-    Size: {{ Array.isArray(item.size) ? item.size.join(', ') : item.size }}
-  </span>
-</div>
+                            <span v-if="item.size" class="variant-chip">
+                              Size: {{ Array.isArray(item.size) ? item.size.join(', ') : item.size }}
+                            </span>
+                          </div>
 
 
                           <div v-if="item.rating || item.reviewCount" class="flex-align gap-16 mb-16">
@@ -97,15 +85,13 @@
                               <span class="text-md fw-semibold text-gray-900">{{ item.rating }}</span>
                             </div>
                             <span v-if="item.reviewCount" class="text-sm fw-medium text-gray-200">|</span>
-                            <span v-if="item.reviewCount" class="text-neutral-600 text-sm">{{ item.reviewCount }} Reviews</span>
+                            <span v-if="item.reviewCount" class="text-neutral-600 text-sm">{{ item.reviewCount }}
+                              Reviews</span>
                           </div>
 
                           <div v-if="Array.isArray(item.tags) && item.tags.length" class="flex-align gap-16">
-                            <span 
-                              v-for="tag in item.tags" 
-                              :key="tag"
-                              class="product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium"
-                            >
+                            <span v-for="tag in item.tags" :key="tag"
+                              class="product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium">
                               {{ tag }}
                             </span>
                           </div>
@@ -122,30 +108,21 @@
                     </td>
                     <td>
                       <div class="d-flex rounded-4 overflow-hidden">
-                        <button 
-                          type="button" 
+                        <button type="button"
                           class="quantity__minus border border-end border-gray-100 flex-shrink-0 h-48 w-48 text-neutral-600 flex-center hover-bg-main-600 hover-text-white transition-colors"
-                          @click="decreaseQuantity(item.id)"
-                          :disabled="item.quantity <= 1"
-                          :class="item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : ''"
-                        >
+                          @click="decreaseQuantity(item.id)" :disabled="item.quantity <= 1"
+                          :class="item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : ''">
                           <i class="ph ph-minus"></i>
                         </button>
-                        <input 
-                          type="number" 
-                          class="quantity__input flex-grow-1 border border-gray-100 border-start-0 border-end-0 text-center w-32 px-4 bg-white" 
-                          v-model.number="item.quantity"
-                          @change="updateQuantity(item.id, $event)"
-                          :min="1"
-                          :max="getMaxQuantity(item) || undefined"
-                        />
-                        <button 
-                          type="button" 
+                        <input type="number"
+                          class="quantity__input flex-grow-1 border border-gray-100 border-start-0 border-end-0 text-center w-32 px-4 bg-white"
+                          v-model.number="item.quantity" @change="updateQuantity(item.id, $event)" :min="1"
+                          :max="getMaxQuantity(item) || undefined" />
+                        <button type="button"
                           class="quantity__plus border border-end border-gray-100 flex-shrink-0 h-48 w-48 text-neutral-600 flex-center hover-bg-main-600 hover-text-white transition-colors"
                           @click="increaseQuantity(item.id)"
                           :disabled="getMaxQuantity(item) ? item.quantity >= getMaxQuantity(item) : false"
-                          :class="getMaxQuantity(item) && item.quantity >= getMaxQuantity(item) ? 'opacity-50 cursor-not-allowed' : ''"
-                        >
+                          :class="getMaxQuantity(item) && item.quantity >= getMaxQuantity(item) ? 'opacity-50 cursor-not-allowed' : ''">
                           <i class="ph ph-plus"></i>
                         </button>
                       </div>
@@ -166,34 +143,20 @@
             <!-- Coupon and Update Cart -->
             <div class="flex-between flex-wrap gap-16 mt-32 pt-32 border-t border-gray-100">
               <div class="flex-align gap-16">
-                <input 
-                  type="text" 
-                  v-model="couponCode"
-                  class="common-input py-12 px-16" 
-                  placeholder="Coupon Code"
-                  @keyup.enter="applyCoupon"
-                />
-                <button 
-                  type="button" 
-                  class="btn btn-main py-12 px-24 rounded-8"
-                  @click="applyCoupon"
-                >
+                <input type="text" v-model="couponCode" class="common-input py-12 px-16" placeholder="Coupon Code"
+                  @keyup.enter="applyCoupon" />
+                <button type="button" class="btn btn-main py-12 px-24 rounded-8" @click="applyCoupon">
                   Apply Coupon
                 </button>
               </div>
               <div class="flex-align gap-16">
-                <NuxtLink 
-                  to="/shop-all" 
-                  class="text-lg text-gray-500 hover-text-main-600 transition-colors"
-                >
+                <NuxtLink to="/shop-all" class="text-lg text-gray-500 hover-text-main-600 transition-colors">
                   <i class="ph ph-arrow-left me-2"></i> Continue Shopping
                 </NuxtLink>
-                <button 
-                  type="button" 
+                <button type="button"
                   class="clear-cart-btn text-lg hover-text-danger-600 transition-all duration-300 transform hover:scale-105"
-                  @click="clearCart"
-                >
-                  <i class="ph ph-trash me-2"></i> 
+                  @click="clearCart">
+                  <i class="ph ph-trash me-2"></i>
                   <span>Clear Cart</span>
                   <div class="clear-cart-underline"></div>
                 </button>
@@ -210,10 +173,7 @@
                   </span>
                   <span class="text-green-600">-₹{{ couponDiscount.toFixed(2) }}</span>
                 </div>
-                <button 
-                  @click="removeCoupon"
-                  class="text-sm text-red-600 hover-text-red-800"
-                >
+                <button @click="removeCoupon" class="text-sm text-red-600 hover-text-red-800">
                   Remove
                 </button>
               </div>
@@ -225,7 +185,7 @@
         <div class="col-xl-3 col-lg-4">
           <div class="cart-sidebar border border-gray-100 rounded-8 px-24 py-40">
             <h6 class="text-xl mb-32 fw-bold text-gray-800">Cart Totals</h6>
-            
+
             <div class="bg-color-three rounded-8 p-24">
               <div class="mb-24 flex-between gap-8">
                 <span class="text-gray-900 font-heading-two">Items</span>
@@ -237,7 +197,8 @@
               </div>
               <div class="mb-24 flex-between gap-8">
                 <span class="text-gray-900 font-heading-two">Estimated Delivery</span>
-                <span class="text-gray-900 fw-semibold">{{ deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge.toFixed(2)}` }}</span>
+                <span class="text-gray-900 fw-semibold">{{ deliveryCharge === 0 ? 'FREE' :
+                  `₹${deliveryCharge.toFixed(2)}` }}</span>
               </div>
               <div class="mb-24 flex-between gap-8">
                 <span class="text-gray-900 font-heading-two">Estimated Tax</span>
@@ -248,32 +209,26 @@
                 <span class="text-green-600 fw-semibold">-₹{{ couponDiscount.toFixed(2) }}</span>
               </div>
             </div>
-            
+
             <div class="bg-color-three rounded-8 p-24 mt-24">
               <div class="flex-between gap-8">
                 <span class="text-gray-900 text-xl fw-semibold">Total</span>
                 <span class="text-gray-900 text-xl fw-semibold">₹{{ total.toFixed(0) }}</span>
               </div>
             </div>
-            
+
             <div class="mt-32 space-y-16">
-              <NuxtLink 
-                to="/cart/checkout" 
-                class="btn btn-main py-18 w-100 rounded-8 fw-semibold flex-center gap-12"
-                :class="{ 'disabled': cartItems.length === 0 }"
-                :disabled="cartItems.length === 0"
-              >
+              <NuxtLink to="/cart/checkout" class="btn btn-main py-18 w-100 rounded-8 fw-semibold flex-center gap-12"
+                :class="{ 'disabled': cartItems.length === 0 }" :disabled="cartItems.length === 0">
                 <i class="ph ph-credit-card"></i>
                 Proceed to Checkout
               </NuxtLink>
-              
-              <NuxtLink 
-                to="/shop-all" 
-                class="btn btn-outline-main py-18 w-100 rounded-8 fw-semibold flex-center gap-12"
-              >
+
+              <NuxtLink to="/shop-all"
+                class="btn btn-outline-main py-18 w-100 rounded-8 fw-semibold flex-center gap-12">
                 <i class="ph ph-shopping-bag"></i>
                 Continue Shopping
-              </NuxtLink>  
+              </NuxtLink>
             </div>
 
             <!-- Secure Checkout Info -->
@@ -296,11 +251,15 @@
       </div>
     </div>
   </section>
-  
-  <CartShop/>
+
+  <CartShop />
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'cart'
+})
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from '#app'
 import CartBreakcrumb from '~/components/cart/CartBreakcrumb.vue'
@@ -308,12 +267,10 @@ import CartShop from '~/components/cart/CartShop.vue'
 import Swal from 'sweetalert2'
 
 useHead({
-  title: "Cart"  
+  title: "Cart"
 })
+
 const route = useRoute()
-definePageMeta({
-  middleware: 'cart'
-})
 
 // State
 const cartItems = ref([])
@@ -488,11 +445,11 @@ const decreaseQuantity = (itemId) => {
 const updateQuantity = (itemId, event) => {
   const value = parseInt(event.target.value)
   const itemIndex = cartItems.value.findIndex(item => item.id === itemId)
-  
+
   if (itemIndex > -1 && Number.isFinite(value) && value >= 1) {
     const item = cartItems.value[itemIndex]
     const maxStock = getMaxQuantity(item)
-    
+
     if (!maxStock || value <= maxStock) {
       item.quantity = value
       saveCartToStorage()
@@ -522,15 +479,14 @@ const clearCart = () => {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('cart-updated'))
       }
-      
+
       // Show success message
       Swal.fire({
         title: 'Cart Cleared!',
         text: 'All items have been removed from your cart.',
         icon: 'success',
         timer: 2000,
-        showConfirmButton: false,
-        position: 'top-center'
+        showConfirmButton: false
       })
     }
   })
@@ -551,21 +507,21 @@ const applyCoupon = () => {
   }
 
   const coupon = couponCode.value.toUpperCase()
-  
+
   if (validCoupons[coupon]) {
     appliedCoupon.value = coupon
-    
+
     if (coupon === 'FREE50') {
       couponDiscount.value = 50 // Fixed ₹50 discount
     } else {
       couponDiscount.value = subtotal.value * validCoupons[coupon] // Percentage discount
     }
-    
+
     // Ensure discount doesn't exceed total
     if (couponDiscount.value > subtotal.value) {
       couponDiscount.value = subtotal.value
     }
-    
+
     alert(`Coupon "${coupon}" applied successfully!`)
     couponCode.value = ''
   } else {
@@ -589,11 +545,11 @@ onMounted(() => {
   if (encodedId) {
     const productId = decodeId(encodedId)
     //console.log("Product ID from URL:", productId)
-    
+
     // You could automatically add this product to cart here
     // or redirect to product page
   }
-  
+
   // Listen for storage changes (for cross-tab updates)
   if (typeof window !== 'undefined') {
     window.addEventListener('storage', handleStorageUpdate)
@@ -619,47 +575,48 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-  .up{
-    margin-top: 50px;
-  }
+.up {
+  margin-top: 50px;
+}
 
-  /* Hide scrollbar while keeping scrollability */
-  .scrollbar-hide {
-    /* Firefox */
-    scrollbar-width: none;
-    -moz-scrollbar-width: none;
-    
-    /* Internet Explorer 10+ */
-    -ms-overflow-style: none;
-    -ms-scrollbar-width: none;
-    
-    /* Chrome, Safari, Opera */
-    scrollbar-color: transparent transparent;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-    background: transparent;
-    display: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar-thumb {
-    background: transparent;
-    display: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar-corner {
-    background: transparent;
-  }
+/* Hide scrollbar while keeping scrollability */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  -moz-scrollbar-width: none;
 
-  .variant-info {
+  /* Internet Explorer 10+ */
+  -ms-overflow-style: none;
+  -ms-scrollbar-width: none;
+
+  /* Chrome, Safari, Opera */
+  scrollbar-color: transparent transparent;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+  display: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-hide::-webkit-scrollbar-thumb {
+  background: transparent;
+  display: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.variant-info {
   font-size: 13px;
 }
+
 .swal-center-popup {
   border-radius: 14px;
 }
@@ -669,7 +626,8 @@ onUnmounted(() => {
   padding: 4px 10px;
   border-radius: 20px;
   background: #f7f7f7;
-  color: #111;                 /* BLACK TEXT  */
+  color: #111;
+  /* BLACK TEXT  */
   font-weight: 500;
   border: 1px solid #e5e5e5;
   letter-spacing: 0.2px;
@@ -873,7 +831,7 @@ onUnmounted(() => {
 }
 
 /* Spacing Utilities */
-.space-y-16 > * + * {
+.space-y-16>*+* {
   margin-top: 16px;
 }
 
@@ -882,32 +840,32 @@ onUnmounted(() => {
   .cart-table {
     padding: 20px;
   }
-  
+
   .table.style-three th,
   .table.style-three td {
     padding: 12px 8px;
   }
-  
+
   .flex-between {
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .flex-align {
     flex-direction: column;
     align-items: flex-start !important;
   }
-  
+
   .common-input {
     width: 100%;
   }
-  
+
   .table-product {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .table-product__thumb {
     width: 80px;
     height: 80px;
