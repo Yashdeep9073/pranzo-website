@@ -1,75 +1,42 @@
-# Nuxt Minimal Starter
+# 🛒 E-Commerce Website
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern, scalable eCommerce web application built with best practices for performance, security, and user experience.
 
-## Setup
+## 🚀 Live Demo
+👉 [View Website](https://pranzo.in)
 
-Make sure to install dependencies:
+---
 
-```bash
-# npm
-npm install
+## 📌 Features
 
-# pnpm
-pnpm install
+- 🛍️ Product listing & categories
+- 🔍 Search and filtering
+- 🛒 Add to cart & checkout
+- 🔐 User authentication (Login/Register)
+- 💳 Payment integration
+- 📦 Order management
+- 📱 Fully responsive design
 
-# yarn
-yarn install
+---
 
-# bun
-bun install
-```
+## 🏗️ Tech Stack
 
-## Development Server
+**Frontend:**
+- React.js / Next.js
+- Tailwind CSS / Bootstrap
 
-Start the development server on `http://localhost:3000`:
+**Backend:**
+- Node.js
+- Express.js
 
-```bash
-# npm
-npm run dev
+**Database:**
+-  MySQL
 
-# pnpm
-pnpm dev
+**Other Tools:**
+- JWT Authentication
+- REST API
+- Stripe / Razorpay (Payments)
 
-# yarn
-yarn dev
+---
 
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 📂 Project Structure
