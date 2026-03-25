@@ -8,7 +8,7 @@ export const useOffersStore = defineStore('offers', () => {
   const error = ref<string | null>(null)
   const loaded = ref(false) // 👈 prevents refetch
 
-  const { offers: apiOffers, loading: apiLoading, error: apiError, refresh: fetchOffers } = useOffersApi()
+  const { offers: apiOffers, loading: apiLoading, error: apiError, fetchOffers } = useOffersApi()
 
   const loadOffers = async () => {
     if (loaded.value) return // 🛑 singleton behavior
